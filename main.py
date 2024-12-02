@@ -17,9 +17,11 @@ bot = commands.Bot(command_prefix='$', intents=intents)
 keep_alive()
 
 def get_meme():
-    response = requests.get('https://meme-api.com/gimme')
-    json_data = json.loads(response.text)
-    return json_data['url']
+    while True:
+        response = requests.get('https://meme-api.com/gimme')
+        json_data = json.loads(response.text)
+        if not json_data.get('nsfw', False):
+            return json_data['url']
 
 oplus_date = '2023-09-22'
 today = datetime.date.today()

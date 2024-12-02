@@ -2,8 +2,8 @@ import discord
 import requests
 import json
 import datetime
-from discord.ext import commands
 import os
+from discord.ext import commands
 from keep_alive import keep_alive
 
 intents = discord.Intents.default()
@@ -14,9 +14,9 @@ bot = commands.Bot(command_prefix='$', intents=intents)
 keep_alive()
 
 def get_meme():
-  response = requests.get('https://meme-api.com/gimme')
-  json_data = json.loads(response.text)
-  return json_data['url']
+    response = requests.get('https://meme-api.com/gimme')
+    json_data = json.loads(response.text)
+    return json_data['url']
 
 oplus_date = '2023-09-22'
 today = datetime.date.today()
@@ -26,17 +26,22 @@ if oplus < today:
 
 days_until_oplus = (oplus - today).days
 
+@bot.event
+async def on_ready():
+    await bot.tree.sync()
+    print(f'Logged in as {bot.user}!')
 
-@bot.command()
-async def hi(ctx):
-    await ctx.send('Hi. I am the official Ocean+ discord bot!')
+@bot.tree.command(name="hi")
+async def hi(interaction: discord.Interaction):
+    await interaction.response.send_message('Hi. I am the official Ocean+ discord bot!')
 
-@bot.command()
-async def date(ctx):
-    await ctx.send(f'Today is {today}!\nThere are {days_until_oplus} days until the next Ocean+ anniversary!')
-@bot.command()
-async def meme(ctx):
+@bot.tree.command(name="meme")
+async def meme(interaction: discord.Interaction):
     meme_url = get_meme()
-    await ctx.send(meme_url)
+    await interaction.response.send_message(meme_url)
+
+@bot.tree.command(name="date")
+async def date(interaction: discord.Interaction):
+    await interaction.response.send_message(f'Today is {today}!\nThere are {days_until_oplus} days until the next Ocean+ anniversary!')
 
 bot.run(os.environ.get('TOKEN'))

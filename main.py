@@ -2,8 +2,14 @@ import discord
 import requests
 import json
 import datetime
+from discord.ext import commands
 import os
 from keep_alive import keep_alive
+
+intents = discord.Intents.default()
+intents.message_content = True
+
+bot = commands.Bot(command_prefix='$', intents=intents)
 
 keep_alive()
 
@@ -20,26 +26,20 @@ if oplus < today:
 
 days_until_oplus = (oplus - today).days
 
-class MyClient(discord.Client):
-  async def on_ready(self):
-    print('Logged on as {0}!'.format(self.user))
 
-  async def on_message(self, message):
-    if message.author == self.user:
-      return
-    if message.content.startswith('$meme'):
-      await message.channel.send(get_meme())
-    if message.content.startswith('$hi') or message.content.startswith('$hello')\
-            or message.content.startswith('$hey') or message.content.startswith('$yo')\
-            or message.content.startswith('$sup') or message.content.startswith('$hi!'):
-        await message.channel.send('Hi. I am the official Ocean+ discord bot!')
-    if message.content.startswith('$date'):
-        await message.channel.send(f'Today is {today}!\n'
-                                   f'There are {days_until_oplus} days until the next Ocean+ anniversary!')
+@bot.command()
+async def hi(ctx):
+    await ctx.send('Hi. I am the official Ocean+ discord bot!')
+
+@bot.command()
+async def date(ctx):
+    await ctx.send(f'Today is {today}!\nThere are {days_until_oplus} days until the next Ocean+ anniversary!')
+@bot.command()
+async def meme(ctx):
+    meme_url = get_meme()
+    await ctx.send(meme_url)
 
 
-intents = discord.Intents.default()
-intents.message_content = True
 
-client = MyClient(intents=intents)
-client.run(os.environ.get('TOKEN'))
+bot.run('MTMwNTUxNzc0MDc2MDUwMjMwMg.Gk4luF.wNjChQrzEoozAQ-cZjx8nE8lEYwfeqFKb9YCOw')
+# bot.run(os.environ.get('TOKEN'))

@@ -39,7 +39,4 @@ async def meme(ctx):
     meme_url = get_meme()
     await ctx.send(meme_url)
 
-
-
-bot.run('MTMwNTUxNzc0MDc2MDUwMjMwMg.Gk4luF.wNjChQrzEoozAQ-cZjx8nE8lEYwfeqFKb9YCOw')
-# bot.run(os.environ.get('TOKEN'))
+bot.run(os.environ.get('TOKEN'))

@@ -66,7 +66,11 @@ def get_quote():
 @bot.tree.command(name="quote", description="Send a random quote!")
 async def quote(interaction: discord.Interaction):
     quote_text = get_quote()
-    await interaction.response.send_message(quote_text)
+    hmm = random.randint(1, 14)
+    if hmm == 7:
+        await interaction.response.send_message("BRR SKIBIDI DOB DOB DOB OH YES YES YES")
+    else:
+        await interaction.response.send_message(quote_text)
 
 
 

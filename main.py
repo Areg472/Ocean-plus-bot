@@ -20,7 +20,7 @@ def get_meme():
     while True:
         response = requests.get('https://meme-api.com/gimme')
         json_data = json.loads(response.text)
-        if not json_data.get('nsfw', False):
+        if not json_data.get('nsfw', True):
             return json_data['url']
 
 oplus_date = '2023-09-22'

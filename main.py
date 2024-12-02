@@ -4,8 +4,6 @@ import json
 import datetime
 import os
 import random
-
-from discord.app_commands import describe
 from discord.ext import commands
 from keep_alive import keep_alive
 
@@ -54,6 +52,22 @@ async def got_a_life(interaction: discord.Interaction):
     life_check = random.choices([0, 1], weights=[75, 25], k=1)[0]
     message = "You have a life!" if life_check == 1 else "You don't have a life!"
     await interaction.response.send_message(message)
+
+def get_quote():
+    try:
+        response = requests.get('http://api.quotable.io/random')
+        response.raise_for_status()
+        json_data = response.json()
+        return f'"{json_data["content"]}" - {json_data["author"]}'
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching quote: {e}")
+        return "Could not fetch a quote at this time."
+
+@bot.tree.command(name="quote", description="Send a random quote!")
+async def quote(interaction: discord.Interaction):
+    quote_text = get_quote()
+    await interaction.response.send_message(quote_text)
+
 
 
 bot.run(os.environ.get('TOKEN'))

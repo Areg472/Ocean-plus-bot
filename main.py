@@ -1,3 +1,4 @@
+import io
 import discord
 import requests
 import json
@@ -108,7 +109,7 @@ async def duck(interaction: discord.Interaction):
 def get_wanted_image(avatar_url):
     response = requests.get(f'https://api.popcat.xyz/wanted?image={avatar_url}')
     if response.status_code == 200:
-        return response.url
+        return response.content
     else:
         return None
 
@@ -117,9 +118,9 @@ def get_wanted_image(avatar_url):
 @bot.tree.command(name="wanted", description="Create a wanted image with the mentioned user.")
 async def wanted(interaction: discord.Interaction, member: discord.Member):
     avatar_url = member.avatar.url
-    wanted_image_url = get_wanted_image(avatar_url)
-    if wanted_image_url:
-        await interaction.response.send_message(wanted_image_url)
+    wanted_image = get_wanted_image(avatar_url)
+    if wanted_image:
+        await interaction.response.send_message(file=discord.File(io.BytesIO(wanted_image), 'wanted.png'))
     else:
         await interaction.response.send_message("Could not create a wanted image at this time.")
 

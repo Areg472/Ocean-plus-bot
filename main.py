@@ -110,6 +110,34 @@ async def duck(interaction: discord.Interaction):
     else:
         await interaction.response.send_message(json_data['url'])
 
+
+async def get_gemini_response(question: str) -> Optional[str]:
+    try:
+        response = model.generate_content(question)
+        return response.text
+    except Exception as e:
+        print(f"Error getting Gemini response: {e}")
+        return None
+
+
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="question", description="Ask me anything, powered by Gemini")
+async def question(interaction: discord.Interaction, query: str):
+    await interaction.response.defer()
+
+    answer = await get_gemini_response(query)
+    if answer:
+        if len(answer) > 2000:
+            chunks = [answer[i:i + 1900] for i in range(0, len(answer), 1900)]
+            for chunk in chunks:
+                await interaction.followup.send(chunk)
+        else:
+            await interaction.followup.send(answer)
+    else:
+        await interaction.followup.send("Sorry, I couldn't generate a response at this time.")
+
+
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="dad_joke", description="Generates a random dad joke!")
@@ -128,30 +156,5 @@ async def dad_joke(interaction: discord.Interaction):
 async def help(interaction: discord.Interaction):
     embed_help = discord.Embed(title="Ocean+ Help", url="https://oceanbluestream.com/", description="This is all you need for help with the commands!", colour=discord.Colour.dark_blue()).add_field(name="/quote", value="Get a random quote", inline=False).add_field(name="/meme", value="Get a random meme", inline=False).add_field(name="/date", value="Get the current date and days until the next Ocean+ anniversary", inline=False).add_field(name="/got_a_life", value="Check if you have a life or not", inline=False).add_field(name="/duck", value="Get an UwU duck picture", inline=False).add_field(name="/dad_joke", value="Generates a random dad joke", inline=False).add_field(name="/question", value="Ask questions to Gemini!", inline=False)
     await interaction.response.send_message(embed=embed_help)
-
-async def get_gemini_response(question: str) -> Optional[str]:
-    try:
-        response = model.generate_content(question)
-        return response.text
-    except Exception as e:
-        print(f"Error getting Gemini response: {e}")
-        return None
-
-@app_commands.allowed_installs(guilds=True, users=True)
-@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@bot.tree.command(name="question", description="Ask me anything, powered by Gemini")
-async def question(interaction: discord.Interaction, query: str):
-    await interaction.response.defer()
-    
-    answer = await get_gemini_response(query)
-    if answer:
-        if len(answer) > 2000:
-            chunks = [answer[i:i+1900] for i in range(0, len(answer), 1900)]
-            for chunk in chunks:
-                await interaction.followup.send(chunk)
-        else:
-            await interaction.followup.send(answer)
-    else:
-        await interaction.followup.send("Sorry, I couldn't generate a response at this time.")
 
 bot.run(os.environ.get('TOKEN'))

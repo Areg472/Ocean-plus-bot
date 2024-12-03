@@ -96,7 +96,8 @@ async def duck(interaction: discord.Interaction):
     hmmmmmm = random.randint(1, 20)
     if hmmmmmm == 1:
         await interaction.response.send_message("<:duck:1313390002805411872>")
-    await interaction.response.send_message(json_data['url'])
+    else:
+        await interaction.response.send_message(json_data['url'])
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

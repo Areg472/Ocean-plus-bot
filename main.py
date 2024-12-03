@@ -7,7 +7,6 @@ import random
 
 from discord import app_commands
 from discord.ext import commands
-from numpy.ma.mrecords import addfield
 
 from keep_alive import keep_alive
 
@@ -91,7 +90,7 @@ async def quote(interaction: discord.Interaction):
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="help", description="Help you out")
-async def oplus_help(interaction: discord.Interaction):
+async def help(interaction: discord.Interaction):
     embed_help = discord.Embed(title="Ocean+ Help", url="https://oceanbluestream.com/", description="This is all you need for help with the commands!").add_field(name="/quote", value="Get a random quote", inline=False).add_field(name="/meme", value="Get a random meme", inline=False).add_field(name="/date", value="Get the current date and days until the next Ocean+ anniversary", inline=False).add_field(name="/got_a_life", value="Check if you have a life or not", inline=False)
     await interaction.response.send_message(embed=embed_help)
 

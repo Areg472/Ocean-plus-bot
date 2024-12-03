@@ -93,6 +93,7 @@ async def quote(interaction: discord.Interaction):
 @bot.tree.command(name="help", description="Help you out")
 async def help(interaction: discord.Interaction):
     embed_help = discord.Embed(title="Ocean+ Help", url="https://oceanbluestream.com/", description="This is all you need for help with the commands!").add_field(name="/quote", value="Get a random quote", inline=False).add_field(name="/meme", value="Get a random meme", inline=False).add_field(name="/date", value="Get the current date and days until the next Ocean+ anniversary", inline=False).add_field(name="/got_a_life", value="Check if you have a life or not", inline=False)
+    await interaction.response.send_message(embed=embed_help)
 
 
 bot.run(os.environ.get('TOKEN'))

@@ -43,15 +43,21 @@ async def on_ready():
 async def hi(interaction: discord.Interaction):
     await interaction.response.send_message('Hi. I am the official Ocean+ discord bot!')
 
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="meme", description="Send a funny meme!")
 async def meme(interaction: discord.Interaction):
     meme_url = get_meme()
     await interaction.response.send_message(meme_url)
 
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="date", description="Get the current date and days until the next Ocean+ anniversary!")
 async def date(interaction: discord.Interaction):
     await interaction.response.send_message(f'Today is {today}!\nThere are {days_until_oplus} days until the next Ocean+ anniversary!')
 
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="got_a_life", description="Check if you have a life or not")
 async def got_a_life(interaction: discord.Interaction):
     life_check = random.choices([0, 1], weights=[75, 25], k=1)[0]
@@ -68,6 +74,8 @@ def get_quote():
         print(f"Error fetching quote: {e}")
         return "Could not fetch a quote at this time."
 
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="quote", description="Send a random quote!")
 async def quote(interaction: discord.Interaction):
     quote_text = get_quote()

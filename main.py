@@ -105,11 +105,29 @@ async def duck(interaction: discord.Interaction):
     else:
         await interaction.response.send_message(json_data['url'])
 
+def get_wanted_image(avatar_url):
+    response = requests.get(f'https://api.popcat.xyz/wanted?image={avatar_url}')
+    if response.status_code == 200:
+        return response.url
+    else:
+        return None
+
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="wanted", description="Create a wanted image with the mentioned user.")
+async def wanted(interaction: discord.Interaction, member: discord.Member):
+    avatar_url = member.avatar.url
+    wanted_image_url = get_wanted_image(avatar_url)
+    if wanted_image_url:
+        await interaction.response.send_message(wanted_image_url)
+    else:
+        await interaction.response.send_message("Could not create a wanted image at this time.")
+
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="help", description="Help you out with commands!")
 async def help(interaction: discord.Interaction):
-    embed_help = discord.Embed(title="Ocean+ Help", url="https://oceanbluestream.com/", description="This is all you need for help with the commands!", colour=discord.Colour.dark_blue()).add_field(name="/quote", value="Get a random quote", inline=False).add_field(name="/meme", value="Get a random meme", inline=False).add_field(name="/date", value="Get the current date and days until the next Ocean+ anniversary", inline=False).add_field(name="/got_a_life", value="Check if you have a life or not", inline=False).add_field(name="/duck", value="Get an UwU duck picture", inline=False)
+    embed_help = discord.Embed(title="Ocean+ Help", url="https://oceanbluestream.com/", description="This is all you need for help with the commands!", colour=discord.Colour.dark_blue()).add_field(name="/quote", value="Get a random quote", inline=False).add_field(name="/meme", value="Get a random meme", inline=False).add_field(name="/date", value="Get the current date and days until the next Ocean+ anniversary", inline=False).add_field(name="/got_a_life", value="Check if you have a life or not", inline=False).add_field(name="/duck", value="Get an UwU duck picture", inline=False).add_field(name="/wanted", value="Create a wanted image with the mentioned user's avatar", inline=False)
     await interaction.response.send_message(embed=embed_help)
 
 

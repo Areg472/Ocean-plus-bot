@@ -133,7 +133,7 @@ async def get_communism_image(avatar_url: str) -> str:
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="communism", description="Create a communism image with the mentioned user")
 async def communism(interaction: discord.Interaction, member: discord.Member):
-    avatar_url = member.display_avatar.url  # Use display_avatar for modern versions of discord.py
+    avatar_url = member.display_avatar.url
     communism_image_url = await get_communism_image(avatar_url)
 
     if communism_image_url:

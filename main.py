@@ -4,6 +4,8 @@ import json
 import datetime
 import os
 import random
+
+from discord import app_commands
 from discord.ext import commands
 from keep_alive import keep_alive
 
@@ -34,6 +36,9 @@ async def on_ready():
     await bot.tree.sync()
     print(f'Logged in as {bot.user}!')
 
+
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="hi", description="Say hi to the bot!")
 async def hi(interaction: discord.Interaction):
     await interaction.response.send_message('Hi. I am the official Ocean+ discord bot!')

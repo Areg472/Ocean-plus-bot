@@ -126,7 +126,7 @@ async def dad_joke(interaction: discord.Interaction):
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="help", description="Help you out with commands!")
 async def help(interaction: discord.Interaction):
-    embed_help = discord.Embed(title="Ocean+ Help", url="https://oceanbluestream.com/", description="This is all you need for help with the commands!", colour=discord.Colour.dark_blue()).add_field(name="/quote", value="Get a random quote", inline=False).add_field(name="/meme", value="Get a random meme", inline=False).add_field(name="/date", value="Get the current date and days until the next Ocean+ anniversary", inline=False).add_field(name="/got_a_life", value="Check if you have a life or not", inline=False).add_field(name="/duck", value="Get an UwU duck picture", inline=False).add_field(name="/dad_joke", value="Generates a random dad joke", inline=False)
+    embed_help = discord.Embed(title="Ocean+ Help", url="https://oceanbluestream.com/", description="This is all you need for help with the commands!", colour=discord.Colour.dark_blue()).add_field(name="/quote", value="Get a random quote", inline=False).add_field(name="/meme", value="Get a random meme", inline=False).add_field(name="/date", value="Get the current date and days until the next Ocean+ anniversary", inline=False).add_field(name="/got_a_life", value="Check if you have a life or not", inline=False).add_field(name="/duck", value="Get an UwU duck picture", inline=False).add_field(name="/dad_joke", value="Generates a random dad joke", inline=False).add_field(name="/question", value="Ask questions to Gemini!", inline=False)
     await interaction.response.send_message(embed=embed_help)
 
 async def get_gemini_response(question: str) -> Optional[str]:
@@ -139,7 +139,7 @@ async def get_gemini_response(question: str) -> Optional[str]:
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@bot.tree.command(name="question", description="Ask me anything!")
+@bot.tree.command(name="question", description="Ask me anything, powered by Gemini")
 async def question(interaction: discord.Interaction, query: str):
     await interaction.response.defer()
     

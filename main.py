@@ -93,6 +93,9 @@ async def quote(interaction: discord.Interaction):
 async def duck(interaction: discord.Interaction):
     response = requests.get("https://random-d.uk/api/random")
     json_data = response.json()
+    hmmmmmm = random.randint(1, 20)
+    if hmmmmmm == 1:
+        await interaction.response.send_message("<:duck:1313390002805411872>")
     await interaction.response.send_message(json_data['url'])
 
 @app_commands.allowed_installs(guilds=True, users=True)

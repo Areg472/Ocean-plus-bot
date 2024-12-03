@@ -123,6 +123,7 @@ async def get_gemini_response(question: str) -> Optional[str]:
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="question", description="Ask me anything, powered by Gemini")
+@app_commands.describe(query = "What's the question? Be concise!")
 async def question(interaction: discord.Interaction, query: str):
     await interaction.response.defer()
 

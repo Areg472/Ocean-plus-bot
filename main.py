@@ -124,4 +124,25 @@ async def help(interaction: discord.Interaction):
     embed_help = discord.Embed(title="Ocean+ Help", url="https://oceanbluestream.com/", description="This is all you need for help with the commands!", colour=discord.Colour.dark_blue()).add_field(name="/quote", value="Get a random quote", inline=False).add_field(name="/meme", value="Get a random meme", inline=False).add_field(name="/date", value="Get the current date and days until the next Ocean+ anniversary", inline=False).add_field(name="/got_a_life", value="Check if you have a life or not", inline=False).add_field(name="/duck", value="Get an UwU duck picture", inline=False).add_field(name="/dad_joke", value="Generates a random dad joke", inline=False)
     await interaction.response.send_message(embed=embed_help)
 
+def get_gemini_answer(question):
+    api_key = os.environ.get('GEMINI_API_KEY')
+    url = f'https://api.google.com/gemini/v1/answer?question={question}'
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json'
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        json_data = response.json()
+        return json_data['answer']
+    else:
+        return "Could not fetch an answer at this time."
+
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="question", description="Ask a question to Google Gemini")
+async def question(interaction: discord.Interaction, query: str):
+    answer = get_gemini_answer(query)
+    await interaction.response.send_message(answer)
+
 bot.run(os.environ.get('TOKEN'))

@@ -1,4 +1,3 @@
-import aiohttp
 import discord
 import requests
 import json
@@ -118,28 +117,7 @@ async def dad_joke(interaction: discord.Interaction):
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="help", description="Help you out with commands!")
 async def help(interaction: discord.Interaction):
-    embed_help = discord.Embed(title="Ocean+ Help", url="https://oceanbluestream.com/", description="This is all you need for help with the commands!", colour=discord.Colour.dark_blue()).add_field(name="/quote", value="Get a random quote", inline=False).add_field(name="/meme", value="Get a random meme", inline=False).add_field(name="/date", value="Get the current date and days until the next Ocean+ anniversary", inline=False).add_field(name="/got_a_life", value="Check if you have a life or not", inline=False).add_field(name="/duck", value="Get an UwU duck picture", inline=False).add_field(name="/dad_joke", value="Generates a random dad joke", inline=False).add_field(name="/communism", value="Create a communism image with the mentioned user's avatar", inline=False)
+    embed_help = discord.Embed(title="Ocean+ Help", url="https://oceanbluestream.com/", description="This is all you need for help with the commands!", colour=discord.Colour.dark_blue()).add_field(name="/quote", value="Get a random quote", inline=False).add_field(name="/meme", value="Get a random meme", inline=False).add_field(name="/date", value="Get the current date and days until the next Ocean+ anniversary", inline=False).add_field(name="/got_a_life", value="Check if you have a life or not", inline=False).add_field(name="/duck", value="Get an UwU duck picture", inline=False).add_field(name="/dad_joke", value="Generates a random dad joke", inline=False)
     await interaction.response.send_message(embed=embed_help)
-
-async def get_communism_image(avatar_url: str) -> str:
-    async with aiohttp.ClientSession() as session:
-        async with session.get(f'https://api.popcat.xyz/communism?image={avatar_url}') as response:
-            if response.status == 200:
-                return str(response.url)
-            else:
-                return None
-
-@app_commands.allowed_installs(guilds=True, users=True)
-@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@bot.tree.command(name="communism", description="Create a communism image with the mentioned user")
-async def communism(interaction: discord.Interaction, member: discord.Member):
-    avatar_url = member.display_avatar.url
-    communism_image_url = await get_communism_image(avatar_url)
-
-    if communism_image_url:
-        await interaction.response.send_message(communism_image_url)
-    else:
-        await interaction.response.send_message("Could not create a communism image at this time.", ephemeral=True)
-
 
 bot.run(os.environ.get('TOKEN'))

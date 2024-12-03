@@ -49,7 +49,13 @@ async def hi(interaction: discord.Interaction):
 @bot.tree.command(name="meme", description="Send a funny meme!")
 async def meme(interaction: discord.Interaction):
     meme_url = get_meme()
-    await interaction.response.send_message(meme_url)
+    wtf = random.randint(1, 19)
+    if wtf == 1:
+        await interaction.response.send_message("Errm What the Sigma?")
+    elif wtf == 2:
+        await interaction.response.send_message("Skibidi toilet sigma aura rizz - no one")
+    else:
+        await interaction.response.send_message(meme_url)
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

@@ -162,7 +162,7 @@ def get_translation(text, target_language):
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="translate", description="Translate text to a specified language")
-@app_commands.describe(text="The text to translate", target_language="The target language code (e.g., 'en' for English)")
+@app_commands.describe(text="The text to translate", target_language="The target language.")
 async def translate(interaction: discord.Interaction, text: str, target_language: Optional[str] = "en"):
     translation = get_translation(text, target_language)
     await interaction.response.send_message(translation)

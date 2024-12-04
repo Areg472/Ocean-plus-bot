@@ -92,7 +92,7 @@ def get_quote():
 async def quote(interaction: discord.Interaction):
     quote_text = get_quote()
     hmm = random.randint(1, 20)
-    if hmm == 7:
+    if hmm == 1:
         await interaction.response.send_message('"BRR SKIBIDI DOB DOB DOB OH YES YES YES." - not Areg')
     else:
         await interaction.response.send_message(quote_text)

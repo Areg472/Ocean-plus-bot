@@ -151,6 +151,22 @@ async def dad_joke(interaction: discord.Interaction):
     else:
         await interaction.response.send_message(f"\"{json_data['joke']}\"")
 
+def get_translation(text, target_language):
+    response = requests.get(f'https://api.popcat.xyz/translate?to={target_language}&text={text}')
+    if response.status_code == 200:
+        json_data = response.json()
+        return json_data['translated']
+    else:
+        return "Could not fetch the translation at this time."
+
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="translate", description="Translate text to a specified language")
+@app_commands.describe(text="The text to translate", target_language="The target language code (e.g., 'en' for English)")
+async def translate(interaction: discord.Interaction, text: str, target_language: str):
+    translation = get_translation(text, target_language)
+    await interaction.response.send_message(translation)
+
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="help", description="Help you out with commands!")

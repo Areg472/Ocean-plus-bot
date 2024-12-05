@@ -171,7 +171,31 @@ async def translate(interaction: discord.Interaction, text: str, target_language
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="help", description="Help you out with commands!")
 async def help(interaction: discord.Interaction):
-    embed_help = discord.Embed(title="Ocean+ Help", url="https://oceanbluestream.com/", description="This is all you need for help with the commands!", colour=discord.Colour.dark_blue()).add_field(name="/quote", value="Get a random quote", inline=False).add_field(name="/meme", value="Get a random meme", inline=False).add_field(name="/date", value="Get the current date and days until the next Ocean+ anniversary", inline=False).add_field(name="/got_a_life", value="Check if you have a life or not", inline=False).add_field(name="/duck", value="Get an UwU duck picture", inline=False).add_field(name="/dad_joke", value="Generates a random dad joke", inline=False).add_field(name="/question", value="Ask questions to Gemini!", inline=False).add_field(name="/translate", value="Translate any text to any languages!").set_footer(text="Made by Areg, the creator of Ocean+. Thanks to Its_Padar for helping me with the code, make sure to give him a follow on BlueSky!")
+    embed_help = discord.Embed(title="Ocean+ Help", url="https://oceanbluestream.com/", description="This is all you need for help with the commands!", colour=discord.Colour.dark_blue()).add_field(name="/quote", value="Get a random quote", inline=False).add_field(name="/meme", value="Get a random meme", inline=False).add_field(name="/date", value="Get the current date and days until the next Ocean+ anniversary", inline=False).add_field(name="/got_a_life", value="Check if you have a life or not", inline=False).add_field(name="/duck", value="Get an UwU duck picture", inline=False).add_field(name="/dad_joke", value="Generates a random dad joke", inline=False).add_field(name="/question", value="Ask questions to Gemini!", inline=False).add_field(name="/translate", value="Translate any text to any languages!").add_field(name="/cat", value="Sends a cute cat picture!").set_footer(text="Made by Areg, the creator of Ocean+. Thanks to Its_Padar for helping me with the code, make sure to give him a follow on BlueSky!")
     await interaction.response.send_message(embed=embed_help)
+
+def get_cat_image():
+    response = requests.get('https://cataas.com/cat')
+    if response.status_code == 200:
+        return response.url
+    else:
+        return None
+
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="cat", description="Get an UwUwU cat picture!")
+async def cat(interaction: discord.Interaction):
+    cat_image_url = get_cat_image()
+    catuwu = random.randint(1, 21)
+
+    if catuwu == 1:
+        await interaction.response.send_message("<:eyeball:1314091785944825867>")
+    elif catuwu == 2:
+        await interaction.response.send_message("<:bla:1314091765896187924>")
+    else:
+        if cat_image_url:
+            await interaction.response.send_message(cat_image_url)
+        else:
+            await interaction.response.send_message("Could not fetch a cat image at this time.")
 
 bot.run(os.environ.get('TOKEN'))

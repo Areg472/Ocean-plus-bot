@@ -243,5 +243,14 @@ async def mock(interaction: discord.Interaction, message: str):
     json_data = response.json()
     await interaction.response.send_message(json_data['text'])
 
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="weather", description="Check the weather for the specified location")
+@app_commands.describe(location="The location to check the weather for")
+async def weather(interaction: discord.Interaction, location: str):
+    response = requests.get("https://api.popcat.xyz/weather?q=" + location)
+    json_data = response.json()
+    weather_data = discord.Embed(title=f"Weather of {json_data['location:name']}!", colour=discord.Colour.dark_blue()).add_field()
+
 
 bot.run(os.environ.get('TOKEN'))

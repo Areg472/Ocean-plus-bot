@@ -178,7 +178,7 @@ def get_cat_image():
     response = requests.get('https://cataas.com/cat?json=true')
     if response.status_code == 200:
         json_data = response.json()
-        return f"https://cataas.com/cat/{json_data['id']}"
+        return f"https://cataas.com/cat/{json_data['_id']}"
     else:
         return None
 

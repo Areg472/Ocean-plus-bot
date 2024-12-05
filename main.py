@@ -175,9 +175,10 @@ async def help(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed_help)
 
 def get_cat_image():
-    response = requests.get('https://cataas.com/cat')
+    response = requests.get('https://cataas.com/cat?json=true')
     if response.status_code == 200:
-        return response.url
+        json_data = response.json()
+        return f"https://cataas.com/cat/{json_data['id']}"
     else:
         return None
 

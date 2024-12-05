@@ -250,7 +250,9 @@ async def mock(interaction: discord.Interaction, message: str):
 async def weather(interaction: discord.Interaction, location: str):
     response = requests.get("https://api.popcat.xyz/weather?q=" + location)
     json_data = response.json()
-    weather_data = discord.Embed(title=f"Weather of {json_data[0]['location']['name']}!", colour=discord.Colour.dark_blue()).add_field(name="Temperature", value=f"{json_data[0]['current']['temperature']}°C", inline=False)
+    location = json_data[0]['location']['name']
+    temperature = json_data[0]['current']['temperature']
+    weather_data = discord.Embed(title=f"Weather of {location}!", colour=discord.Colour.dark_blue()).add_field(name="Temperature", value=f"{temperature}°C", inline=False)
     await interaction.response.send_message(weather_data)
 
 

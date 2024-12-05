@@ -234,4 +234,14 @@ async def eightball(interaction: discord.Interaction, question: str):
     the_response = discord.Embed(title="8ball", colour=discord.Colour.dark_blue()).add_field(name="Question", value=f"The question is: {question}", inline=False).add_field(name="Answer", value=f"The answer is: {answer}", inline=False).set_thumbnail(url="https://utfs.io/f/thKihuQxhYcPMVYP3wSWO0gf3VwBDZHjFudhtIEoAaeUXbx2")
     await interaction.response.send_message(embed=the_response)
 
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="mock", description="Make your message wEirD aS hEll")
+@app_commands.describe(message="The message to mock")
+async def mock(interaction: discord.Interaction, message: str):
+    response = requests.get("https://api.popcat.xyz/mock?text=" + message)
+    json_data = response.json()
+    await interaction.response.send_message(json_data['text'])
+
+
 bot.run(os.environ.get('TOKEN'))

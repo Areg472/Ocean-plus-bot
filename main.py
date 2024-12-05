@@ -256,7 +256,7 @@ async def weather(interaction: discord.Interaction, location: str):
     feels_like = json_data[0]['current']['feelslike']
     humidity = json_data[0]['current']['humidity']
     wind_speed = json_data[0]['current']['windspeed']
-    weather_data = discord.Embed(title=f"Weather of {location}!", colour=discord.Colour.dark_blue()).add_field(name="Temperature", value=f"{temperature}°C, {description}", inline=False).add_field(name="Feels Like", value=f"{feels_like}°C", inline=False).add_field(name="Humidity", value=f"{humidity}%", inline=False).add_field(name="Wind Speed", value=f"The speed is: {wind_speed} km/h", inline=False)
+    weather_data = discord.Embed(title=f"Weather of {location}!", colour=discord.Colour.dark_blue()).add_field(name="Temperature", value=f"{temperature}°C, {description}", inline=False).add_field(name="Feels Like", value=f"{feels_like}°C", inline=False).add_field(name="Humidity", value=f"{humidity}%", inline=False).add_field(name="Wind Speed", value=f"The speed is: {wind_speed}", inline=False)
     await interaction.response.send_message(embed=weather_data)
 
 

@@ -228,7 +228,7 @@ async def eightball(interaction: discord.Interaction, question: str):
     elif the_guesser == 11:
         answer = "I'm a machine that turns you into broken code!"
     elif the_guesser == 12:
-        answer = "I am ||UwU, OwO||"
+        answer = "I am UwU, OwO"
     else:
         answer = "Skibidi toilet"
     the_response = discord.Embed(title="8ball", colour=discord.Colour.dark_blue()).add_field(name="Question", value=f"The question is: {question}", inline=False).add_field(name="Answer", value=f"The answer is: {answer}", inline=False).set_thumbnail(url="https://utfs.io/f/thKihuQxhYcPMVYP3wSWO0gf3VwBDZHjFudhtIEoAaeUXbx2")

@@ -251,6 +251,7 @@ async def weather(interaction: discord.Interaction, location: str):
     response = requests.get("https://api.popcat.xyz/weather?q=" + location)
     json_data = response.json()
     weather_data = discord.Embed(title=f"Weather of {json_data['location:name']}!", colour=discord.Colour.dark_blue()).add_field()
+    await interaction.response.send_message(weather_data)
 
 
 bot.run(os.environ.get('TOKEN'))

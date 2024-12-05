@@ -58,7 +58,7 @@ async def meme(interaction: discord.Interaction):
     if wtf == 1:
         await interaction.response.send_message("Errm What the Sigma?")
     elif wtf == 2:
-        await interaction.response.send_message("Skibidi toilet sigma aura rizz - no one")
+        await interaction.response.send_message("Skibidi toilet sigma aura rizz fanum tax - no one")
     else:
         await interaction.response.send_message(meme_url)
 

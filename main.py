@@ -195,7 +195,7 @@ async def cat(interaction: discord.Interaction):
         await interaction.response.send_message("<:bla:1314091765896187924>")
     else:
         if cat_image_url:
-            await interaction.response.send_message(cat_image_url)
+            await interaction.response.send_message(get_cat_image())
         else:
             await interaction.response.send_message("Could not fetch a cat image at this time.")
 

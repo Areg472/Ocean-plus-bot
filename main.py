@@ -253,7 +253,7 @@ async def weather(interaction: discord.Interaction, location: str):
     location = json_data[0]['location']['name']
     temperature = json_data[0]['current']['temperature']
     weather_data = discord.Embed(title=f"Weather of {location}!", colour=discord.Colour.dark_blue()).add_field(name="Temperature", value=f"{temperature}°C", inline=False)
-    await interaction.response.send_message(weather_data)
+    await interaction.response.send_message(embed=weather_data)
 
 
 bot.run(os.environ.get('TOKEN'))

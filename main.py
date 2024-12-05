@@ -202,8 +202,9 @@ async def cat(interaction: discord.Interaction):
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="8ball", description="A nice fortune teller")
+@app_commands.describe(text="The question")
 async def eightball(interaction: discord.Interaction, text: str):
-    the_guesser = random.randint(1, 12)
+    the_guesser = random.randint(1, 13)
     if the_guesser == 1:
         answer = "Yes."
     elif the_guesser == 2:
@@ -226,9 +227,11 @@ async def eightball(interaction: discord.Interaction, text: str):
         answer = "I'm a bot, I don't know."
     elif the_guesser == 11:
         answer = "I'm a machine that turns you into broken code!"
+    elif the_guesser == 12:
+        answer = "I am ||UwU, OwO||"
     else:
         answer = "Skibidi toilet"
-    the_response = discord.Embed(title="8ball").add_field(name="Question", value=f"The question is: {text}", inline=False).add_field(name="Answer", value=f"The answer is: {answer}", inline=False)
+    the_response = discord.Embed(title="8ball").add_field(name="Question", value=f"The question is: {text}", inline=False).add_field(name="Answer", value=f"The answer is: {answer}", inline=False).set_thumbnail(url="https://utfs.io/f/thKihuQxhYcPMVYP3wSWO0gf3VwBDZHjFudhtIEoAaeUXbx2")
     await interaction.response.send_message(embed=the_response)
 
 bot.run(os.environ.get('TOKEN'))

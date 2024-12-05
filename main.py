@@ -171,7 +171,7 @@ async def translate(interaction: discord.Interaction, text: str, target_language
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="help", description="Help you out with commands!")
 async def help(interaction: discord.Interaction):
-    embed_help = discord.Embed(title="Ocean+ Help", url="https://oceanbluestream.com/", description="This is all you need for help with the commands!", colour=discord.Colour.dark_blue()).add_field(name="/quote", value="Get a random quote", inline=False).add_field(name="/meme", value="Get a random meme", inline=False).add_field(name="/date", value="Get the current date and days until the next Ocean+ anniversary", inline=False).add_field(name="/got_a_life", value="Check if you have a life or not", inline=False).add_field(name="/duck", value="Get an UwU duck picture", inline=False).add_field(name="/dad_joke", value="Generates a random dad joke", inline=False).add_field(name="/question", value="Ask questions to Gemini!", inline=False).add_field(name="/translate", value="Translate any text to any languages!").add_field(name="/cat", value="Sends a cute cat picture!").set_footer(text="Made by Areg, the creator of Ocean+. Thanks to Its_Padar for helping me with the code, make sure to give him a follow on BlueSky!")
+    embed_help = discord.Embed(title="Ocean+ Help", url="https://oceanbluestream.com/", description="This is all you need for help with the commands!", colour=discord.Colour.dark_blue()).add_field(name="/quote", value="Get a random quote", inline=False).add_field(name="/meme", value="Get a random meme", inline=False).add_field(name="/date", value="Get the current date and days until the next Ocean+ anniversary", inline=False).add_field(name="/got_a_life", value="Check if you have a life or not", inline=False).add_field(name="/duck", value="Get an UwU duck picture", inline=False).add_field(name="/dad_joke", value="Generates a random dad joke", inline=False).add_field(name="/question", value="Ask questions to Gemini!", inline=False).add_field(name="/translate", value="Translate any text to any languages!").add_field(name="/cat", value="Sends a cute cat picture!").add_field(name="/8ball", value="Fortune teller!").set_footer(text="Made by Areg, the creator of Ocean+. Thanks to Its_Padar for helping me with the code, make sure to give him a follow on BlueSky!")
     await interaction.response.send_message(embed=embed_help)
 
 def get_cat_image():
@@ -198,5 +198,37 @@ async def cat(interaction: discord.Interaction):
             await interaction.response.send_message(cat_image_url)
         else:
             await interaction.response.send_message("Could not fetch a cat image at this time.")
+
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="8ball", description="A nice fortune teller")
+async def eightball(interaction: discord.Interaction, text: str):
+    the_guesser = random.randint(1, 12)
+    if the_guesser == 1:
+        answer = "Yes."
+    elif the_guesser == 2:
+        answer = "No."
+    elif the_guesser == 3:
+        answer = "Maybe, but I'm sober."
+    elif the_guesser == 4:
+        answer = "AMOGUS"
+    elif the_guesser == 5:
+        answer = "I don't know, ask Areg."
+    elif the_guesser == 6:
+        answer = "I like u UwU"
+    elif the_guesser == 7:
+        answer = "CPU - 99% Heat - 120 Celsius"
+    elif the_guesser == 8:
+        answer = "leave me alone!"
+    elif the_guesser == 9:
+        answer = "I will send you to Armenia!"
+    elif the_guesser == 10:
+        answer = "I'm a bot, I don't know."
+    elif the_guesser == 11:
+        answer = "I'm a machine that turns you into broken code!"
+    else:
+        answer = "Skibidi toilet"
+    the_response = discord.Embed(title="8ball").add_field(name="Question", value=f"The question is: {text}", inline=False).add_field(name="Answer", value=f"The answer is: {answer}", inline=False)
+    await interaction.response.send_message(embed=the_response)
 
 bot.run(os.environ.get('TOKEN'))

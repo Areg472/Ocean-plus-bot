@@ -312,7 +312,7 @@ async def weather(interaction: discord.Interaction, location: str, forecast: Opt
 @bot.tree.command(name="text_to_morse", description="Translate text to morse")
 @app_commands.describe(text="The text to translate")
 async def text_to_morse(interaction: discord.Interaction, text: str):
-    response = requests.get(f"https://api.popcat.xyz/texttomorse?text=")
+    response = requests.get(f"https://api.popcat.xyz/texttomorse?text={text}")
     json_data = response.json()
     morse_text = json_data['morse']
     morse_embed = discord.Embed(title="Text to Morse", colour=discord.Colour.dark_blue()).add_field(

@@ -188,7 +188,7 @@ async def help(interaction: discord.Interaction):
         name="/weather", value="Check the weather for the specified location or check forecast!").add_field(
         name="/text_to_morse", value="Translate text to morse code!").add_field(
         name="/wanted", value="Make a person wanted!").add_field(
-        name="Context menu command - grammar", value="Check your grammar!").set_footer(
+        name="Context menu command - Spelling Checker", value="Check your spelling!").set_footer(
         text="Made by Areg, the creator of Ocean+. Thanks to Its_Padar for helping me with the code, make sure to give him a follow on BlueSky!"))
     await interaction.response.send_message(embed=embed_help)
 
@@ -340,12 +340,12 @@ async def wanted(interaction: discord.Interaction, person: discord.User):
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.context_menu(name="Grammar")
-async def grammar(interaction: discord.Interaction, message: discord.Message):
+@app_commands.context_menu(name="Spelling Checker")
+async def spelling(interaction: discord.Interaction, message: discord.Message):
     text = str(message.content)
     suggest = tool.correct(text)
     await interaction.response.send_message(f'Errm did you mean "{suggest}"?')
 
-bot.tree.add_command(grammar)
+bot.tree.add_command(spelling)
 
 bot.run(os.environ.get('TOKEN'))

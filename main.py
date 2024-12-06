@@ -343,5 +343,6 @@ async def grammar(interaction: discord.Interaction, message: discord.Message):
     suggest = tool.correct(text)
     await interaction.response.send_message(f"Errm did you mean {suggest}?")
 
+bot.tree.add_command(grammar)
 
 bot.run(os.environ.get('TOKEN'))

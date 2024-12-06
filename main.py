@@ -171,7 +171,19 @@ async def translate(interaction: discord.Interaction, text: str, target_language
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="help", description="Help you out with commands!")
 async def help(interaction: discord.Interaction):
-    embed_help = discord.Embed(title="Ocean+ Help", url="https://oceanbluestream.com/", description="This is all you need for help with the commands!", colour=discord.Colour.dark_blue()).add_field(name="/quote", value="Get a random quote", inline=False).add_field(name="/meme", value="Get a random meme", inline=False).add_field(name="/date", value="Get the current date and days until the next Ocean+ anniversary", inline=False).add_field(name="/got_a_life", value="Check if you have a life or not", inline=False).add_field(name="/duck", value="Get an UwU duck picture", inline=False).add_field(name="/dad_joke", value="Generates a random dad joke", inline=False).add_field(name="/question", value="Ask questions to Gemini!", inline=False).add_field(name="/translate", value="Translate any text to any languages!").add_field(name="/cat", value="Sends a cute cat picture!").add_field(name="/8ball", value="Fortune teller!").add_field(name="/mock", value="Make your message wEirD aS hEll").add_field(name="/weather", value="Check the weather for the specified location or check forecast!").set_footer(text="Made by Areg, the creator of Ocean+. Thanks to Its_Padar for helping me with the code, make sure to give him a follow on BlueSky!")
+    embed_help = discord.Embed(title="Ocean+ Help", url="https://oceanbluestream.com/", description="This is all you need for help with the commands!", colour=discord.Colour.dark_blue()).add_field(
+        name="/quote", value="Get a random quote", inline=False).add_field(
+        name="/meme", value="Get a random meme", inline=False).add_field(
+        name="/date", value="Get the current date and days until the next Ocean+ anniversary", inline=False).add_field(
+        name="/got_a_life", value="Check if you have a life or not", inline=False).add_field(
+        name="/duck", value="Get an UwU duck picture", inline=False).add_field(
+        name="/dad_joke", value="Generates a random dad joke", inline=False).add_field(
+        name="/question", value="Ask questions to Gemini!", inline=False).add_field(
+        name="/translate", value="Translate any text to any languages!").add_field(
+        name="/cat", value="Sends a cute cat picture!").add_field(name="/8ball", value="Fortune teller!").add_field(
+        name="/mock", value="Make your message wEirD aS hEll").add_field(
+        name="/weather", value="Check the weather for the specified location or check forecast!").set_footer(
+        text="Made by Areg, the creator of Ocean+. Thanks to Its_Padar for helping me with the code, make sure to give him a follow on BlueSky!")
     await interaction.response.send_message(embed=embed_help)
 
 def get_cat_image():
@@ -231,7 +243,10 @@ async def eightball(interaction: discord.Interaction, question: str):
         answer = "I am UwU, OwO"
     else:
         answer = "Skibidi toilet"
-    the_response = discord.Embed(title="8ball", colour=discord.Colour.dark_blue()).add_field(name="Question", value=f"The question is: {question}", inline=False).add_field(name="Answer", value=f"The answer is: {answer}", inline=False).set_thumbnail(url="https://utfs.io/f/thKihuQxhYcPMVYP3wSWO0gf3VwBDZHjFudhtIEoAaeUXbx2")
+    the_response = discord.Embed(title="8ball", colour=discord.Colour.dark_blue()).add_field(
+        name="Question", value=f"The question is: {question}", inline=False).add_field(
+        name="Answer", value=f"The answer is: {answer}", inline=False).set_thumbnail(
+        url="https://utfs.io/f/thKihuQxhYcPMVYP3wSWO0gf3VwBDZHjFudhtIEoAaeUXbx2")
     await interaction.response.send_message(embed=the_response)
 
 @app_commands.allowed_installs(guilds=True, users=True)
@@ -245,9 +260,9 @@ async def mock(interaction: discord.Interaction, message: str):
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@bot.tree.command(name="weather", description="Check the weather for the specified location")
-@app_commands.describe(location="The location to check the weather for")
-async def weather(interaction: discord.Interaction, location: str):
+@bot.tree.command(name="weather", description="Check the weather or the forecast for the specified location")
+@app_commands.describe(location="The location to check the weather for", forecast="Whether to check the forecast or not")
+async def weather(interaction: discord.Interaction, location: str, forecast: Optional[bool] = False):
     response = requests.get("https://api.popcat.xyz/weather?q=" + location)
     json_data = response.json()
     location = json_data[0]['location']['name']
@@ -256,7 +271,20 @@ async def weather(interaction: discord.Interaction, location: str):
     feels_like = json_data[0]['current']['feelslike']
     humidity = json_data[0]['current']['humidity']
     wind_speed = json_data[0]['current']['windspeed']
-    weather_data = discord.Embed(title=f"Weather of {location}!", colour=discord.Colour.dark_blue()).add_field(name="Temperature", value=f"{temperature}°C, {description}", inline=False).add_field(name="Feels Like", value=f"{feels_like}°C", inline=False).add_field(name="Humidity", value=f"{humidity}%", inline=False).add_field(name="Wind Speed", value=f"The speed is: {wind_speed}", inline=False)
+    tomorrow_high = json_data[0]['forecast'][0]['high']
+    tomorrow_low = json_data[0]['forecast'][0]['low']
+    if forecast == True:
+        weather_data = discord.Embed(title=f"Weather of {location}!", colour=discord.Colour.dark_blue()).add_field(
+            name="Current temperature", value=f"{temperature}°C, {description}", inline=False).add_field(
+            name="Tomorrow's temperature", value=f"High: {tomorrow_high}°C", inline=False).add_field(
+            name=chr(173), value=f"Low {tomorrow_low}°C", inline=False)
+    else:
+        weather_data = discord.Embed(title=f"Weather of {location}!", colour=discord.Colour.dark_blue()).add_field(
+            name="Temperature", value=f"{temperature}°C, {description}", inline=False).add_field(
+            name="Feels Like", value=f"{feels_like}°C", inline=False).add_field(
+            name="Humidity", value=f"{humidity}%", inline=False).add_field(
+            name="Wind Speed", value=f"The speed is: {wind_speed}", inline=False)
+
     await interaction.response.send_message(embed=weather_data)
 
 

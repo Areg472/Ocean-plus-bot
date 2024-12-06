@@ -20,7 +20,7 @@ bot = commands.Bot(command_prefix='$', intents=intents)
 
 keep_alive()
 
-tool = language_tool_python.LanguageTool('en-US')
+tool = language_tool_python.LanguageToolPublicAPI('en-US')
 
 def get_meme():
     while True:

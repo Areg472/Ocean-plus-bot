@@ -184,7 +184,7 @@ async def help(interaction: discord.Interaction):
         name="/mock", value="Make your message wEirD aS hEll").add_field(
         name="/weather", value="Check the weather for the specified location or check forecast!").add_field(
         name="/text_to_morse", value="Translate text to morse code!").add_field(
-        name="/wanted", value="Make a user wanted!").set_footer(
+        name="/wanted", value="Make a person wanted!").set_footer(
         text="Made by Areg, the creator of Ocean+. Thanks to Its_Padar for helping me with the code, make sure to give him a follow on BlueSky!"))
     await interaction.response.send_message(embed=embed_help)
 
@@ -327,8 +327,8 @@ async def text_to_morse(interaction: discord.Interaction, text: str):
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@bot.tree.command(name="wanted", description="Make a user wanted!")
-@app_commands.describe(person="The user you wanted")
+@bot.tree.command(name="wanted", description="Make a person wanted!")
+@app_commands.describe(person="The person you wanted")
 async def wanted(interaction: discord.Interaction, user: discord.User):
     avatar_url = person.avatar.url
     response = requests.get(f"https://api.popcat.xyz/wanted?image={avatar_url}")

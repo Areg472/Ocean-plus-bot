@@ -338,6 +338,7 @@ async def wanted(interaction: discord.Interaction, person: discord.User):
     response = requests.get(f"https://api.popcat.xyz/wanted?image={avatar_url}")
     await interaction.response.send_message(response.url)
 
+@app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.context_menu(name="Grammar")
 async def grammar(interaction: discord.Interaction, message: discord.Message):

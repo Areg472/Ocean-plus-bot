@@ -171,7 +171,7 @@ async def translate(interaction: discord.Interaction, text: str, target_language
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="help", description="Help you out with commands!")
 async def help(interaction: discord.Interaction):
-    embed_help = discord.Embed(title="Ocean+ Help", url="https://oceanbluestream.com/", description="This is all you need for help with the commands!", colour=discord.Colour.dark_blue()).add_field(
+    embed_help = (discord.Embed(title="Ocean+ Help", url="https://oceanbluestream.com/", description="This is all you need for help with the commands!", colour=discord.Colour.dark_blue()).add_field(
         name="/quote", value="Get a random quote", inline=False).add_field(
         name="/meme", value="Get a random meme", inline=False).add_field(
         name="/date", value="Get the current date and days until the next Ocean+ anniversary", inline=False).add_field(
@@ -182,8 +182,9 @@ async def help(interaction: discord.Interaction):
         name="/translate", value="Translate any text to any languages!").add_field(
         name="/cat", value="Sends a cute cat picture!").add_field(name="/8ball", value="Fortune teller!").add_field(
         name="/mock", value="Make your message wEirD aS hEll").add_field(
-        name="/weather", value="Check the weather for the specified location or check forecast!").set_footer(
-        text="Made by Areg, the creator of Ocean+. Thanks to Its_Padar for helping me with the code, make sure to give him a follow on BlueSky!")
+        name="/weather", value="Check the weather for the specified location or check forecast!").add_field(
+        name="/text_to_morse", value="Translate text to morse code!").set_footer(
+        text="Made by Areg, the creator of Ocean+. Thanks to Its_Padar for helping me with the code, make sure to give him a follow on BlueSky!"))
     await interaction.response.send_message(embed=embed_help)
 
 def get_cat_image():
@@ -305,6 +306,19 @@ async def weather(interaction: discord.Interaction, location: str, forecast: Opt
             name="Wind Speed", value=f"The speed is: {wind_speed}", inline=False)
 
     await interaction.response.send_message(embed=weather_data)
+
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="text_to_morse", description="Translate text to morse")
+@app_commands.describe(text="The text to translate")
+async def text_to_morse(interaction: discord.Interaction, text: str):
+    response = requests.get(f"https://api.popcat.xyz/texttomorse?text=")
+    json_data = response.json()
+    morse_text = json_data['morse']
+    morse_embed = discord.Embed(title="Text to Morse", colour=discord.Colour.dark_blue()).add_field(
+        name="Original", value=text, inline=False).add_field(
+        name="Morse", value=morse_text, inline=False)
+    await interaction.response.send_message(embed=morse_embed)
 
 
 bot.run(os.environ.get('TOKEN'))

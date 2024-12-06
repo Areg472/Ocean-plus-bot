@@ -329,7 +329,7 @@ async def text_to_morse(interaction: discord.Interaction, text: str):
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="wanted", description="Make a person wanted!")
 @app_commands.describe(person="The person you wanted")
-async def wanted(interaction: discord.Interaction, user: discord.User):
+async def wanted(interaction: discord.Interaction, person: discord.User):
     avatar_url = person.avatar.url
     response = requests.get(f"https://api.popcat.xyz/wanted?image={avatar_url}")
     await interaction.response.send_message(response.url)

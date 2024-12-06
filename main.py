@@ -279,12 +279,20 @@ async def weather(interaction: discord.Interaction, location: str, forecast: Opt
     two_day = json_data[0]['forecast'][2]['day']
     two_day_high = json_data[0]['forecast'][2]['high']
     two_day_low = json_data[0]['forecast'][2]['low']
+    three_day = json_data[0]['forecast'][3]['day']
+    three_day_high = json_data[0]['forecast'][3]['high']
+    three_day_low = json_data[0]['forecast'][3]['low']
+    four_day = json_data[0]['forecast'][4]['day']
+    four_day_high = json_data[0]['forecast'][4]['high']
+    four_day_low = json_data[0]['forecast'][4]['low']
     if forecast == True:
         weather_data = discord.Embed(title=f"Weather of {location}!", colour=discord.Colour.dark_blue()).add_field(
             name="Current temperature", value=f"{temperature}°C, {description}", inline=False).add_field(
             name="Tomorrow's temperature", value=f"High: {tomorrow_high}°C \nLow {tomorrow_low}°C", inline=True).add_field(
             name=f"{one_day}'s temperature", value=f"High: {one_day_high}°C \nLow: {one_day_low}°C", inline=True).add_field(
-            name=f"{two_day}'s temperature", value=f"High: {two_day_high}°C \nLow: {two_day_low}°C", inline=True)
+            name=f"{two_day}'s temperature", value=f"High: {two_day_high}°C \nLow: {two_day_low}°C", inline=True).add_field(
+            name=f"{three_day}'s temperature", value=f"High: {three_day_high}°C \nLow: {three_day_low}°C", inline=False).add_field(
+            name=f"{four_day}'s temperature", value=f"High: {four_day_high}°C \nLow: {four_day_low}°C", inline=True)
     elif forecast == False:
         weather_data = discord.Embed(title=f"Weather of {location}!", colour=discord.Colour.dark_blue()).add_field(
             name="Temperature", value=f"{temperature}°C, {description}", inline=False).add_field(

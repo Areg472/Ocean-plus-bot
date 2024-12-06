@@ -274,7 +274,6 @@ async def weather(interaction: discord.Interaction, location: str, forecast: Opt
     tomorrow_high = json_data[0]['forecast'][0]['high']
     tomorrow_low = json_data[0]['forecast'][0]['low']
     tomorrow_description = json_data[0]['forecast'][0]['skytextday']
-    one_day = json_data[0]['forecast'][1]['day']
     one_day_high = json_data[0]['forecast'][1]['high']
     one_day_low = json_data[0]['forecast'][1]['low']
     one_day_description = json_data[0]['forecast'][1]['skytextday']

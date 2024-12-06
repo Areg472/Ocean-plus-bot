@@ -339,7 +339,7 @@ async def wanted(interaction: discord.Interaction, person: discord.User):
 
 @app_commands.context_menu(name="Grammar")
 async def grammar(interaction: discord.Interaction, message: discord.Message):
-    text = message
+    text = str(message)
     suggest = tool.correct(text)
     await interaction.response.send_message(f"Errm did you mean {suggest}?")
 

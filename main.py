@@ -291,7 +291,7 @@ async def weather(interaction: discord.Interaction, location: str, forecast: Opt
     four_day_description = json_data[0]['forecast'][4]['skytextday']
     if forecast == True:
         weather_data = discord.Embed(title=f"Weather of {location}!", colour=discord.Colour.dark_blue()).add_field(
-            name="Current temperature", value=f"{temperature}°C, {description} \n Feels like: {feels_like}", inline=True).add_field(
+            name="Current temperature", value=f"{temperature}°C, {description} \n Feels like: {feels_like}°C", inline=True).add_field(
             name="Today's temperature", value=f"High: {tomorrow_high}°C \nLow {tomorrow_low}°C \n{tomorrow_description}", inline=True).add_field(
             name=f"Tomorrow's temperature", value=f"High: {one_day_high}°C \nLow: {one_day_low}°C \n{one_day_description}", inline=True).add_field(
             name=f"{two_day}'s temperature", value=f"High: {two_day_high}°C \nLow: {two_day_low}°C \n{two_day_description}", inline=True).add_field(

@@ -341,7 +341,7 @@ async def wanted(interaction: discord.Interaction, person: discord.User):
 async def grammar(interaction: discord.Interaction, message: discord.Message):
     text = str(message.content)
     suggest = tool.correct(text)
-    await interaction.response.send_message(f"Errm did you mean {suggest}?")
+    await interaction.response.send_message(f'Errm did you mean "{suggest}"')
 
 bot.tree.add_command(grammar)
 

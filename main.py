@@ -273,26 +273,31 @@ async def weather(interaction: discord.Interaction, location: str, forecast: Opt
     wind_speed = json_data[0]['current']['windspeed']
     tomorrow_high = json_data[0]['forecast'][0]['high']
     tomorrow_low = json_data[0]['forecast'][0]['low']
+    tomorrow_description = json_data[0]['forecast'][0]['skytextday']
     one_day = json_data[0]['forecast'][1]['day']
     one_day_high = json_data[0]['forecast'][1]['high']
     one_day_low = json_data[0]['forecast'][1]['low']
+    one_day_description = json_data[0]['forecast'][1]['skytextday']
     two_day = json_data[0]['forecast'][2]['day']
     two_day_high = json_data[0]['forecast'][2]['high']
     two_day_low = json_data[0]['forecast'][2]['low']
+    two_day_description = json_data[0]['forecast'][2]['skytextday']
     three_day = json_data[0]['forecast'][3]['day']
     three_day_high = json_data[0]['forecast'][3]['high']
     three_day_low = json_data[0]['forecast'][3]['low']
+    three_day_description = json_data[0]['forecast'][3]['skytextday']
     four_day = json_data[0]['forecast'][4]['day']
     four_day_high = json_data[0]['forecast'][4]['high']
     four_day_low = json_data[0]['forecast'][4]['low']
+    four_day_description = json_data[0]['forecast'][4]['skytextday']
     if forecast == True:
         weather_data = discord.Embed(title=f"Weather of {location}!", colour=discord.Colour.dark_blue()).add_field(
-            name="Current temperature", value=f"{temperature}°C, {description}", inline=False).add_field(
-            name="Tomorrow's temperature", value=f"High: {tomorrow_high}°C \nLow {tomorrow_low}°C", inline=True).add_field(
-            name=f"{one_day}'s temperature", value=f"High: {one_day_high}°C \nLow: {one_day_low}°C", inline=True).add_field(
-            name=f"{two_day}'s temperature", value=f"High: {two_day_high}°C \nLow: {two_day_low}°C", inline=True).add_field(
-            name=f"{three_day}'s temperature", value=f"High: {three_day_high}°C \nLow: {three_day_low}°C", inline=True).add_field(
-            name=f"{four_day}'s temperature", value=f"High: {four_day_high}°C \nLow: {four_day_low}°C", inline=True)
+            name="Current temperature", value=f"{temperature}°C, {description} \n Feels like: {feels_like}", inline=True).add_field(
+            name="Tomorrow's temperature", value=f"High: {tomorrow_high}°C \nLow {tomorrow_low}°C \n{tomorrow_description}", inline=True).add_field(
+            name=f"{one_day}'s temperature", value=f"High: {one_day_high}°C \nLow: {one_day_low}°C \n{one_day_description}", inline=True).add_field(
+            name=f"{two_day}'s temperature", value=f"High: {two_day_high}°C \nLow: {two_day_low}°C \n{two_day_description}", inline=True).add_field(
+            name=f"{three_day}'s temperature", value=f"High: {three_day_high}°C \nLow: {three_day_low}°C \n{three_day_description}", inline=True).add_field(
+            name=f"{four_day}'s temperature", value=f"High: {four_day_high}°C \nLow: {four_day_low}°C \n{four_day_description}", inline=True)
     elif forecast == False:
         weather_data = discord.Embed(title=f"Weather of {location}!", colour=discord.Colour.dark_blue()).add_field(
             name="Temperature", value=f"{temperature}°C, {description}", inline=False).add_field(

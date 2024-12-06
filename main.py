@@ -183,7 +183,8 @@ async def help(interaction: discord.Interaction):
         name="/cat", value="Sends a cute cat picture!").add_field(name="/8ball", value="Fortune teller!").add_field(
         name="/mock", value="Make your message wEirD aS hEll").add_field(
         name="/weather", value="Check the weather for the specified location or check forecast!").add_field(
-        name="/text_to_morse", value="Translate text to morse code!").set_footer(
+        name="/text_to_morse", value="Translate text to morse code!").add_field(
+        name="/wanted", value="Make a user wanted!").set_footer(
         text="Made by Areg, the creator of Ocean+. Thanks to Its_Padar for helping me with the code, make sure to give him a follow on BlueSky!"))
     await interaction.response.send_message(embed=embed_help)
 

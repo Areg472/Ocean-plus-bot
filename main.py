@@ -273,11 +273,16 @@ async def weather(interaction: discord.Interaction, location: str, forecast: Opt
     wind_speed = json_data[0]['current']['windspeed']
     tomorrow_high = json_data[0]['forecast'][0]['high']
     tomorrow_low = json_data[0]['forecast'][0]['low']
+    one_day = json_data[0]['forecast'][1]['day']
+    one_day_high = json_data[0]['forecast'][1]['high']
+    one_day_low = json_data[0]['forecast'][1]['low']
     if forecast == True:
         weather_data = discord.Embed(title=f"Weather of {location}!", colour=discord.Colour.dark_blue()).add_field(
             name="Current temperature", value=f"{temperature}°C, {description}", inline=False).add_field(
             name="Tomorrow's temperature", value=f"High: {tomorrow_high}°C", inline=False).add_field(
-            name=chr(173), value=f"Low {tomorrow_low}°C", inline=False)
+            name=chr(173), value=f"Low {tomorrow_low}°C", inline=True).add_field(
+            name=f"{one_day}'s temperature", value=f"High: {one_day_high}°C", inline=False).add_field(
+            name=chr(173), value=f"Low: {one_day_low}°C", inline=True)
     elif forecast == False:
         weather_data = discord.Embed(title=f"Weather of {location}!", colour=discord.Colour.dark_blue()).add_field(
             name="Temperature", value=f"{temperature}°C, {description}", inline=False).add_field(

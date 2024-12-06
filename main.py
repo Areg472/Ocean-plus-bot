@@ -6,6 +6,7 @@ import os
 import random
 import google.generativeai as genai
 from typing import Optional
+import language_tool_python
 
 from discord import app_commands
 from discord.ext import commands
@@ -18,6 +19,8 @@ intents.message_content = True
 bot = commands.Bot(command_prefix='$', intents=intents)
 
 keep_alive()
+
+tool = language_tool_python.LanguageToolPublicAPI('en')
 
 def get_meme():
     while True:
@@ -333,6 +336,12 @@ async def wanted(interaction: discord.Interaction, person: discord.User):
     avatar_url = person.avatar.url
     response = requests.get(f"https://api.popcat.xyz/wanted?image={avatar_url}")
     await interaction.response.send_message(response.url)
+
+@app_commands.context_menu(name="Grammar")
+async def grammar(interaction: discord.Interaction, message: discord.Message):
+    text = message
+    suggest = tool.correct(text)
+    await interaction.response.send_message(f"Errm did you mean {suggest}?")
 
 
 bot.run(os.environ.get('TOKEN'))

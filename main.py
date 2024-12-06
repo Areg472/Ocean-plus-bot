@@ -330,8 +330,6 @@ async def text_to_morse(interaction: discord.Interaction, text: str):
 @app_commands.describe(user="The user to get the avatar of")
 async def avatar(interaction: discord.Interaction, user: discord.User):
     avatar_url = user.avatar.url
-    avatar_embed = discord.Embed(title=f"{user.name}'s Avatar", colour=discord.Colour.dark_blue())
-    avatar_embed.set_image(url=avatar_url)
     response = requests.get(f"https://api.popcat.xyz/wanted?image={avatar_url}")
     await interaction.response.send_message(response)
 

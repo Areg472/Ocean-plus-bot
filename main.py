@@ -333,7 +333,7 @@ async def avatar(interaction: discord.Interaction, user: discord.User):
     avatar_embed = discord.Embed(title=f"{user.name}'s Avatar", colour=discord.Colour.dark_blue())
     avatar_embed.set_image(url=avatar_url)
     response = requests.get(f"https://api.popcat.xyz/wanted?image={avatar_url}")
-    await interaction.response.send_message(embed=response)
+    await interaction.response.send_message(response)
 
 
 bot.run(os.environ.get('TOKEN'))

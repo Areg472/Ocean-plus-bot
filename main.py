@@ -174,7 +174,7 @@ async def translate(interaction: discord.Interaction, text: str, target_language
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="help", description="Help you out with commands!")
 async def help(interaction: discord.Interaction):
-    commands = [
+    commands_list = [
         ("/quote", "Get a random quote"),
         ("/meme", "Get a random meme"),
         ("/date", "Get the current date and days until the next Ocean+ anniversary"),
@@ -192,42 +192,41 @@ async def help(interaction: discord.Interaction):
         ("Context menu command - Spelling Checker", "Check your spelling!")
     ]
 
-    pages = [commands[i:i + 6] for i in range(0, len(commands), 6)]
-    current_page = 0
-
-    def create_embed(page):
+    pages = []
+    for i in range(0, len(commands_list), 6):
+        page_commands = commands_list[i:i+6]
         embed = discord.Embed(
             title="Ocean+ Help",
             url="https://oceanbluestream.com/",
-            description="This is all you need for help with the commands!",
+            description=f"Page {len(pages)+1}/{-(-len(commands_list)//6)}", 
             colour=discord.Colour.dark_blue()
         )
-        for name, value in page:
-            embed.add_field(name=name, value=value, inline=False)
-        embed.set_footer(
-            text=f"Page {current_page + 1}/{len(pages)}\nMade by Areg, the creator of Ocean+. Thanks to Its_Padar for helping me with the code, make sure to give him a follow on BlueSky!"
-        )
-        return embed
+        
+        for cmd, desc in page_commands:
+            embed.add_field(name=cmd, value=desc, inline=False)
+            
+        if i == len(commands_list) - len(page_commands):  # Last page
+            embed.set_footer(text="Made by Areg, the creator of Ocean+. Thanks to Its_Padar for helping me with the code, make sure to give him a follow on BlueSky!")
+        
+        pages.append(embed)
 
-    async def send_page(page_num):
-        embed = create_embed(pages[page_num])
-        view = discord.ui.View()
-        if page_num > 0:
-            view.add_item(discord.ui.Button(label="Previous", style=discord.ButtonStyle.primary, custom_id="prev"))
-        if page_num < len(pages) - 1:
-            view.add_item(discord.ui.Button(label="Next", style=discord.ButtonStyle.primary, custom_id="next"))
-        await interaction.response.send_message(embed=embed, view=view)
+    class HelpView(discord.ui.View):
+        def __init__(self):
+            super().__init__(timeout=180)
+            self.current_page = 0
 
-    @bot.event
-    async def on_interaction(interaction: discord.Interaction):
-        nonlocal current_page
-        if interaction.data["custom_id"] == "prev":
-            current_page -= 1
-        elif interaction.data["custom_id"] == "next":
-            current_page += 1
-        await send_page(current_page)
+        @discord.ui.button(label="Previous", style=discord.ButtonStyle.gray)
+        async def previous_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+            self.current_page = (self.current_page - 1) % len(pages)
+            await interaction.response.edit_message(embed=pages[self.current_page])
 
-    await send_page(current_page)
+        @discord.ui.button(label="Next", style=discord.ButtonStyle.gray)
+        async def next_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+            self.current_page = (self.current_page + 1) % len(pages)
+            await interaction.response.edit_message(embed=pages[self.current_page])
+
+    view = HelpView()
+    await interaction.response.send_message(embed=pages[0], view=view)
 
 def get_cat_image():
     response = requests.get('https://cataas.com/cat?json=true')

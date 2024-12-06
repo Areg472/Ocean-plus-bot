@@ -324,5 +324,16 @@ async def text_to_morse(interaction: discord.Interaction, text: str):
         name="Morse", value=morse_text, inline=False)
     await interaction.response.send_message(embed=morse_embed)
 
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="avatar", description="Get a user's avatar")
+@app_commands.describe(user="The user to get the avatar of")
+async def avatar(interaction: discord.Interaction, user: discord.User):
+    avatar_url = user.avatar.url
+    avatar_embed = discord.Embed(title=f"{user.name}'s Avatar", colour=discord.Colour.dark_blue())
+    avatar_embed.set_image(url=avatar_url)
+    response = requests.get(f"https://api.popcat.xyz/wanted?image={avatar_url}")
+    await interaction.response.send_message(embed=response)
+
 
 bot.run(os.environ.get('TOKEN'))

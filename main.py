@@ -174,23 +174,60 @@ async def translate(interaction: discord.Interaction, text: str, target_language
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="help", description="Help you out with commands!")
 async def help(interaction: discord.Interaction):
-    embed_help = (discord.Embed(title="Ocean+ Help", url="https://oceanbluestream.com/", description="This is all you need for help with the commands!", colour=discord.Colour.dark_blue()).add_field(
-        name="/quote", value="Get a random quote", inline=False).add_field(
-        name="/meme", value="Get a random meme", inline=False).add_field(
-        name="/date", value="Get the current date and days until the next Ocean+ anniversary", inline=False).add_field(
-        name="/got_a_life", value="Check if you have a life or not", inline=False).add_field(
-        name="/duck", value="Get an UwU duck picture", inline=False).add_field(
-        name="/dad_joke", value="Generates a random dad joke", inline=False).add_field(
-        name="/question", value="Ask questions to Gemini!", inline=False).add_field(
-        name="/translate", value="Translate any text to any languages!").add_field(
-        name="/cat", value="Sends a cute cat picture!").add_field(name="/8ball", value="Fortune teller!").add_field(
-        name="/mock", value="Make your message wEirD aS hEll").add_field(
-        name="/weather", value="Check the weather for the specified location or check forecast!").add_field(
-        name="/text_to_morse", value="Translate text to morse code!").add_field(
-        name="/wanted", value="Make a person wanted!").add_field(
-        name="Context menu command - Spelling Checker", value="Check your spelling!").set_footer(
-        text="Made by Areg, the creator of Ocean+. Thanks to Its_Padar for helping me with the code, make sure to give him a follow on BlueSky!"))
-    await interaction.response.send_message(embed=embed_help)
+    commands = [
+        ("/quote", "Get a random quote"),
+        ("/meme", "Get a random meme"),
+        ("/date", "Get the current date and days until the next Ocean+ anniversary"),
+        ("/got_a_life", "Check if you have a life or not"),
+        ("/duck", "Get an UwU duck picture"),
+        ("/dad_joke", "Generates a random dad joke"),
+        ("/question", "Ask questions to Gemini!"),
+        ("/translate", "Translate any text to any languages!"),
+        ("/cat", "Sends a cute cat picture!"),
+        ("/8ball", "Fortune teller!"),
+        ("/mock", "Make your message wEirD aS hEll"),
+        ("/weather", "Check the weather for the specified location or check forecast!"),
+        ("/text_to_morse", "Translate text to morse code!"),
+        ("/wanted", "Make a person wanted!"),
+        ("Context menu command - Spelling Checker", "Check your spelling!")
+    ]
+
+    pages = [commands[i:i + 6] for i in range(0, len(commands), 6)]
+    current_page = 0
+
+    def create_embed(page):
+        embed = discord.Embed(
+            title="Ocean+ Help",
+            url="https://oceanbluestream.com/",
+            description="This is all you need for help with the commands!",
+            colour=discord.Colour.dark_blue()
+        )
+        for name, value in page:
+            embed.add_field(name=name, value=value, inline=False)
+        embed.set_footer(
+            text=f"Page {current_page + 1}/{len(pages)}\nMade by Areg, the creator of Ocean+. Thanks to Its_Padar for helping me with the code, make sure to give him a follow on BlueSky!"
+        )
+        return embed
+
+    async def send_page(page_num):
+        embed = create_embed(pages[page_num])
+        view = discord.ui.View()
+        if page_num > 0:
+            view.add_item(discord.ui.Button(label="Previous", style=discord.ButtonStyle.primary, custom_id="prev"))
+        if page_num < len(pages) - 1:
+            view.add_item(discord.ui.Button(label="Next", style=discord.ButtonStyle.primary, custom_id="next"))
+        await interaction.response.send_message(embed=embed, view=view)
+
+    @bot.event
+    async def on_interaction(interaction: discord.Interaction):
+        nonlocal current_page
+        if interaction.data["custom_id"] == "prev":
+            current_page -= 1
+        elif interaction.data["custom_id"] == "next":
+            current_page += 1
+        await send_page(current_page)
+
+    await send_page(current_page)
 
 def get_cat_image():
     response = requests.get('https://cataas.com/cat?json=true')

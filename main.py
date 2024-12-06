@@ -331,7 +331,7 @@ async def text_to_morse(interaction: discord.Interaction, text: str):
 async def wanted(interaction: discord.Interaction, user: discord.User):
     avatar_url = user.avatar.url
     response = requests.get(f"https://api.popcat.xyz/wanted?image={avatar_url}")
-    await interaction.response.send_message(response.text)
+    await interaction.response.send_message(response.url)
 
 
 bot.run(os.environ.get('TOKEN'))

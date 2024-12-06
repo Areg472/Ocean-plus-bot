@@ -217,7 +217,9 @@ async def cat(interaction: discord.Interaction):
 @bot.tree.command(name="8ball", description="A nice fortune teller")
 @app_commands.describe(question="The question")
 async def eightball(interaction: discord.Interaction, question: str):
-    the_guesser = random.randint(1, 13)
+    the_guesser = random.randint(1, 100)
+    response = requests.get("https://api.popcat.xyz/8ball")
+    json_data = response.json()
     if the_guesser == 1:
         answer = "Yes."
     elif the_guesser == 2:
@@ -242,8 +244,10 @@ async def eightball(interaction: discord.Interaction, question: str):
         answer = "I'm a machine that turns you into broken code!"
     elif the_guesser == 12:
         answer = "I am UwU, OwO"
-    else:
+    elif the_guesser == 13:
         answer = "Skibidi toilet"
+    else:
+        answer = json_data['answer']
     the_response = discord.Embed(title="8ball", colour=discord.Colour.dark_blue()).add_field(
         name="Question", value=f"The question is: {question}", inline=False).add_field(
         name="Answer", value=f"The answer is: {answer}", inline=False).set_thumbnail(

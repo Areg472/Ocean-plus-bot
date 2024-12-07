@@ -462,6 +462,9 @@ async def gamble(interaction: discord.Interaction):
     if fruit == fruit_2 and fruit == fruit_3 and fruit == "<a:duck_dance:1314847476548894771>":
         time.sleep(0.5)
         await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou won and you're special! {fruit}")
+    elif fruit == fruit_2 and fruit == fruit_3 and fruit == "<:ocean_plus:1314896902449397760>":
+        await interaction.edit_original_response(
+            content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou won and you seem to like Ocean+ :) {fruit}")
     elif fruit == fruit_2 and fruit == fruit_3:
         await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou won {fruit}!")
     else:

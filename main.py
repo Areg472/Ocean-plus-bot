@@ -1,3 +1,5 @@
+import time
+
 import discord
 import requests
 import json
@@ -391,7 +393,7 @@ async def gamble(interaction: discord.Interaction):
         fruit = "🍌"
     elif fruit == 3:
         fruit = "🍇"
-    message = await interaction.response.send_message(f"{fruit}")
+    await interaction.response.send_message(f"[{fruit}][   ][   ]")
     fruit = random.randint(1, 3)
     if fruit == 1:
         fruit = "🍎"
@@ -399,7 +401,8 @@ async def gamble(interaction: discord.Interaction):
         fruit = "🍌"
     elif fruit == 3:
         fruit = "🍇"
-    await message.edit(content = f"{fruit} {fruit}")
+    time.sleep(1)
+    await interaction.edit_original_response(content = f"[{fruit}][{fruit}][   ]")
     fruit = random.randint(1, 3)
     if fruit == 1:
         fruit = "🍎"
@@ -407,7 +410,8 @@ async def gamble(interaction: discord.Interaction):
         fruit = "🍌"
     elif fruit == 3:
         fruit = "🍇"
-    await message.edit(content=f"{fruit} {fruit} {fruit}")
+    time.sleep(1)
+    await interaction.edit_original_response(content=f"[{fruit}][{fruit}][{fruit}]")
 bot.tree.add_command(spelling)
 
 bot.run(os.environ.get('TOKEN'))

@@ -461,12 +461,12 @@ async def gamble(interaction: discord.Interaction):
     await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]")
     if fruit == fruit_2 and fruit == fruit_3 and fruit == "<a:duck_dance:1314847476548894771>":
         time.sleep(0.5)
-        await interaction.followup.send(f"You won and you're special! {fruit}")
+        await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou won and you're special! {fruit}")
     elif fruit == fruit_2 and fruit == fruit_3:
-        await interaction.followup.send(f"You won {fruit}!")
+        await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou won {fruit}!")
     else:
         time.sleep(0.5)
-        await interaction.followup.send("You lost :(")
+        await interaction.followup.send(f"[{fruit}][{fruit_2}][{fruit_3}]\nYou lost :(")
 
 @bot.tree.error
 async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):

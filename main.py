@@ -9,6 +9,8 @@ import random
 import google.generativeai as genai
 from typing import Optional
 import language_tool_python
+from discord.app_commands import CommandOnCooldown
+from discord import app_commands
 
 from discord import app_commands
 from discord.ext import commands
@@ -47,16 +49,20 @@ async def on_ready():
     await bot.tree.sync()
     print(f'Logged in as {bot.user}!')
 
+def cooldown(interaction: discord.Interaction):
+    return app_commands.Cooldown(1, 3.0)
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="hi", description="Say hi to the bot!")
+@app_commands.checks.dynamic_cooldown(cooldown)
 async def hi(interaction: discord.Interaction):
     await interaction.response.send_message('Hi. I am the official Ocean+ discord bot!')
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="meme", description="Send a funny meme!")
+@app_commands.checks.dynamic_cooldown(cooldown)
 async def meme(interaction: discord.Interaction):
     meme_url = get_meme()
     wtf = random.randint(1, 19)
@@ -70,12 +76,14 @@ async def meme(interaction: discord.Interaction):
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="date", description="Get the current date and days until the next Ocean+ anniversary!")
+@app_commands.checks.dynamic_cooldown(cooldown)
 async def date(interaction: discord.Interaction):
     await interaction.response.send_message(f'Today is {today}!\nThere are {days_until_oplus} days until the next Ocean+ anniversary!')
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="got_a_life", description="Check if you have a life or not")
+@app_commands.checks.dynamic_cooldown(cooldown)
 async def got_a_life(interaction: discord.Interaction):
     life_check = random.choices([0, 1], weights=[75, 25], k=1)[0]
     message = "You have a life!" if life_check == 1 else "You don't have a life!"
@@ -94,6 +102,7 @@ def get_quote():
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="quote", description="Send a random quote!")
+@app_commands.checks.dynamic_cooldown(cooldown)
 async def quote(interaction: discord.Interaction):
     quote_text = get_quote()
     hmm = random.randint(1, 20)
@@ -106,6 +115,7 @@ async def quote(interaction: discord.Interaction):
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="duck", description="Get an UwU duck picture")
+@app_commands.checks.dynamic_cooldown(cooldown)
 async def duck(interaction: discord.Interaction):
     response = requests.get("https://random-d.uk/api/random")
     json_data = response.json()
@@ -129,6 +139,7 @@ async def get_gemini_response(question: str) -> Optional[str]:
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="question", description="Ask me anything, powered by Gemini")
 @app_commands.describe(query = "What's the question? Be concise!")
+@app_commands.checks.dynamic_cooldown(cooldown)
 async def question(interaction: discord.Interaction, query: str):
     await interaction.response.defer()
 
@@ -147,6 +158,7 @@ async def question(interaction: discord.Interaction, query: str):
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="dad_joke", description="Generates a random dad joke!")
+@app_commands.checks.dynamic_cooldown(cooldown)
 async def dad_joke(interaction: discord.Interaction):
     response = requests.get("https://api.popcat.xyz/joke")
     json_data = response.json()
@@ -168,6 +180,7 @@ def get_translation(text, target_language):
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="translate", description="Translate text to a specified language")
 @app_commands.describe(text="The text to translate", target_language="The target language.")
+@app_commands.checks.dynamic_cooldown(cooldown)
 async def translate(interaction: discord.Interaction, text: str, target_language: Optional[str] = "en"):
     translation = get_translation(text, target_language)
     await interaction.response.send_message(translation)
@@ -175,6 +188,7 @@ async def translate(interaction: discord.Interaction, text: str, target_language
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="help", description="Help you out with commands!")
+@app_commands.checks.dynamic_cooldown(cooldown)
 async def help(interaction: discord.Interaction):
     commands_list = [
         ("/quote", "Get a random quote"),
@@ -240,6 +254,7 @@ def get_cat_image():
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="cat", description="Get an UwUwU cat picture!")
+@app_commands.checks.dynamic_cooldown(cooldown)
 async def cat(interaction: discord.Interaction):
     cat_image_url = get_cat_image()
     catuwu = random.randint(1, 21)
@@ -258,6 +273,7 @@ async def cat(interaction: discord.Interaction):
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="8ball", description="A nice fortune teller")
 @app_commands.describe(question="The question")
+@app_commands.checks.dynamic_cooldown(cooldown)
 async def eightball(interaction: discord.Interaction, question: str):
     the_guesser = random.randint(1, 100)
     response = requests.get("https://api.popcat.xyz/8ball")
@@ -300,6 +316,7 @@ async def eightball(interaction: discord.Interaction, question: str):
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="mock", description="Make your message wEirD aS hEll")
 @app_commands.describe(message="The message to mock")
+@app_commands.checks.dynamic_cooldown(cooldown)
 async def mock(interaction: discord.Interaction, message: str):
     response = requests.get("https://api.popcat.xyz/mock?text=" + message)
     json_data = response.json()
@@ -309,6 +326,7 @@ async def mock(interaction: discord.Interaction, message: str):
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="weather", description="Check the weather or the forecast for the specified location")
 @app_commands.describe(location="The location to check the weather for", forecast="Whether to check the forecast or not")
+@app_commands.checks.dynamic_cooldown(cooldown)
 async def weather(interaction: discord.Interaction, location: str, forecast: Optional[bool] = False):
     response = requests.get("https://api.popcat.xyz/weather?q=" + location)
     json_data = response.json()
@@ -357,6 +375,7 @@ async def weather(interaction: discord.Interaction, location: str, forecast: Opt
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="text_to_morse", description="Translate text to morse")
 @app_commands.describe(text="The text to translate")
+@app_commands.checks.dynamic_cooldown(cooldown)
 async def text_to_morse(interaction: discord.Interaction, text: str):
     response = requests.get(f"https://api.popcat.xyz/texttomorse?text={text}")
     json_data = response.json()
@@ -370,6 +389,7 @@ async def text_to_morse(interaction: discord.Interaction, text: str):
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="wanted", description="Make a person wanted!")
 @app_commands.describe(person="The person you wanted")
+@app_commands.checks.dynamic_cooldown(cooldown)
 async def wanted(interaction: discord.Interaction, person: discord.User):
     avatar_url = person.avatar.url
     response = requests.get(f"https://api.popcat.xyz/wanted?image={avatar_url}")
@@ -388,6 +408,7 @@ bot.tree.add_command(spelling)
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="gamble", description="Randomly gamble")
+@app_commands.checks.dynamic_cooldown(cooldown)
 async def gamble(interaction: discord.Interaction):
     fruit = random.randint(1, 6)
     if fruit == 1:
@@ -440,5 +461,12 @@ async def gamble(interaction: discord.Interaction):
         time.sleep(0.5)
         await interaction.followup.send("You lost :(")
 
+@bot.tree.error
+async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
+    if isinstance(error, CommandOnCooldown):
+        await interaction.response.send_message(
+            f"This command is on cooldown. Try again in {error.retry_after:.2f} seconds.", 
+            ephemeral=True
+        )
 
 bot.run(os.environ.get('TOKEN'))

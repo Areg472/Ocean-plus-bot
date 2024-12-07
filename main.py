@@ -389,7 +389,7 @@ bot.tree.add_command(spelling)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="gamble", description="Randomly gamble")
 async def gamble(interaction: discord.Interaction):
-    fruit = random.randint(1, 4)
+    fruit = random.randint(1, 6)
     if fruit == 1:
         fruit = "🍎"
     elif fruit == 2:
@@ -398,8 +398,12 @@ async def gamble(interaction: discord.Interaction):
         fruit = "🍇"
     elif fruit == 4:
         fruit = "🍒"
-    await interaction.response.send_message(f"[{fruit}][     ][     ]")
-    fruit_2 = random.randint(1, 4)
+    elif fruit == 5:
+        fruit = "<:bla:1314091765896187924>"
+    elif fruit == 6:
+        fruit = "<duck_dance:1314847476548894771>"
+    await interaction.response.send_message(f"[{fruit}][      ][      ]")
+    fruit_2 = random.randint(1, 6)
     if fruit_2 == 1:
         fruit_2 = "🍎"
     elif fruit_2 == 2:
@@ -408,9 +412,13 @@ async def gamble(interaction: discord.Interaction):
         fruit_2 = "🍇"
     elif fruit_2 == 4:
         fruit_2 = "🍒"
+    elif fruit_2 == 5:
+        fruit_2 = "<:bla:1314091765896187924>"
+    elif fruit_2 == 6:
+        fruit_2 = "<duck_dance:1314847476548894771>"
     time.sleep(1)
-    await interaction.edit_original_response(content = f"[{fruit}][{fruit_2}][     ]")
-    fruit_3 = random.randint(1, 4)
+    await interaction.edit_original_response(content = f"[{fruit}][{fruit_2}][      ]")
+    fruit_3 = random.randint(1, 6)
     if fruit_3 == 1:
         fruit_3 = "🍎"
     elif fruit_3 == 2:
@@ -419,6 +427,10 @@ async def gamble(interaction: discord.Interaction):
         fruit_3 = "🍇"
     elif fruit_3 == 4:
         fruit_3 = "🍒"
+    elif fruit_3 == 5:
+        fruit_3 = "<:bla:1314091765896187924>"
+    elif fruit_3 == 6:
+        fruit_3 = "<duck_dance:1314847476548894771>"
     time.sleep(1)
     await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]")
     if fruit == fruit_2 and fruit == fruit_3:

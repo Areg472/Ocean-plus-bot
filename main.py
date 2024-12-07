@@ -380,6 +380,34 @@ async def spelling(interaction: discord.Interaction, message: discord.Message):
     suggest = tool.correct(text)
     await interaction.response.send_message(f'Errm did you mean "{suggest}"?')
 
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="gamble", description="Randomly gamble")
+async def gamble(interaction: discord.Interaction):
+    fruit = random.randint(1, 3)
+    if fruit == 1:
+        fruit = "🍎"
+    elif fruit == 2:
+        fruit = "🍌"
+    elif fruit == 3:
+        fruit = "🍇"
+    message = await interaction.response.send_message(f"{fruit}")
+    fruit = random.randint(1, 3)
+    if fruit == 1:
+        fruit = "🍎"
+    elif fruit == 2:
+        fruit = "🍌"
+    elif fruit == 3:
+        fruit = "🍇"
+    await message.edit(content = f"{fruit} {fruit}")
+    fruit = random.randint(1, 3)
+    if fruit == 1:
+        fruit = "🍎"
+    elif fruit == 2:
+        fruit = "🍌"
+    elif fruit == 3:
+        fruit = "🍇"
+    await message.edit(content=f"{fruit} {fruit} {fruit}")
 bot.tree.add_command(spelling)
 
 bot.run(os.environ.get('TOKEN'))

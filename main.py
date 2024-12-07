@@ -10,7 +10,6 @@ import google.generativeai as genai
 from typing import Optional
 import language_tool_python
 from discord.app_commands import CommandOnCooldown
-from discord import app_commands
 
 from discord import app_commands
 from discord.ext import commands
@@ -454,9 +453,11 @@ async def gamble(interaction: discord.Interaction):
         fruit_3 = "<a:duck_dance:1314847476548894771>"
     time.sleep(1)
     await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]")
-    if fruit == fruit_2 and fruit == fruit_3:
+    if fruit == fruit_2 and fruit == fruit_3 and fruit == "<a:duck_dance:1314847476548894771>":
         time.sleep(0.5)
-        await interaction.followup.send(f"You won! {fruit}")
+        await interaction.followup.send(f"You won and you're special! {fruit}")
+    elif fruit == fruit_2 and fruit == fruit_3:
+        await interaction.followup.send(f"You won {fruit}!")
     else:
         time.sleep(0.5)
         await interaction.followup.send("You lost :(")
@@ -464,8 +465,9 @@ async def gamble(interaction: discord.Interaction):
 @bot.tree.error
 async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
     if isinstance(error, CommandOnCooldown):
+        seconds = round(error.retry_after + 0.5)
         await interaction.response.send_message(
-            f"This command is on cooldown. Try again in {error.retry_after:.2f} seconds.", 
+            f"This command is on cooldown. Try again in {seconds} seconds.",
             ephemeral=True
         )
 

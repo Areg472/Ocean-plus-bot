@@ -397,7 +397,7 @@ async def gamble(interaction: discord.Interaction):
         fruit = "🍇"
     elif fruit == 4:
         fruit = "🍒"
-    await interaction.response.send_message(f"[{fruit}][   ][   ]")
+    await interaction.response.send_message(f"[{fruit}][    ][    ]")
     fruit_2 = random.randint(1, 4)
     if fruit_2 == 1:
         fruit_2 = "🍎"
@@ -408,7 +408,7 @@ async def gamble(interaction: discord.Interaction):
     elif fruit_2 == 4:
         fruit_2 = "🍒"
     time.sleep(1)
-    await interaction.edit_original_response(content = f"[{fruit}][{fruit_2}][   ]")
+    await interaction.edit_original_response(content = f"[{fruit}][{fruit_2}][    ]")
     fruit_3 = random.randint(1, 4)
     if fruit_3 == 1:
         fruit_3 = "🍎"
@@ -422,10 +422,10 @@ async def gamble(interaction: discord.Interaction):
     await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]")
     if fruit == fruit_2 and fruit == fruit_3:
         time.sleep(0.5)
-        await interaction.followup.send("You won!")
+        await interaction.followup.send(f"You won! {fruit}")
     else:
         time.sleep(0.5)
-        await interaction.followup.send("You lost!")
+        await interaction.followup.send("You lost :(")
 
 
 bot.run(os.environ.get('TOKEN'))

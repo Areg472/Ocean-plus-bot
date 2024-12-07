@@ -466,7 +466,7 @@ async def gamble(interaction: discord.Interaction):
         await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou won {fruit}!")
     else:
         time.sleep(0.5)
-        await interaction.followup.send(f"[{fruit}][{fruit_2}][{fruit_3}]\nYou lost :(")
+        await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou lost :(")
 
 @bot.tree.error
 async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):

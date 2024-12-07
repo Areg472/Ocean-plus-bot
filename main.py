@@ -401,7 +401,7 @@ async def gamble(interaction: discord.Interaction):
     elif fruit == 5:
         fruit = "<:bla:1314091765896187924>"
     elif fruit == 6:
-        fruit = "<duck_dance:1314847476548894771>"
+        fruit = "<a:duck_dance:1314847476548894771>"
     await interaction.response.send_message(f"[{fruit}][      ][      ]")
     fruit_2 = random.randint(1, 6)
     if fruit_2 == 1:
@@ -415,7 +415,7 @@ async def gamble(interaction: discord.Interaction):
     elif fruit_2 == 5:
         fruit_2 = "<:bla:1314091765896187924>"
     elif fruit_2 == 6:
-        fruit_2 = "<duck_dance:1314847476548894771>"
+        fruit_2 = "<a:duck_dance:1314847476548894771>"
     time.sleep(1)
     await interaction.edit_original_response(content = f"[{fruit}][{fruit_2}][      ]")
     fruit_3 = random.randint(1, 6)
@@ -430,7 +430,7 @@ async def gamble(interaction: discord.Interaction):
     elif fruit_3 == 5:
         fruit_3 = "<:bla:1314091765896187924>"
     elif fruit_3 == 6:
-        fruit_3 = "<duck_dance:1314847476548894771>"
+        fruit_3 = "<a:duck_dance:1314847476548894771>"
     time.sleep(1)
     await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]")
     if fruit == fruit_2 and fruit == fruit_3:

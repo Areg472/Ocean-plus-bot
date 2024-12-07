@@ -191,7 +191,8 @@ async def help(interaction: discord.Interaction):
         ("/weather", "Check the weather for the specified location or check forecast!"),
         ("/text_to_morse", "Translate text to morse code!"),
         ("/wanted", "Make a person wanted!"),
-        ("Context menu command - Spelling Checker", "Check your spelling!")
+        ("Context menu command - Spelling Checker", "Check your spelling!"),
+        ("/gamble", "Randomly gamble!")
     ]
 
     pages = []

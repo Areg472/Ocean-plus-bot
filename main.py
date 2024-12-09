@@ -472,7 +472,7 @@ async def gamble(interaction: discord.Interaction):
         await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou lost :(")
 
 user_history = {}
-MAX_HISTORY = 10
+MAX_HISTORY = 30
 
 @bot.event
 async def on_message(message: discord.Message):

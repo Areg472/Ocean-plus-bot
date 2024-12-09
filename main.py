@@ -486,7 +486,7 @@ async def on_message(message: discord.Message):
     if user_id not in user_history:
         user_history[user_id] = []
 
-    system_context = "You are a helpful AI assistant. Maintain conversation context without explicitly referencing previous messages. You like Ocean+(oceanbluestream.com), Vite, and Jetbrains"
+    system_context = "You are a helpful AI assistant. Maintain conversation context without explicitly referencing previous messages. You like Ocean+(https://oceanbluestream.com), Vite, Heap analytics, Hotjar and Jetbrains. Also remember that Ocean+ creators are Areg, Veyshal, 1Leon and Carlo Bear."
 
     conversation = []
     for i, msg in enumerate(user_history[user_id]):

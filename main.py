@@ -471,7 +471,6 @@ async def gamble(interaction: discord.Interaction):
         time.sleep(0.5)
         await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou lost :(")
 
-# Store conversation history per user
 user_history = {}
 MAX_HISTORY = 10
 
@@ -486,17 +485,14 @@ async def on_message(message: discord.Message):
     user_id = str(message.author.id)
     if user_id not in user_history:
         user_history[user_id] = []
-    
-    # Format as system prompt with implicit history
+
     system_context = "You are a helpful AI assistant. Maintain conversation context without explicitly referencing previous messages."
-    
-    # Build conversation history
+
     conversation = []
     for i, msg in enumerate(user_history[user_id]):
         prefix = "User:" if i % 2 == 0 else "Assistant:"
         conversation.append(f"{prefix} {msg}")
-    
-    # Add current message
+
     prompt = f"{system_context}\n\n" + "\n".join(conversation) + f"\nUser: {message.content}\nAssistant:"
     
     response = await get_gemini_response(prompt)

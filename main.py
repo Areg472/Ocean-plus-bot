@@ -471,32 +471,38 @@ async def gamble(interaction: discord.Interaction):
         time.sleep(0.5)
         await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou lost :(")
 
+# Store conversation history per user
+user_history = {}
+MAX_HISTORY = 10  # Keep last 10 messages per user
+
 @bot.event
 async def on_message(message: discord.Message):
-    # Ignore messages from bots to prevent loops
+    # Ignore bot messages
     if message.author.bot:
         return
         
-    # Check if message is in the designated channel
+    # Check channel
     if message.channel.id != 1315586087573258310:
         return
 
-    # Get response from Gemini
-    response = await get_gemini_response(message.content)
+    # Get or create user history
+    user_id = str(message.author.id)
+    if user_id not in user_history:
+        user_history[user_id] = []
+    
+    # Add current message to history
+    user_history[user_id].append(message.content)
+    
+    # Keep only last MAX_HISTORY messages
+    user_history[user_id] = user_history[user_id][-MAX_HISTORY:]
+    
+    # Get response with history context
+    history_context = "\n".join(user_history[user_id])
+    response = await get_gemini_response(history_context)
     
     if response:
-        await message.channel.send(response)
-    else:
-        await message.channel.send("Sorry, I couldn't generate a response at this time.")
-
-@bot.event
-async def on_message(message: discord.Message):
-    if message.author == bot.user:
-        return
-    if message.channel.id != 1315586087573258310:
-        return
-    response = await get_gemini_response(message.content)
-    if response:
+        # Add bot response to history
+        user_history[user_id].append(response)
         await message.channel.send(response)
     else:
         await message.channel.send("Sorry, I couldn't generate a response at this time.")

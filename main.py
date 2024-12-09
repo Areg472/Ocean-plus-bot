@@ -473,36 +473,38 @@ async def gamble(interaction: discord.Interaction):
 
 # Store conversation history per user
 user_history = {}
-MAX_HISTORY = 10  # Keep last 10 messages per user
+MAX_HISTORY = 10
 
 @bot.event
 async def on_message(message: discord.Message):
-    # Ignore bot messages
     if message.author.bot:
         return
         
-    # Check channel
     if message.channel.id != 1315586087573258310:
         return
 
-    # Get or create user history
     user_id = str(message.author.id)
     if user_id not in user_history:
         user_history[user_id] = []
     
-    # Add current message to history
-    user_history[user_id].append(message.content)
+    # Format as system prompt with implicit history
+    system_context = "You are a helpful AI assistant. Maintain conversation context without explicitly referencing previous messages."
     
-    # Keep only last MAX_HISTORY messages
-    user_history[user_id] = user_history[user_id][-MAX_HISTORY:]
+    # Build conversation history
+    conversation = []
+    for i, msg in enumerate(user_history[user_id]):
+        prefix = "User:" if i % 2 == 0 else "Assistant:"
+        conversation.append(f"{prefix} {msg}")
     
-    # Get response with history context
-    history_context = "\n".join(user_history[user_id])
-    response = await get_gemini_response(history_context)
+    # Add current message
+    prompt = f"{system_context}\n\n" + "\n".join(conversation) + f"\nUser: {message.content}\nAssistant:"
+    
+    response = await get_gemini_response(prompt)
     
     if response:
-        # Add bot response to history
+        user_history[user_id].append(message.content)
         user_history[user_id].append(response)
+        user_history[user_id] = user_history[user_id][-MAX_HISTORY:]
         await message.channel.send(response)
     else:
         await message.channel.send("Sorry, I couldn't generate a response at this time.")

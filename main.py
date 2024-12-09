@@ -487,7 +487,7 @@ async def on_message(message: discord.Message):
         user_history[user_id] = []
 
     system_context = ("You are a helpful AI assistant. Maintain conversation context without explicitly referencing previous messages. You like Ocean+(https://oceanbluestream.com), Vite, Heap analytics, Hotjar and Jetbrains. Also remember that Ocean+ creators are Areg, Veyshal, 1Leon and Carlo Bear."
-                      "Remember that Ocean+ is made with typescript, and is Open Source. All content on Ocean+ will be free. Use O+ as an abbreviation for Ocean+ in long sentences")
+                      "Remember that Ocean+ is made with typescript, and is Open Source. All content on Ocean+ will be free. Use O+ as an abbreviation for Ocean+ in long sentences. Ocean+ is a free Vyond and GoAnimate movie streaming service.")
 
     conversation = []
     for i, msg in enumerate(user_history[user_id]):

@@ -471,6 +471,35 @@ async def gamble(interaction: discord.Interaction):
         time.sleep(0.5)
         await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou lost :(")
 
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="chat", description="Interact with the chatbot!")
+@app_commands.describe(message="Your message to the chatbot")
+@app_commands.checks.dynamic_cooldown(cooldown)
+async def chat(interaction: discord.Interaction, message: str):
+    if interaction.channel_id != 1315586087573258310:
+        await interaction.response.send_message("This command can only be used in the designated channel.", ephemeral=True)
+        return
+    response = await get_gemini_response(message)
+    if response:
+        await interaction.response.send_message(response)
+    else:
+        await interaction.response.send_message("Sorry, I couldn't generate a response at this time.")
+
+@bot.event
+async def on_message(message: discord.Message):
+    if message.author == bot.user:
+        return
+    if message.channel.id != 1315586087573258310:
+        return
+    response = await get_gemini_response(message.content)
+    if response:
+        await message.channel.send(response)
+    else:
+        await message.channel.send("Sorry, I couldn't generate a response at this time.")
+    
+    await bot.process_commands(message)
+
 @bot.tree.error
 async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
     if isinstance(error, CommandOnCooldown):

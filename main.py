@@ -537,7 +537,7 @@ async def wiki_search(interaction: discord.Interaction, query: str):
             embed = discord.Embed(
                 title=page.title,
                 url=page.fullurl,
-                description=page.summary[:200] + "...",
+                description=page.summary[:500] + "...",
                 color=discord.Color.blue()
             )
             await interaction.response.send_message(embed=embed)

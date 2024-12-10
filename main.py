@@ -520,11 +520,10 @@ async def on_app_command_error(interaction: discord.Interaction, error: app_comm
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@bot.tree.command(name="wikipedia", description="AAAAA")
+@bot.tree.command(name="wikipedia", description="Search wikipedia articles")
 @app_commands.describe(query="The search query")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def wiki_search(interaction: discord.Interaction, query: str):
-    # Initialize Wikipedia API with custom user agent
     wiki = wikipediaapi.Wikipedia(
         language='en',
         extract_format=wikipediaapi.ExtractFormat.WIKI,
@@ -532,11 +531,9 @@ async def wiki_search(interaction: discord.Interaction, query: str):
     )
     
     try:
-        # Search for page
         page = wiki.page(query)
         
         if page.exists():
-            # Create embed with article info
             embed = discord.Embed(
                 title=page.title,
                 url=page.fullurl,

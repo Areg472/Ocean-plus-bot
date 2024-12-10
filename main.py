@@ -534,7 +534,7 @@ async def wiki_search(interaction: discord.Interaction, query: str):
         page = wiki.page(query)
         
         if page.exists():
-            if page.summary <= page.summary[:500]:
+            if page.summary >= page.summary[:500]:
                 embed = discord.Embed(
                     title=page.title,
                     url=page.fullurl,

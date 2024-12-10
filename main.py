@@ -541,7 +541,7 @@ async def wiki_search(interaction: discord.Interaction, query: str):
                 color=discord.Color.blue()
             )
 
-            if page.summary < 500:
+            if page.summary < page.summary[:500]:
                 embed.description = page.summary
             else:
                 embed.description = page.summary[:500] + "..."

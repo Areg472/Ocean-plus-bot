@@ -540,6 +540,12 @@ async def wiki_search(interaction: discord.Interaction, query: str):
                 description=page.summary[:500] + "...",
                 color=discord.Color.blue()
             )
+
+            if page.summary < 500:
+                embed.description = page.summary
+            else:
+                embed.description = page.summary[:500] + "..."
+
             await interaction.response.send_message(embed=embed)
         else:
             await interaction.response.send_message(f"Could not find Wikipedia article for '{query}'")

@@ -4,6 +4,7 @@ import requests
 import json
 import datetime
 import os
+import wikipediaapi
 import random
 import google.generativeai as genai
 from typing import Optional
@@ -515,5 +516,38 @@ async def on_app_command_error(interaction: discord.Interaction, error: app_comm
             f"This command is on cooldown. Try again in {seconds} seconds.",
             ephemeral=True
         )
+
+
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="wikipedia", description="AAAAA")
+@app_commands.describe(query="The search query")
+@app_commands.checks.dynamic_cooldown(cooldown)
+async def wiki_search(interaction: discord.Interaction, query: str):
+    # Initialize Wikipedia API with custom user agent
+    wiki = wikipediaapi.Wikipedia(
+        language='en',
+        extract_format=wikipediaapi.ExtractFormat.WIKI,
+        user_agent='DiscordBot/1.0'
+    )
+    
+    try:
+        # Search for page
+        page = wiki.page(query)
+        
+        if page.exists():
+            # Create embed with article info
+            embed = discord.Embed(
+                title=page.title,
+                url=page.fullurl,
+                description=page.summary[:200] + "...",
+                color=discord.Color.blue()
+            )
+            await interaction.response.send_message(embed=embed)
+        else:
+            await interaction.response.send_message(f"Could not find Wikipedia article for '{query}'")
+            
+    except Exception as e:
+        await interaction.response.send_message(f"An error occurred: {str(e)}")
 
 bot.run(os.environ.get('TOKEN'))

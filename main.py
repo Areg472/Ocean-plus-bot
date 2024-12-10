@@ -1,5 +1,5 @@
 import time
-
+import wikipedia
 import discord
 import requests
 import json
@@ -470,6 +470,16 @@ async def gamble(interaction: discord.Interaction):
     else:
         time.sleep(0.5)
         await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou lost :(")
+
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="wikipedia", description="Search wikipedia articles")
+@app_commands.describe(article="The name of the wikipedia article")
+async def wikipedia(interaction: discord.Interaction, article: str):
+    wiki_input = wikipedia.search(article)
+    wiki_url = wiki_input.url
+    await interaction.response.send_message(wiki_url)
+
 
 user_history = {}
 MAX_HISTORY = 30

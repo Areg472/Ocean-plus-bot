@@ -508,6 +508,22 @@ async def on_message(message: discord.Message):
     
     await bot.process_commands(message)
 
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="wikipedia", description="Search Wikipedia and get the URL of the first result")
+@app_commands.describe(query="The search term")
+@app_commands.checks.dynamic_cooldown(cooldown)
+async def wikipedia(interaction: discord.Interaction, query: str):
+    try:
+        result = wikipedia.page(query)
+        await interaction.response.send_message(result.url)
+    except wikipedia.exceptions.DisambiguationError:
+        await interaction.response.send_message("Your query is ambiguous. Please be more specific.")
+    except wikipedia.exceptions.PageError:
+        await interaction.response.send_message("No page found for your query.")
+    except Exception:
+        await interaction.response.send_message("An error occurred while searching Wikipedia.")
+
 @bot.tree.error
 async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
     if isinstance(error, CommandOnCooldown):

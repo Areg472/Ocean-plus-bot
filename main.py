@@ -1,5 +1,4 @@
 import time
-import wikipedia
 import discord
 import requests
 import json

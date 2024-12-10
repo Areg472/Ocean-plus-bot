@@ -476,9 +476,24 @@ async def gamble(interaction: discord.Interaction):
 @bot.tree.command(name="wikipedia", description="Search wikipedia articles")
 @app_commands.describe(article="The name of the wikipedia article")
 async def wikipedia(interaction: discord.Interaction, article: str):
-    wiki_input = wikipedia.search(article)
-    wiki_url = wiki_input.url
-    await interaction.response.send_message(wiki_url)
+    try:
+        search_results = wikipedia.search(article)
+        if not search_results:
+            await interaction.response.send_message("No results found.")
+            return
+
+        page = wikipedia.page(search_results[0])
+        wiki_url = page.url
+        await interaction.response.send_message(wiki_url)
+    except wikipedia.exceptions.DisambiguationError as e:
+        first_option = e.options[0]
+        page = wikipedia.page(first_option)
+        wiki_url = page.url
+        await interaction.response.send_message(wiki_url)
+    except wikipedia.exceptions.PageError:
+        await interaction.response.send_message("Page not found.")
+    except Exception as e:
+        await interaction.response.send_message(f"An error occurred: {e}")
 
 
 user_history = {}

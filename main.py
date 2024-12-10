@@ -471,30 +471,6 @@ async def gamble(interaction: discord.Interaction):
         time.sleep(0.5)
         await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou lost :(")
 
-@app_commands.allowed_installs(guilds=True, users=True)
-@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@bot.tree.command(name="wikipedia", description="Search Wikipedia articles")
-@app_commands.describe(article="The name of the Wikipedia article")
-async def wikipedia(interaction: discord.Interaction, article: str):
-    try:
-        search_results = wikipedia.search(article)
-        if not search_results:
-            await interaction.response.send_message("No results found.")
-            return
-
-        page = wikipedia.page(search_results[0])
-        wiki_url = page.url
-        await interaction.response.send_message(wiki_url)
-    except wikipedia.exceptions.DisambiguationError as e:
-        first_option = e.options[0]
-        page = wikipedia.page(first_option)
-        wiki_url = page.url
-        await interaction.response.send_message(f"Disambiguation error. Showing result for: {first_option}\n{wiki_url}")
-    except wikipedia.exceptions.PageError:
-        await interaction.response.send_message("Page not found.")
-    except Exception as e:
-        await interaction.response.send_message(f"An error occurred: {e}")
-
 user_history = {}
 MAX_HISTORY = 30
 

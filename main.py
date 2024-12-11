@@ -1,4 +1,6 @@
+import io
 import time
+import urllib
 import discord
 import requests
 import json

@@ -574,7 +574,7 @@ async def wiki_search(interaction: discord.Interaction, query: str):
 @app_commands.describe(person="The person you want to pet")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def pet(interaction: discord.Interaction, person: discord.User):
-    try:    
+    try:
         avatar_url = urllib.parse.quote(person.avatar.url)
         headers = {
             "Authorization": jeyy_api
@@ -586,7 +586,8 @@ async def pet(interaction: discord.Interaction, person: discord.User):
                 headers=headers
             ) as response:
                 if response.status != 200:
-                    await interaction.response.send_message("Failed to generate pet image!")
+                    error_text = await response.text()
+                    await interaction.response.send_message(f"Failed to generate pet image! Status: {response.status}, Error: {error_text}")
                     return
                     
                 image_data = await response.read()
@@ -596,6 +597,7 @@ async def pet(interaction: discord.Interaction, person: discord.User):
                 
     except Exception as e:
         await interaction.response.send_message(f"An error occurred: {str(e)}")
+        print(f"An error occurred: {str(e)}")
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

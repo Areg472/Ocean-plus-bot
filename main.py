@@ -210,11 +210,12 @@ async def help(interaction: discord.Interaction):
         ("/text_to_morse", "Translate text to morse code!"),
         ("/wanted", "Make a person wanted!"),
         ("Context menu command - Spelling Checker", "Check your spelling!"),
-        ("/gamble", "Randomly gamble!")
+        ("/gamble", "Randomly gamble!"),
         ("/wikipedia", "Search wikipedia articles"),
-        ("/pet", "Pat the mentioned user!")
-        ("/jail", "Put the mentioned user in jail!")
-        ("/github", "Get github info of a user")
+        ("/pet", "Pat the mentioned user!"),
+        ("/jail", "Put the mentioned user in jail!"),
+        ("/github", "Get github info of a user"),
+        ("/joke_overhead", "Use this and mention the guy that doesn't understand jokes!"),
     ]
 
     pages = []
@@ -622,6 +623,16 @@ async def jail(interaction: discord.Interaction, person: discord.User):
     avatar_url = person.avatar.url
     response = requests.get(f"https://api.popcat.xyz/jail?image={avatar_url}")
     await interaction.response.send_message(response.url)
+
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="joke_overhead", description="Use this and mention the guy that doesn't understand jokes!")
+@app_commands.describe(the_guy="The guy that doesn't understand jokes")
+@app_commands.checks.dynamic_cooldown(cooldown)
+async def joke_overhead(interaction: discord.Interaction, the_guy: discord.User):
+    avatar_url = the_guy.avatar.url
+    response = requests.get(f"https://api.popcat.xyz/jokeoverhead?image={avatar_url}")
+    await interaction.response.send_message(response)
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

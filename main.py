@@ -586,10 +586,10 @@ async def wanted(interaction: discord.Interaction, person: discord.User):
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="github", description="Get github info of a user")
-@app_commands.describe(person="The username you want to get github info of")
+@app_commands.describe(username="The username you want to get github info of")
 @app_commands.checks.dynamic_cooldown(cooldown)
-async def wanted(interaction: discord.Interaction, person: discord.User):
-    response = requests.get(f"https://api.popcat.xyz/github/{person}")
+async def wanted(interaction: discord.Interaction, username: str):
+    response = requests.get(f"https://api.popcat.xyz/github/{username}")
     json_data = response.json()
     github_name = json_data['name']
     github_url = json_data['url']

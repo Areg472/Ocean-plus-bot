@@ -571,4 +571,14 @@ async def wanted(interaction: discord.Interaction, person: discord.User):
     response = requests.get(f"https://api.popcat.xyz/pet?image={avatar_url}")
     await interaction.response.send_message(response.url)
 
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="jail", description="Put the mentioned user in jail!")
+@app_commands.describe(person="The person you want to go to jail!")
+@app_commands.checks.dynamic_cooldown(cooldown)
+async def wanted(interaction: discord.Interaction, person: discord.User):
+    avatar_url = person.avatar.url
+    response = requests.get(f"https://api.popcat.xyz/jail?image={avatar_url}")
+    await interaction.response.send_message(response.url)
+
 bot.run(os.environ.get('TOKEN'))

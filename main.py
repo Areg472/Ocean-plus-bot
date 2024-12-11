@@ -463,10 +463,14 @@ async def gamble(interaction: discord.Interaction):
         time.sleep(0.5)
         await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou won and you're special! {fruit}")
     elif fruit == fruit_2 and fruit == fruit_3 and fruit == "<:ocean_plus:1314896902449397760>":
+        time.sleep(0.5)
         await interaction.edit_original_response(
             content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou won and you seem to like Ocean+ :) {fruit}")
     elif fruit == fruit_2 and fruit == fruit_3:
         await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou won {fruit}!")
+    elif fruit == fruit_2 or fruit == fruit_3 or fruit_2 == fruit_3:
+        time.sleep(0.5)
+        await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou a won slightly!")
     else:
         time.sleep(0.5)
         await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou lost :(")

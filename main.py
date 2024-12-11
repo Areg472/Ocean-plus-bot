@@ -470,7 +470,7 @@ async def gamble(interaction: discord.Interaction):
         await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou won {fruit}!")
     elif fruit == fruit_2 or fruit == fruit_3 or fruit_2 == fruit_3:
         time.sleep(0.5)
-        await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou a won slightly!")
+        await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou won slightly!")
     else:
         time.sleep(0.5)
         await interaction.edit_original_response(content=f"[{fruit}][{fruit_2}][{fruit_3}]\nYou lost :(")

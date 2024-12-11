@@ -7,6 +7,7 @@ import os
 import wikipediaapi
 import random
 import google.generativeai as genai
+import aiohttp
 from typing import Optional
 import language_tool_python
 from discord.app_commands import CommandOnCooldown
@@ -571,9 +572,28 @@ async def wiki_search(interaction: discord.Interaction, query: str):
 @app_commands.describe(person="The person you want to pet")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def pet(interaction: discord.Interaction, person: discord.User):
-    avatar_url = person.avatar.url
-    response = requests.get(f"https://api.jeyy.xyz/v2/image/patpat?image_url={avatar_url}", headers={"Authorization": f"Bearer " + jeyy_api})
-    await interaction.response.send_message(response.url)
+    try:    
+        avatar_url = urllib.parse.quote(person.avatar.url)
+        headers = {
+            "Authorization": jeyy_api
+        }
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"https://api.jeyy.xyz/v2/image/patpat?image_url={avatar_url}", 
+                headers=headers
+            ) as response:
+                if response.status != 200:
+                    await interaction.response.send_message("Failed to generate pet image!")
+                    return
+                    
+                image_data = await response.read()
+                
+                file = discord.File(io.BytesIO(image_data), filename="pet.gif")
+                await interaction.response.send_message(file=file)
+                
+    except Exception as e:
+        await interaction.response.send_message(f"An error occurred: {str(e)}")
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

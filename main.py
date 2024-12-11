@@ -209,7 +209,7 @@ async def help(interaction: discord.Interaction):
         ("/wikipedia", "Search wikipedia articles"),
         ("/pet", "Pat the mentioned user!")
         ("/jail", "Put the mentioned user in jail!")
-        ("/github", "Get github info of the user")
+        ("/github", "Get github info of a user")
     ]
 
     pages = []
@@ -585,8 +585,8 @@ async def wanted(interaction: discord.Interaction, person: discord.User):
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@bot.tree.command(name="github", description="Get github info of the user")
-@app_commands.describe(person="The person you want to get github info of")
+@bot.tree.command(name="github", description="Get github info of a user")
+@app_commands.describe(person="The username you want to get github info of")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def wanted(interaction: discord.Interaction, person: discord.User):
     response = requests.get(f"https://api.popcat.xyz/github/{person}")

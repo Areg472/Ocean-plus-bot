@@ -632,7 +632,7 @@ async def jail(interaction: discord.Interaction, person: discord.User):
 async def joke_overhead(interaction: discord.Interaction, the_guy: discord.User):
     avatar_url = the_guy.avatar.url
     response = requests.get(f"https://api.popcat.xyz/jokeoverhead?image={avatar_url}")
-    await interaction.response.send_message(response)
+    await interaction.response.send_message(response.url)
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

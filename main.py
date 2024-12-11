@@ -19,6 +19,8 @@ from keep_alive import keep_alive
 intents = discord.Intents.default()
 intents.message_content = True
 
+jeyy_api = os.environ.get('JEYY_API')
+
 bot = commands.Bot(command_prefix='$', intents=intents)
 
 keep_alive()
@@ -568,9 +570,9 @@ async def wiki_search(interaction: discord.Interaction, query: str):
 @bot.tree.command(name="pet", description="Pat the mentioned user!")
 @app_commands.describe(person="The person you want to pet")
 @app_commands.checks.dynamic_cooldown(cooldown)
-async def wanted(interaction: discord.Interaction, person: discord.User):
+async def pet(interaction: discord.Interaction, person: discord.User):
     avatar_url = person.avatar.url
-    response = requests.get(f"https://api.popcat.xyz/pet?image={avatar_url}")
+    response = requests.get(f"https://api.jeyy.xyz/v2/image/patpat?image_url={avatar_url}", headers={"Authorization": jeyy_api})
     await interaction.response.send_message(response.url)
 
 @app_commands.allowed_installs(guilds=True, users=True)
@@ -578,7 +580,7 @@ async def wanted(interaction: discord.Interaction, person: discord.User):
 @bot.tree.command(name="jail", description="Put the mentioned user in jail!")
 @app_commands.describe(person="The person you want to go to jail!")
 @app_commands.checks.dynamic_cooldown(cooldown)
-async def wanted(interaction: discord.Interaction, person: discord.User):
+async def jail(interaction: discord.Interaction, person: discord.User):
     avatar_url = person.avatar.url
     response = requests.get(f"https://api.popcat.xyz/jail?image={avatar_url}")
     await interaction.response.send_message(response.url)
@@ -588,7 +590,7 @@ async def wanted(interaction: discord.Interaction, person: discord.User):
 @bot.tree.command(name="github", description="Get github info of a user")
 @app_commands.describe(username="The username you want to get github info of")
 @app_commands.checks.dynamic_cooldown(cooldown)
-async def wanted(interaction: discord.Interaction, username: str):
+async def github(interaction: discord.Interaction, username: str):
     response = requests.get(f"https://api.popcat.xyz/github/{username}")
     json_data = response.json()
     github_name = json_data['name']

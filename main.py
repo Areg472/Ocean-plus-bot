@@ -589,7 +589,7 @@ async def pet(interaction: discord.Interaction, person: discord.User):
             "Authorization": f"Bearer {jeyy_api}"
         }
         
-        print(f"Attempting API request with token: {jeyy_api[:5]}...")  # Debug log
+        print(f"Attempting API request with token: {jeyy_api[:5]}...")
         
         async with aiohttp.ClientSession() as session:
             async with session.get(

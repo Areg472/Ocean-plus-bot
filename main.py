@@ -206,6 +206,8 @@ async def help(interaction: discord.Interaction):
         ("/wanted", "Make a person wanted!"),
         ("Context menu command - Spelling Checker", "Check your spelling!"),
         ("/gamble", "Randomly gamble!")
+        ("/wikipedia", "Search wikipedia articles"),
+        ("/pet", "Pat the mentioned user!")
     ]
 
     pages = []
@@ -558,5 +560,15 @@ async def wiki_search(interaction: discord.Interaction, query: str):
             
     except Exception as e:
         await interaction.response.send_message(f"An error occurred: {str(e)}")
+
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="pet", description="Pat the mentioned user!")
+@app_commands.describe(person="The person you want to pet")
+@app_commands.checks.dynamic_cooldown(cooldown)
+async def wanted(interaction: discord.Interaction, person: discord.User):
+    avatar_url = person.avatar.url
+    response = requests.get(f"https://api.popcat.xyz/pet?image={avatar_url}")
+    await interaction.response.send_message(response.url)
 
 bot.run(os.environ.get('TOKEN'))

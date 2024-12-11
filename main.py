@@ -630,7 +630,7 @@ async def jail(interaction: discord.Interaction, person: discord.User):
 @app_commands.describe(the_guy="The guy that doesn't understand jokes")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def joke_overhead(interaction: discord.Interaction, the_guy: discord.User):
-    avatar_url = the_guy.avatar.url
+    avatar_url = the_guy.avatar.url + ".png"
     response = requests.get(f"https://api.popcat.xyz/jokeoverhead?image={avatar_url}")
     await interaction.response.send_message(response.url)
 

@@ -572,7 +572,7 @@ async def wiki_search(interaction: discord.Interaction, query: str):
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def pet(interaction: discord.Interaction, person: discord.User):
     avatar_url = person.avatar.url
-    response = requests.post(f"https://api.jeyy.xyz/v2/image/patpat?image_url={avatar_url}", headers={"Authorization": f"Bearer {jeyy_api}")
+    response = requests.post(f"https://api.jeyy.xyz/v2/image/patpat?image_url={avatar_url}", headers={"Authorization": f"Bearer {jeyy_api}"})
     await interaction.response.send_message(response.url)
 
 @app_commands.allowed_installs(guilds=True, users=True)

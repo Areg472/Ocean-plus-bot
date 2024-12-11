@@ -574,30 +574,44 @@ async def wiki_search(interaction: discord.Interaction, query: str):
 @app_commands.describe(person="The person you want to pet")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def pet(interaction: discord.Interaction, person: discord.User):
+    if not jeyy_api:
+        await interaction.response.send_message("API key not configured!")
+        return
+
     try:
+        if not person.avatar:
+            await interaction.response.send_message("User has no avatar!")
+            return
+            
         avatar_url = urllib.parse.quote(person.avatar.url)
+
         headers = {
-            "Authorization": jeyy_api
+            "Authorization": f"Bearer {jeyy_api}"
         }
+        
+        print(f"Attempting API request with token: {jeyy_api[:5]}...")  # Debug log
         
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 f"https://api.jeyy.xyz/v2/image/patpat?image_url={avatar_url}", 
                 headers=headers
             ) as response:
-                if response.status != 200:
+                if response.status == 401:
+                    await interaction.response.send_message("API authentication failed. Please check API key.")
+                    return
+                elif response.status != 200:
                     error_text = await response.text()
-                    await interaction.response.send_message(f"Failed to generate pet image! Status: {response.status}, Error: {error_text}")
+                    await interaction.response.send_message(f"API Error {response.status}: {error_text}")
                     return
                     
                 image_data = await response.read()
-                
                 file = discord.File(io.BytesIO(image_data), filename="pet.gif")
                 await interaction.response.send_message(file=file)
                 
     except Exception as e:
-        await interaction.response.send_message(f"An error occurred: {str(e)}")
-        print(f"An error occurred: {str(e)}")
+        await interaction.response.send_message(f"Error: {str(e)}")
+        print(f"Detailed error: {str(e)}")
+
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

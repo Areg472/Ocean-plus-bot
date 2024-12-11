@@ -208,6 +208,8 @@ async def help(interaction: discord.Interaction):
         ("/gamble", "Randomly gamble!")
         ("/wikipedia", "Search wikipedia articles"),
         ("/pet", "Pat the mentioned user!")
+        ("/jail", "Put the mentioned user in jail!")
+        ("/github", "Get github info of the user")
     ]
 
     pages = []
@@ -580,5 +582,26 @@ async def wanted(interaction: discord.Interaction, person: discord.User):
     avatar_url = person.avatar.url
     response = requests.get(f"https://api.popcat.xyz/jail?image={avatar_url}")
     await interaction.response.send_message(response.url)
+
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="github", description="Get github info of the user")
+@app_commands.describe(person="The person you want to get github info of")
+@app_commands.checks.dynamic_cooldown(cooldown)
+async def wanted(interaction: discord.Interaction, person: discord.User):
+    response = requests.get(f"https://api.popcat.xyz/github/{person}")
+    json_data = response.json()
+    github_name = json_data['name']
+    github_url = json_data['url']
+    github_avatar = json_data['avatar']
+    github_location = json_data['location']
+    github_bio = json_data['bio']
+    result = discord.Embed(title=f"Github info of {github_name}!", colour=discord.Colour.dark_blue()).add_field(
+        name="Name", value=github_name, inline=False).add_field(
+        name="Location", value=github_location, inline=False).add_field(
+        name="Bio", value=github_bio, inline=False).add_field(
+        name="Github URL", value=github_url, inline=False).set_thumbnail(
+        url=github_avatar)
+    await interaction.response.send_message(embed=result)
 
 bot.run(os.environ.get('TOKEN'))

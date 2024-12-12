@@ -216,6 +216,7 @@ async def help(interaction: discord.Interaction):
         ("/jail", "Put the mentioned user in jail!"),
         ("/github", "Get github info of a user"),
         ("/joke_overhead", "Use this and mention the guy that doesn't understand jokes!"),
+        ("/bonk", "Bonk the mentioned person!"),
     ]
 
     pages = []
@@ -568,6 +569,51 @@ async def wiki_search(interaction: discord.Interaction, query: str):
             
     except Exception as e:
         await interaction.response.send_message(f"An error occurred: {str(e)}")
+
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="bonk", description="Bonk the mentioned user!")
+@app_commands.describe(person="The person you want to bonk")
+@app_commands.checks.dynamic_cooldown(cooldown)
+async def bonk(interaction: discord.Interaction, person: discord.User):
+    if not jeyy_api:
+        await interaction.response.send_message("API key not configured!")
+        return
+
+    try:
+        if not person.avatar:
+            await interaction.response.send_message("User has no avatar!")
+            return
+
+        avatar_url = urllib.parse.quote(person.avatar.url)
+
+        headers = {
+            "Authorization": f"Bearer {jeyy_api}"
+        }
+
+        print(f"Attempting API request with token: {jeyy_api[:5]}...")
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                    f"https://api.jeyy.xyz/v2/image/bonks?image_url={avatar_url}",
+                    headers=headers
+            ) as response:
+                if response.status == 401:
+                    await interaction.response.send_message("API authentication failed. Please check API key.")
+                    return
+                elif response.status != 200:
+                    error_text = await response.text()
+                    await interaction.response.send_message(f"API Error {response.status}: {error_text}")
+                    return
+
+                image_data = await response.read()
+                file = discord.File(io.BytesIO(image_data), filename="bonk.gif")
+                await interaction.response.send_message(file=file)
+
+    except Exception as e:
+        await interaction.response.send_message(f"Error: {str(e)}")
+        print(f"Detailed error: {str(e)}")
+
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

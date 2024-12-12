@@ -212,7 +212,7 @@ async def help(interaction: discord.Interaction):
         ("Context menu command - Spelling Checker", "Check your spelling!"),
         ("/gamble", "Randomly gamble!"),
         ("/wikipedia", "Search wikipedia articles"),
-        ("/pet", "Pat the mentioned user!"),
+        ("/pat", "Pat the mentioned user!"),
         ("/jail", "Put the mentioned user in jail!"),
         ("/github", "Get github info of a user"),
         ("/joke_overhead", "Use this and mention the guy that doesn't understand jokes!"),
@@ -617,10 +617,10 @@ async def bonk(interaction: discord.Interaction, person: discord.User):
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@bot.tree.command(name="pet", description="Pat the mentioned user!")
-@app_commands.describe(person="The person you want to pet")
+@bot.tree.command(name="pat", description="Pat the mentioned user!")
+@app_commands.describe(person="The person you want to pat")
 @app_commands.checks.dynamic_cooldown(cooldown)
-async def pet(interaction: discord.Interaction, person: discord.User):
+async def pat(interaction: discord.Interaction, person: discord.User):
     if not jeyy_api:
         await interaction.response.send_message("API key not configured!")
         return

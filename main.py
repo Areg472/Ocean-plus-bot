@@ -709,7 +709,12 @@ async def github(interaction: discord.Interaction, username: str):
 @app_commands.context_menu(name="Surprised Pika")
 async def surprised_pika(interaction: discord.Interaction, message: discord.Message):
     text = str(message.content)
-    response = requests.get(f"https://api.popcat.xyz/pikachu?text={text}")
-    await interaction.response.send_message(response.url)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"https://api.popcat.xyz/pikachu?text={text}") as response:
+            if response.status != 200:
+                await interaction.response.send_message("Failed to fetch image.")
+                return
+            result_url = await response.text()
+            await interaction.response.send_message(result_url)
 
 bot.run(os.environ.get('TOKEN'))

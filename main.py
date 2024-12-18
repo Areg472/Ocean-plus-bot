@@ -217,6 +217,8 @@ async def help(interaction: discord.Interaction):
         ("/github", "Get github info of a user"),
         ("/joke_overhead", "Use this and mention the guy that doesn't understand jokes!"),
         ("/bonk", "Bonk the mentioned person!"),
+        ("/hi", "Say hi to the bot!"),
+        ("Context menu command - Surprised Pika", "Generate surprised Pika!"),
     ]
 
     pages = []
@@ -706,7 +708,8 @@ async def github(interaction: discord.Interaction, username: str):
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.context_menu(name="Surprised Pika")
 async def surprised_pika(interaction: discord.Interaction, message: discord.Message):
-    response = requests.get(f"https://api.popcat.xyz/pikachu?text={message.content}")
+    text = str(message.content)
+    response = requests.get(f"https://api.popcat.xyz/pikachu?text={text}")
     await interaction.response.send_message(response.url)
 
 bot.run(os.environ.get('TOKEN'))

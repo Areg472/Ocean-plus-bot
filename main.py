@@ -702,4 +702,11 @@ async def github(interaction: discord.Interaction, username: str):
         url=github_avatar)
     await interaction.response.send_message(embed=result)
 
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.context_menu(name="Surprised Pika")
+async def surprised_pika(interaction: discord.Interaction, message: discord.Message):
+    response = requests.get(f"https://api.popcat.xyz/pikachu?text={message.content}")
+    await interaction.response.send_message(response.url)
+
 bot.run(os.environ.get('TOKEN'))

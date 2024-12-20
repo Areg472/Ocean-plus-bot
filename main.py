@@ -515,7 +515,7 @@ async def on_message(message: discord.Message):
     prompt = f"{system_context}\n\n" + "\n".join(conversation) + f"\nUser: {message.content}\nAssistant:"
 
     if user_id == "912243343226966086":
-        await message.channel.send("🤡")
+        await message.channel.send("<:bla:1314091765896187924>")
     else:
         response = await get_gemini_response(prompt)
 

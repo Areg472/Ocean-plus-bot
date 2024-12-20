@@ -513,18 +513,22 @@ async def on_message(message: discord.Message):
         conversation.append(f"{prefix} {msg}")
 
     prompt = f"{system_context}\n\n" + "\n".join(conversation) + f"\nUser: {message.content}\nAssistant:"
-    
-    response = await get_gemini_response(prompt)
-    
-    if response:
-        user_history[user_id].append(message.content)
-        user_history[user_id].append(response)
-        user_history[user_id] = user_history[user_id][-MAX_HISTORY:]
-        await message.channel.send(response)
+
+    if user_id == "960524267164930128":
+        await message.channel.send("🤡")
     else:
-        await message.channel.send("Sorry, I couldn't generate a response at this time.")
-    
-    await bot.process_commands(message)
+        response = await get_gemini_response(prompt)
+
+        if response:
+            user_history[user_id].append(message.content)
+            user_history[user_id].append(response)
+            user_history[user_id] = user_history[user_id][-MAX_HISTORY:]
+            await message.channel.send(response)
+        else:
+            await message.channel.send("Sorry, I couldn't generate a response at this time.")
+
+        await bot.process_commands(message)
+
 
 @bot.tree.error
 async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):

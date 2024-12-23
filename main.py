@@ -708,7 +708,7 @@ async def github(interaction: discord.Interaction, username: str):
         url=github_avatar)
     await interaction.response.send_message(embed=result)
 
-@bot.tree.command(name="github", description="Get github info of a user")
+@bot.tree.command(name="mute", description="Mute someone!")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def mute(interaction: discord.Interaction, user: discord.Member, reason: Optional[str]):
     guildID = interaction.guild.id

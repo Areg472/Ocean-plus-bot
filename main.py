@@ -710,22 +710,15 @@ async def github(interaction: discord.Interaction, username: str):
 
 @bot.tree.command(name="mute", description="Mute someone!")
 @app_commands.checks.dynamic_cooldown(cooldown)
-@app_commands.describe(user="The user you want to mute", reason="The reason for the mute")
-async def mute(interaction: discord.Interaction, user: discord.Member, reason: Optional[str] = None):
+@app_commands.describe(user="The user you want to mute", reason="The reason for the mute", duration="The duration of the mute(in minutes)")
+async def mute(interaction: discord.Interaction, user: discord.Member, duration: int, reason: Optional[str] = None):
     guildID = interaction.guild.id
     if guildID != 1183318046866149387:
         await interaction.response.send_message("This command is only available in the Ocean+ server!", ephemeral=True)
     else:
-        if not interaction.user.guild_permissions.mute_members:
+        if not interaction.user.guild_permissions.moderate_members:
             await interaction.response.send_message("You do not have permission to mute members.", ephemeral=True)
         else:
-            if user.voice:
-                try:
-                    await user.edit(mute=True, reason=reason)
-                    await interaction.response.send_message(f"{user.mention} has been muted.", ephemeral=True)
-                except discord.Forbidden:
-                    await interaction.response.send_message("I do not have permission to mute this user.", ephemeral=True)
-            else:
-                await interaction.response.send_message("This user is not in a voice channel.", ephemeral=True)
+            await user.timeout(datetime.timedelta(minutes=duration), reason=reason)
 
 bot.run(os.environ.get('TOKEN'))

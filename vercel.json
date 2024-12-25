@@ -2,29 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "main.py",
-      "use": "@vercel/python@3.1.0",
-      "config": {
-        "maxLambdaSize": "15mb",
-        "runtime": "python3.9"
-      }
+      "src": "keep_alive.py",
+      "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "main.py"
+      "dest": "keep_alive.py"
     }
-  ],
-  "env": {
-    "JEYY_API": "@jeyy_api",
-    "GEMINI_API_KEY": "@gemini_api_key", 
-    "TOKEN": "@token"
-  },
-  "functions": {
-    "api/": {
-      "memory": 1024,
-      "maxDuration": 60
-    }
-  }
+  ]
 }

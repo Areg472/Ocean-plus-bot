@@ -17,14 +17,14 @@
     }
   ],
   "env": {
-    "JEYY_API": "@JEYY_API", 
-    "GEMINI_API_KEY": "@GEMINI_API_KEY",
-    "TOKEN": "@TOKEN"
+    "JEYY_API": "@jeyy_api",
+    "GEMINI_API_KEY": "@gemini_api_key", 
+    "TOKEN": "@token"
   },
   "functions": {
     "api/": {
       "memory": 1024,
-      "maxDuration": 10
+      "maxDuration": 60
     }
   }
 }

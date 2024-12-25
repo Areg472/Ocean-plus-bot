@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "keep_alive.py",
+      "src": "main.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "keep_alive.py"
+      "dest": "main.py"
     }
   ]
 }

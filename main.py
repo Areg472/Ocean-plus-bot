@@ -218,7 +218,6 @@ async def help(interaction: discord.Interaction):
         ("/joke_overhead", "Use this and mention the guy that doesn't understand jokes!"),
         ("/bonk", "Bonk the mentioned person!"),
         ("/hi", "Say hi to the bot!"),
-        ("Context menu command - Surprised Pika", "Generate surprised Pika!"),
         ("/mute(Only in O+ server)", "Mute the mentioned user!"),
         ("/ban(Only in O+ server)", "Ban the mentioned user!"),
     ]
@@ -772,6 +771,36 @@ async def ban(interaction: discord.Interaction, user: discord.Member, delete_day
             f"✅ {user.mention} has been banned.\nReason: {reason_text}",
             ephemeral=True
         )
+    except discord.Forbidden:
+        await interaction.response.send_message("I don't have permission to ban this user!", ephemeral=True)
+    except Exception as e:
+        await interaction.response.send_message(f"An error occurred: {str(e)}", ephemeral=True)
+
+@bot.tree.command(name="oplusadmin", description="Ban someone!")
+@app_commands.checks.dynamic_cooldown(cooldown)
+@app_commands.describe(
+    user="The user you want to ban",
+    reason="The reason for the ban",
+    delete_days="The messages you want to be deleted in days."
+)
+async def ban(interaction: discord.Interaction, user: discord.Member, reason: str):
+    guildID = interaction.guild.id
+    if guildID != 1183318046866149387:
+        await interaction.response.send_message("This command is only available in the Ocean+ server!", ephemeral=True)
+        return
+
+    if not interaction.user.guild_permissions.manage_roles:
+        await interaction.response.send_message("You do not have permission to make people O+ admins.", ephemeral=True)
+        return
+    try:
+        reason_text = reason or "No reason provided"
+        role = discord.utils.get(interaction.guild.roles, name="Ocean+ Admin")
+        await user.add_roles(role)
+        await interaction.response.send_message(
+            f"✅ {user.mention} has been made an Ocean+ Admin.\nReason: {reason_text}",
+            ephemeral=False
+        )
+        
     except discord.Forbidden:
         await interaction.response.send_message("I don't have permission to ban this user!", ephemeral=True)
     except Exception as e:

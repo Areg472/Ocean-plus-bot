@@ -798,7 +798,7 @@ async def oplusadmin(interaction: discord.Interaction, user: discord.Member, rea
         return
 
     try:
-        role = discord.utils.get(interaction.guild.roles, name="Ocean+ dmin")
+        role = discord.utils.get(interaction.guild.roles, name="Ocean+ admin")
         if not role:
             await interaction.response.send_message("The Ocean+ admin role could not be found!", ephemeral=True)
             return

@@ -219,6 +219,8 @@ async def help(interaction: discord.Interaction):
         ("/bonk", "Bonk the mentioned person!"),
         ("/hi", "Say hi to the bot!"),
         ("Context menu command - Surprised Pika", "Generate surprised Pika!"),
+        ("/mute(Only in O+ server)", "Mute the mentioned user!"),
+        ("/ban(Only in O+ server)", "Ban the mentioned user!"),
     ]
 
     pages = []
@@ -720,5 +722,20 @@ async def mute(interaction: discord.Interaction, user: discord.Member, duration:
             await interaction.response.send_message("You do not have permission to mute members.", ephemeral=True)
         else:
             await user.timeout(datetime.timedelta(minutes=duration), reason=reason)
+
+@bot.tree.command(name="ban", description="Ban someone!")
+@app_commands.checks.dynamic_cooldown(cooldown)
+@app_commands.describe(user="The user you want to ban", reason="The reason for the ban", delete_days="The messages you want to be deleted in days.")
+async def mute(interaction: discord.Interaction, user: discord.Member, delete_days: Optional[int] = None, reason: Optional[str] = None):
+    guildID = interaction.guild.id
+    if guildID != 1183318046866149387:
+        await interaction.response.send_message("This command is only available in the Ocean+ server!", ephemeral=True)
+    else:
+        if not interaction.user.guild_permissions.ban_members:
+            await interaction.response.send_message("You do not have permission to ban members.", ephemeral=True)
+        else:
+            await user.ban(delete_message_days=delete_days, reason=reason)
+
+
 
 bot.run(os.environ.get('TOKEN'))

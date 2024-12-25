@@ -793,8 +793,8 @@ async def oplusadmin(interaction: discord.Interaction, user: discord.Member, rea
         await interaction.response.send_message("This command is only available in the Ocean+ server!", ephemeral=True)
         return
 
-    if not interaction.user.guild_permissions.administrator:
-        await interaction.response.send_message("You need Administrator permissions to make people O+ admins.", ephemeral=True)
+    if not interaction.user.guild_permissions.manage_roles:
+        await interaction.response.send_message("You need manage roles permissions to make people O+ admins.", ephemeral=True)
         return
 
     try:

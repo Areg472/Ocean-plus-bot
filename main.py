@@ -783,28 +783,40 @@ async def ban(interaction: discord.Interaction, user: discord.Member, delete_day
     user="The user you want to make an admin",
     reason="The reason for the promotion",
 )
-async def ban(interaction: discord.Interaction, user: discord.Member, reason: str):
+async def oplusadmin(interaction: discord.Interaction, user: discord.Member, reason: str):
+    if not interaction.guild:
+        await interaction.response.send_message("This command can only be used in a server!", ephemeral=True)
+        return
+        
     guildID = interaction.guild.id
     if guildID != 1183318046866149387:
         await interaction.response.send_message("This command is only available in the Ocean+ server!", ephemeral=True)
         return
 
-    if not interaction.user.guild_permissions.manage_roles:
-        await interaction.response.send_message("You do not have permission to make people O+ admins.", ephemeral=True)
+    if not interaction.user.guild_permissions.administrator:
+        await interaction.response.send_message("You need Administrator permissions to make people O+ admins.", ephemeral=True)
         return
+
     try:
-        reason_text = reason or "No reason provided"
         role = discord.utils.get(interaction.guild.roles, name="Ocean+ Admin")
+        if not role:
+            await interaction.response.send_message("The Ocean+ Admin role could not be found!", ephemeral=True)
+            return
+            
+        if role in user.roles:
+            await interaction.response.send_message(f"{user.mention} is already an Ocean+ Admin!", ephemeral=True)
+            return
+
         await user.add_roles(role)
+        reason_text = reason or "No reason provided"
         await interaction.response.send_message(
             f"✅ {user.mention} has been made an Ocean+ Admin.\nReason: {reason_text}",
             ephemeral=False
         )
         
     except discord.Forbidden:
-        await interaction.response.send_message("I don't have permission to ban this user!", ephemeral=True)
+        await interaction.response.send_message("I don't have permission to manage roles!", ephemeral=True)
     except Exception as e:
         await interaction.response.send_message(f"An error occurred: {str(e)}", ephemeral=True)
-
 
 bot.run(os.environ.get('TOKEN'))

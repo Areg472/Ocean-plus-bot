@@ -3,11 +3,11 @@
   "builds": [
     {
       "src": "main.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "requirements.txt",
-      "use": "@vercel/python"
+      "use": "@vercel/python@3.1.0",
+      "config": {
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.9"
+      }
     }
   ],
   "routes": [
@@ -15,5 +15,16 @@
       "src": "/(.*)",
       "dest": "main.py"
     }
-  ]
+  ],
+  "env": {
+    "JEYY_API": "@JEYY_API", 
+    "GEMINI_API_KEY": "@GEMINI_API_KEY",
+    "TOKEN": "@TOKEN"
+  },
+  "functions": {
+    "api/": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  }
 }

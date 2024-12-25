@@ -220,6 +220,7 @@ async def help(interaction: discord.Interaction):
         ("/hi", "Say hi to the bot!"),
         ("/mute(Only in O+ server)", "Mute the mentioned user!"),
         ("/ban(Only in O+ server)", "Ban the mentioned user!"),
+        ("/oplusadmin(Only in O+ server)", "Promote the mentioned user to Ocean+ admin!"),
     ]
 
     pages = []
@@ -776,12 +777,11 @@ async def ban(interaction: discord.Interaction, user: discord.Member, delete_day
     except Exception as e:
         await interaction.response.send_message(f"An error occurred: {str(e)}", ephemeral=True)
 
-@bot.tree.command(name="oplusadmin", description="Ban someone!")
+@bot.tree.command(name="oplusadmin", description="Make someone an O+ admin!")
 @app_commands.checks.dynamic_cooldown(cooldown)
 @app_commands.describe(
-    user="The user you want to ban",
-    reason="The reason for the ban",
-    delete_days="The messages you want to be deleted in days."
+    user="The user you want to make an admin",
+    reason="The reason for the promotion",
 )
 async def ban(interaction: discord.Interaction, user: discord.Member, reason: str):
     guildID = interaction.guild.id

@@ -728,7 +728,7 @@ async def mute(interaction: discord.Interaction, user: discord.Member, duration:
 @app_commands.describe(user="The user you want to ban", reason="The reason for the ban", delete_days="The messages you want to be deleted in days.")
 async def mute(interaction: discord.Interaction, user: discord.Member, delete_days: Optional[int] = None, reason: Optional[str] = None):
     guildID = interaction.guild.id
-    if guildID != 118331804686614938:
+    if guildID != 1183318046866149387:
         await interaction.response.send_message("This command is only available in the Ocean+ server!", ephemeral=True)
     else:
         if not interaction.user.guild_permissions.ban_members:

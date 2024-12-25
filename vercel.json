@@ -1,6 +1,10 @@
 {
-  "version": 3,
+  "version": 2,
   "builds": [
+    {
+      "src": "main.py",
+      "use": "@vercel/python"
+    },
     {
       "src": "requirements.txt",
       "use": "@vercel/python"
@@ -11,5 +15,5 @@
       "src": "/(.*)",
       "dest": "main.py"
     }
-  ]
+  ],
 }

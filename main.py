@@ -13,11 +13,14 @@ import aiohttp
 from typing import Optional
 import language_tool_python
 from discord.app_commands import CommandOnCooldown
+import logging
 
 from discord import app_commands
 from discord.ext import commands
 
 from keep_alive import keep_alive
+
+logging.basicConfig(level=logging.DEBUG)
 
 intents = discord.Intents.default()
 intents.message_content = True

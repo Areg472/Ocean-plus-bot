@@ -274,13 +274,10 @@ async def cat(interaction: discord.Interaction):
     else:
         random_param = random.randint(1, 1000000)
         api_url = f'https://cataas.com/cat?random={random_param}'
-        async with aiohttp.ClientSession() as session:
-            async with session.get(api_url) as response:
-                if response.status == 200:
-                    image_url = str(response.url)
-                    await interaction.response.send_message(image_url)
-                else:
-                    await interaction.response.send_message("Could not fetch a cat image at this time.")
+        if api_url.status == 200:
+           await interaction.response.send_message(api_url)
+        else:
+           await interaction.response.send_message("Could not fetch a cat image at this time.")
                     
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

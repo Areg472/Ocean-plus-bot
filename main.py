@@ -266,18 +266,20 @@ async def help(interaction: discord.Interaction):
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def cat(interaction: discord.Interaction):
     catuwu = random.randint(1, 21)
-    response = requests.get('https://cataas.com/cat')
-
+    
     if catuwu == 1:
         await interaction.response.send_message("<:eyeball:1314091785944825867>")
     elif catuwu == 2:
         await interaction.response.send_message("<:bla:1314091765896187924>")
     else:
-        if response.status_code == 200:
-            await interaction.response.send_message(response.url)
-        else:
-            await interaction.response.send_message("Could not fetch a cat image at this time.")
-
+        async with aiohttp.ClientSession() as session:
+            async with session.get('https://cataas.com/cat') as response:
+                if response.status == 200:
+                    image_url = str(response.url)
+                    await interaction.response.send_message(image_url)
+                else:
+                    await interaction.response.send_message("Could not fetch a cat image at this time.")
+                    
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="8ball", description="A nice fortune teller")

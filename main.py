@@ -260,29 +260,21 @@ async def help(interaction: discord.Interaction):
     view = HelpView()
     await interaction.response.send_message(embed=pages[0], view=view)
 
-def get_cat_image():
-    response = requests.get('https://cataas.com/cat?json=true')
-    if response.status_code == 200:
-        json_data = response.json()
-        return f"https://cataas.com/cat/{json_data['_id']}"
-    else:
-        return None
-
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="cat", description="Get an UwUwU cat picture!")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def cat(interaction: discord.Interaction):
-    cat_image_url = get_cat_image()
     catuwu = random.randint(1, 21)
+    response = requests.get('https://cataas.com/cat')
 
     if catuwu == 1:
         await interaction.response.send_message("<:eyeball:1314091785944825867>")
     elif catuwu == 2:
         await interaction.response.send_message("<:bla:1314091765896187924>")
     else:
-        if cat_image_url:
-            await interaction.response.send_message(cat_image_url)
+        if response.status_code == 200:
+            await interaction.response.send_message(response.url)
         else:
             await interaction.response.send_message("Could not fetch a cat image at this time.")
 

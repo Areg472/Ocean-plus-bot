@@ -259,10 +259,10 @@ async def help(interaction: discord.Interaction):
 
     view = HelpView()
     await interaction.response.send_message(embed=pages[0], view=view)
-
+    
+@bot.tree.command(name="cat", description="Get an UwUwU cat picture!")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@bot.tree.command(name="cat", description="Get an UwUwU cat picture!")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def cat(interaction: discord.Interaction):
     catuwu = random.randint(1, 21)
@@ -272,8 +272,10 @@ async def cat(interaction: discord.Interaction):
     elif catuwu == 2:
         await interaction.response.send_message("<:bla:1314091765896187924>")
     else:
+        random_param = random.randint(1, 1000000)
+        api_url = f'https://cataas.com/cat?random={random_param}'
         async with aiohttp.ClientSession() as session:
-            async with session.get('https://cataas.com/cat') as response:
+            async with session.get(api_url) as response:
                 if response.status == 200:
                     image_url = str(response.url)
                     await interaction.response.send_message(image_url)

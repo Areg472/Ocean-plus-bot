@@ -272,10 +272,10 @@ async def cat(interaction: discord.Interaction):
     elif catuwu == 2:
         await interaction.response.send_message("<:bla:1314091765896187924>")
     else:
-        random_param = random.randint(1, 1000000)
-        api_url = f'https://cataas.com/cat?random={random_param}'
+        api_url = requests.get('https://api.thecatapi.com/v1/images/search')
         if api_url.status == 200:
-           await interaction.response.send_message(api_url)
+            json_data = api_url.json()
+            await interaction.response.send_message(json_data[0]['url'])
         else:
            await interaction.response.send_message("Could not fetch a cat image at this time.")
                     

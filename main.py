@@ -272,12 +272,13 @@ async def cat(interaction: discord.Interaction):
     elif catuwu == 2:
         await interaction.response.send_message("<:bla:1314091765896187924>")
     else:
-        api_url = requests.get('https://api.thecatapi.com/v1/images/search')
-        if api_url.status == 200:
-            json_data = api_url.json()
-            await interaction.response.send_message(json_data[0]['url'])
-        else:
-           await interaction.response.send_message("Could not fetch a cat image at this time.")
+        async with aiohttp.ClientSession() as session:
+            async with session.get('https://api.thecatapi.com/v1/images/search') as response:
+                if response.status == 200:
+                    json_data = await response.json()
+                    await interaction.response.send_message(json_data[0]['url'])
+                else:
+                    await interaction.response.send_message("Could not fetch a cat image at this time.")
                     
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

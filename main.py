@@ -235,10 +235,10 @@ async def help(interaction: discord.Interaction):
             description=f"Page {len(pages)+1}/{-(-len(commands_list)//6)}", 
             colour=discord.Colour.dark_blue()
         )
-        
+
         for cmd, desc in page_commands:
             embed.add_field(name=cmd, value=desc, inline=False)
-        
+
         embed.set_footer(text="Made by Areg, the creator of Ocean+. Thanks to Its_Padar for helping me with the code, make sure to give him a follow on BlueSky!")
         pages.append(embed)
 
@@ -259,14 +259,14 @@ async def help(interaction: discord.Interaction):
 
     view = HelpView()
     await interaction.response.send_message(embed=pages[0], view=view)
-    
+
 @bot.tree.command(name="cat", description="Get an UwUwU cat picture!")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def cat(interaction: discord.Interaction):
     catuwu = random.randint(1, 21)
-    
+
     if catuwu == 1:
         await interaction.response.send_message("<:eyeball:1314091785944825867>")
     elif catuwu == 2:
@@ -279,7 +279,7 @@ async def cat(interaction: discord.Interaction):
                     await interaction.response.send_message(json_data[0]['url'])
                 else:
                     await interaction.response.send_message("Could not fetch a cat image at this time.")
-                    
+
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="8ball", description="A nice fortune teller")
@@ -494,7 +494,7 @@ MAX_HISTORY = 30
 async def on_message(message: discord.Message):
     if message.author.bot:
         return
-        
+
     if message.channel.id != 1315586087573258310:
         return
 
@@ -550,10 +550,10 @@ async def wiki_search(interaction: discord.Interaction, query: str):
         extract_format=wikipediaapi.ExtractFormat.WIKI,
         user_agent='DiscordBot/1.0'
     )
-    
+
     try:
         page = wiki.page(query)
-        
+
         if page.exists():
             if page.summary <= page.summary[:500]:
                 embed = discord.Embed(
@@ -572,7 +572,7 @@ async def wiki_search(interaction: discord.Interaction, query: str):
             await interaction.response.send_message(embed=embed)
         else:
             await interaction.response.send_message(f"Could not find Wikipedia article for '{query}'")
-            
+
     except Exception as e:
         await interaction.response.send_message(f"An error occurred: {str(e)}")
 
@@ -635,15 +635,15 @@ async def pat(interaction: discord.Interaction, person: discord.User):
         if not person.avatar:
             await interaction.response.send_message("User has no avatar!")
             return
-            
+
         avatar_url = urllib.parse.quote(person.avatar.url)
 
         headers = {
             "Authorization": f"Bearer {jeyy_api}"
         }
-        
+
         print(f"Attempting API request with token: {jeyy_api[:5]}...")
-        
+
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 f"https://api.jeyy.xyz/v2/image/patpat?image_url={avatar_url}", 
@@ -656,11 +656,11 @@ async def pat(interaction: discord.Interaction, person: discord.User):
                     error_text = await response.text()
                     await interaction.response.send_message(f"API Error {response.status}: {error_text}")
                     return
-                    
+
                 image_data = await response.read()
                 file = discord.File(io.BytesIO(image_data), filename="pet.gif")
                 await interaction.response.send_message(file=file)
-                
+
     except Exception as e:
         await interaction.response.send_message(f"Error: {str(e)}")
         print(f"Detailed error: {str(e)}")
@@ -731,7 +731,7 @@ async def mute(interaction: discord.Interaction, user: discord.Member, duration:
     try:
         reason_text = reason or "No reason provided"
         await user.timeout(datetime.timedelta(minutes=duration), reason=reason_text)
-        
+
         await interaction.response.send_message(
             f"✅ {user.mention} has been muted for {duration} minutes.\nReason: {reason_text}",
             ephemeral=True
@@ -784,7 +784,7 @@ async def oplusadmin(interaction: discord.Interaction, user: discord.Member, rea
     if not interaction.guild:
         await interaction.response.send_message("This command can only be used in a server!", ephemeral=True)
         return
-        
+
     guildID = interaction.guild.id
     if guildID != 1183318046866149387:
         await interaction.response.send_message("This command is only available in the Ocean+ server!", ephemeral=True)
@@ -799,7 +799,7 @@ async def oplusadmin(interaction: discord.Interaction, user: discord.Member, rea
         if not role:
             await interaction.response.send_message("The Ocean+ admin role could not be found!", ephemeral=True)
             return
-            
+
         if role in user.roles:
             await interaction.response.send_message(f"{user.mention} is already an Ocean+ Admin!", ephemeral=True)
             return
@@ -810,7 +810,7 @@ async def oplusadmin(interaction: discord.Interaction, user: discord.Member, rea
             f"✅ {user.mention} has been made an Ocean+ Admin.\nReason: {reason_text}",
             ephemeral=False
         )
-        
+
     except discord.Forbidden:
         await interaction.response.send_message("I don't have permission to manage roles!", ephemeral=True)
     except Exception as e:

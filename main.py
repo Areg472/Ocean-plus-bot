@@ -14,6 +14,7 @@ from typing import Optional
 import language_tool_python
 from discord.app_commands import CommandOnCooldown
 import logging
+import xml.etree.ElementTree as ET
 
 from discord import app_commands
 from discord.ext import commands
@@ -815,5 +816,59 @@ async def oplusadmin(interaction: discord.Interaction, user: discord.Member, rea
         await interaction.response.send_message("I don't have permission to manage roles!", ephemeral=True)
     except Exception as e:
         await interaction.response.send_message(f"An error occurred: {str(e)}", ephemeral=True)
+
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@bot.tree.command(name="boardgame", description="Search for board games on BoardGameGeek")
+@app_commands.describe(query="The name of the board game to search for")
+@app_commands.checks.dynamic_cooldown(cooldown)
+async def boardgame(interaction: discord.Interaction, query: str):
+    """Search for board games on BoardGameGeek and return the top 5 results with links."""
+    await interaction.response.defer()
+
+    try:
+        search_url = f"https://boardgamegeek.com/xmlapi2/search?query={query}&type=boardgame"
+        response = requests.get(search_url)
+
+        if response.status_code != 200:
+            await interaction.followup.send(
+                f"Error: Could not connect to BoardGameGeek API. Status code: {response.status_code}")
+            return
+
+        root = ET.fromstring(response.content)
+        items = root.findall('.//item')
+
+        if not items:
+            await interaction.followup.send(f"No board games found matching '{query}'.")
+            return
+
+        items = items[:5]
+
+        embed = discord.Embed(
+            title=f"🎲 BoardGameGeek Search Results for '{query}'",
+            color=discord.Color.blue(),
+            description=f"Found {len(items)} result(s):"
+        )
+
+        for item in items:
+            game_id = item.get('id')
+            game_name = item.find('name').get('value') if item.find('name') is not None else "Unknown"
+            year_published = item.find('yearpublished')
+            year = year_published.get('value') if year_published is not None else "N/A"
+
+            bgg_link = f"https://boardgamegeek.com/boardgame/{game_id}"
+
+            embed.add_field(
+                name=f"{game_name} ({year})",
+                value=f"[View on BoardGameGeek]({bgg_link})",
+                inline=False
+            )
+
+        embed.set_footer(text="Data from BoardGameGeek")
+
+        await interaction.followup.send(embed=embed)
+
+    except Exception as e:
+        await interaction.followup.send(f"An error occurred while searching for board games: {str(e)}")
 
 bot.run(os.environ.get('TOKEN'))

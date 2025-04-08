@@ -10,7 +10,6 @@ import wikipediaapi
 import random
 import google.generativeai as genai
 import aiohttp
-from typing import Optional
 import language_tool_python
 from discord.app_commands import CommandOnCooldown
 import logging

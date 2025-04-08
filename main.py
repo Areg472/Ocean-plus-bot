@@ -237,10 +237,10 @@ async def help(interaction: discord.Interaction):
             description=f"Page {len(pages)+1}/{-(-len(commands_list)//6)}", 
             colour=discord.Colour.dark_blue()
         )
-        
+
         for cmd, desc in page_commands:
             embed.add_field(name=cmd, value=desc, inline=False)
-        
+
         embed.set_footer(text="Made by Areg, the creator of Ocean+. Thanks to Its_Padar for helping me with the code, make sure to give him a follow on BlueSky!")
         pages.append(embed)
 
@@ -261,14 +261,14 @@ async def help(interaction: discord.Interaction):
 
     view = HelpView()
     await interaction.response.send_message(embed=pages[0], view=view)
-    
+
 @bot.tree.command(name="cat", description="Get an UwUwU cat picture!")
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def cat(interaction: discord.Interaction):
     catuwu = random.randint(1, 21)
-    
+
     if catuwu == 1:
         await interaction.response.send_message("<:eyeball:1314091785944825867>")
     elif catuwu == 2:
@@ -281,7 +281,7 @@ async def cat(interaction: discord.Interaction):
                     await interaction.response.send_message(json_data[0]['url'])
                 else:
                     await interaction.response.send_message("Could not fetch a cat image at this time.")
-                    
+
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="8ball", description="A nice fortune teller")
@@ -496,7 +496,7 @@ MAX_HISTORY = 30
 async def on_message(message: discord.Message):
     if message.author.bot:
         return
-        
+
     if message.channel.id != 1315586087573258310:
         return
 
@@ -552,10 +552,10 @@ async def wiki_search(interaction: discord.Interaction, query: str):
         extract_format=wikipediaapi.ExtractFormat.WIKI,
         user_agent='DiscordBot/1.0'
     )
-    
+
     try:
         page = wiki.page(query)
-        
+
         if page.exists():
             if page.summary <= page.summary[:500]:
                 embed = discord.Embed(
@@ -574,7 +574,7 @@ async def wiki_search(interaction: discord.Interaction, query: str):
             await interaction.response.send_message(embed=embed)
         else:
             await interaction.response.send_message(f"Could not find Wikipedia article for '{query}'")
-            
+
     except Exception as e:
         await interaction.response.send_message(f"An error occurred: {str(e)}")
 
@@ -637,15 +637,15 @@ async def pat(interaction: discord.Interaction, person: discord.User):
         if not person.avatar:
             await interaction.response.send_message("User has no avatar!")
             return
-            
+
         avatar_url = urllib.parse.quote(person.avatar.url)
 
         headers = {
             "Authorization": f"Bearer {jeyy_api}"
         }
-        
+
         print(f"Attempting API request with token: {jeyy_api[:5]}...")
-        
+
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 f"https://api.jeyy.xyz/v2/image/patpat?image_url={avatar_url}", 
@@ -658,11 +658,11 @@ async def pat(interaction: discord.Interaction, person: discord.User):
                     error_text = await response.text()
                     await interaction.response.send_message(f"API Error {response.status}: {error_text}")
                     return
-                    
+
                 image_data = await response.read()
                 file = discord.File(io.BytesIO(image_data), filename="pet.gif")
                 await interaction.response.send_message(file=file)
-                
+
     except Exception as e:
         await interaction.response.send_message(f"Error: {str(e)}")
         print(f"Detailed error: {str(e)}")
@@ -733,7 +733,7 @@ async def mute(interaction: discord.Interaction, user: discord.Member, duration:
     try:
         reason_text = reason or "No reason provided"
         await user.timeout(datetime.timedelta(minutes=duration), reason=reason_text)
-        
+
         await interaction.response.send_message(
             f"✅ {user.mention} has been muted for {duration} minutes.\nReason: {reason_text}",
             ephemeral=True
@@ -786,7 +786,7 @@ async def oplusadmin(interaction: discord.Interaction, user: discord.Member, rea
     if not interaction.guild:
         await interaction.response.send_message("This command can only be used in a server!", ephemeral=True)
         return
-        
+
     guildID = interaction.guild.id
     if guildID != 1183318046866149387:
         await interaction.response.send_message("This command is only available in the Ocean+ server!", ephemeral=True)
@@ -801,7 +801,7 @@ async def oplusadmin(interaction: discord.Interaction, user: discord.Member, rea
         if not role:
             await interaction.response.send_message("The Ocean+ admin role could not be found!", ephemeral=True)
             return
-            
+
         if role in user.roles:
             await interaction.response.send_message(f"{user.mention} is already an Ocean+ Admin!", ephemeral=True)
             return
@@ -812,7 +812,7 @@ async def oplusadmin(interaction: discord.Interaction, user: discord.Member, rea
             f"✅ {user.mention} has been made an Ocean+ Admin.\nReason: {reason_text}",
             ephemeral=False
         )
-        
+
     except discord.Forbidden:
         await interaction.response.send_message("I don't have permission to manage roles!", ephemeral=True)
     except Exception as e:
@@ -872,11 +872,9 @@ class BoardGameView(discord.ui.View):
 @app_commands.describe(query="The name of the board game to search for")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def boardgame(interaction: discord.Interaction, query: str):
-    """Search for board games on BoardGameGeek and return up to 15 results with descriptions."""
     await interaction.response.defer()
 
     try:
-        # Step 1: Search the BoardGameGeek API for games
         search_url = f"https://boardgamegeek.com/xmlapi2/search?query={query}&type=boardgame"
         response = requests.get(search_url)
 
@@ -885,7 +883,6 @@ async def boardgame(interaction: discord.Interaction, query: str):
                 f"Error: Could not connect to BoardGameGeek API. Status code: {response.status_code}")
             return
 
-        # Parse the XML response
         root = ET.fromstring(response.content)
         items = root.findall('.//item')
 
@@ -893,20 +890,16 @@ async def boardgame(interaction: discord.Interaction, query: str):
             await interaction.followup.send(f"No board games found matching '{query}'.")
             return
 
-        # Limit to top 15 results
         items = items[:15]
         total_results = len(items)
 
-        # Step 2: Get details for each game
         game_ids = [item.get('id') for item in items]
         details_url = f"https://boardgamegeek.com/xmlapi2/thing?id={','.join(game_ids)}&stats=1"
         details_response = requests.get(details_url)
 
-        # BGG API sometimes requires a moment before it returns results
         if details_response.status_code == 202:
             await interaction.followup.send("Processing your request... Please try again in a few seconds.",
                                             ephemeral=True)
-            # Wait briefly and try again
             time.sleep(2)
             details_response = requests.get(details_url)
 
@@ -915,7 +908,6 @@ async def boardgame(interaction: discord.Interaction, query: str):
                 f"Error: Could not retrieve game details. Status code: {details_response.status_code}")
             return
 
-        # Parse game details
         details_root = ET.fromstring(details_response.content)
         game_details = {}
 
@@ -924,21 +916,17 @@ async def boardgame(interaction: discord.Interaction, query: str):
             description = item.find('.//description')
             description_text = description.text if description is not None and description.text else "No description available."
 
-            # Truncate description if too long
             if len(description_text) > 200:
                 description_text = description_text[:197] + "..."
 
-            # Get average rating
             rating_element = item.find('.//statistics/ratings/average')
             rating = rating_element.get('value') if rating_element is not None else "N/A"
 
-            # Get player count
             min_players_element = item.find('.//minplayers')
             max_players_element = item.find('.//maxplayers')
             min_players = min_players_element.get('value') if min_players_element is not None else "?"
             max_players = max_players_element.get('value') if max_players_element is not None else "?"
 
-            # Get playing time
             playtime_element = item.find('.//playingtime')
             playtime = playtime_element.get('value') if playtime_element is not None else "?"
 
@@ -949,11 +937,9 @@ async def boardgame(interaction: discord.Interaction, query: str):
                 'playtime': playtime
             }
 
-        # Create embeds for pagination - decide if we need pagination
         embeds = []
 
         if total_results <= 5:
-            # Just one page needed - no pagination
             embed = discord.Embed(
                 title=f" BoardGameGeek Search Results for '{query}'",
                 color=discord.Color.blue(),
@@ -985,7 +971,6 @@ async def boardgame(interaction: discord.Interaction, query: str):
             embed.set_footer(text="Data from BoardGameGeek")
             embeds.append(embed)
         else:
-            # Multiple pages needed
             for page in range((total_results + 4) // 5):
                 start_idx = page * 5
                 end_idx = min(start_idx + 5, total_results)
@@ -1022,7 +1007,6 @@ async def boardgame(interaction: discord.Interaction, query: str):
                 embed.set_footer(text=f"Page {page + 1}/{(total_results + 4) // 5} • Data from BoardGameGeek")
                 embeds.append(embed)
 
-        # Send the first embed with the view
         view = BoardGameView(embeds, interaction.user)
         message = await interaction.followup.send(embed=embeds[0], view=view)
         view.message = message

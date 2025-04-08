@@ -15,6 +15,8 @@ import language_tool_python
 from discord.app_commands import CommandOnCooldown
 import logging
 import xml.etree.ElementTree as ET
+import time
+from typing import Optional
 
 from discord import app_commands
 from discord.ext import commands

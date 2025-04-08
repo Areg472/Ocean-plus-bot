@@ -826,18 +826,15 @@ class BoardGameView(discord.ui.View):
         self.current_page = 0
 
     async def on_timeout(self):
-        # Disable all buttons when the view times out
         for item in self.children:
             item.disabled = True
 
-        # Try to update the message with disabled buttons
         try:
             await self.message.edit(view=self)
         except:
             pass
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
-        # Only allow the original command user to use the buttons
         if interaction.user.id != self.author.id:
             await interaction.response.send_message("Only the person who ran this command can use these buttons.",
                                                     ephemeral=True)

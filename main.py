@@ -826,16 +826,24 @@ class BoardGameView(discord.ui.View):
         self.author = author
         self.current_page = 0
 
+        # Disable buttons if there's only one page
+        if len(embeds) <= 1:
+            for child in self.children:
+                child.disabled = True
+
     async def on_timeout(self):
+        # Disable all buttons when the view times out
         for item in self.children:
             item.disabled = True
 
+        # Try to update the message with disabled buttons
         try:
             await self.message.edit(view=self)
         except:
             pass
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        # Only allow the original command user to use the buttons
         if interaction.user.id != self.author.id:
             await interaction.response.send_message("Only the person who ran this command can use these buttons.",
                                                     ephemeral=True)
@@ -858,17 +866,17 @@ class BoardGameView(discord.ui.View):
         else:
             await interaction.response.defer()
 
-
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @bot.tree.command(name="boardgame", description="Search for board games on BoardGameGeek")
 @app_commands.describe(query="The name of the board game to search for")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def boardgame(interaction: discord.Interaction, query: str):
-    """Search for board games on BoardGameGeek and return the top 15 results with descriptions across 3 pages."""
+    """Search for board games on BoardGameGeek and return up to 15 results with descriptions."""
     await interaction.response.defer()
 
     try:
+        # Step 1: Search the BoardGameGeek API for games
         search_url = f"https://boardgamegeek.com/xmlapi2/search?query={query}&type=boardgame"
         response = requests.get(search_url)
 
@@ -877,6 +885,7 @@ async def boardgame(interaction: discord.Interaction, query: str):
                 f"Error: Could not connect to BoardGameGeek API. Status code: {response.status_code}")
             return
 
+        # Parse the XML response
         root = ET.fromstring(response.content)
         items = root.findall('.//item')
 
@@ -884,16 +893,20 @@ async def boardgame(interaction: discord.Interaction, query: str):
             await interaction.followup.send(f"No board games found matching '{query}'.")
             return
 
+        # Limit to top 15 results
         items = items[:15]
+        total_results = len(items)
 
+        # Step 2: Get details for each game
         game_ids = [item.get('id') for item in items]
         details_url = f"https://boardgamegeek.com/xmlapi2/thing?id={','.join(game_ids)}&stats=1"
         details_response = requests.get(details_url)
 
+        # BGG API sometimes requires a moment before it returns results
         if details_response.status_code == 202:
             await interaction.followup.send("Processing your request... Please try again in a few seconds.",
                                             ephemeral=True)
-
+            # Wait briefly and try again
             time.sleep(2)
             details_response = requests.get(details_url)
 
@@ -902,6 +915,7 @@ async def boardgame(interaction: discord.Interaction, query: str):
                 f"Error: Could not retrieve game details. Status code: {details_response.status_code}")
             return
 
+        # Parse game details
         details_root = ET.fromstring(details_response.content)
         game_details = {}
 
@@ -910,17 +924,21 @@ async def boardgame(interaction: discord.Interaction, query: str):
             description = item.find('.//description')
             description_text = description.text if description is not None and description.text else "No description available."
 
+            # Truncate description if too long
             if len(description_text) > 200:
                 description_text = description_text[:197] + "..."
 
+            # Get average rating
             rating_element = item.find('.//statistics/ratings/average')
             rating = rating_element.get('value') if rating_element is not None else "N/A"
 
+            # Get player count
             min_players_element = item.find('.//minplayers')
             max_players_element = item.find('.//maxplayers')
             min_players = min_players_element.get('value') if min_players_element is not None else "?"
             max_players = max_players_element.get('value') if max_players_element is not None else "?"
 
+            # Get playing time
             playtime_element = item.find('.//playingtime')
             playtime = playtime_element.get('value') if playtime_element is not None else "?"
 
@@ -931,23 +949,18 @@ async def boardgame(interaction: discord.Interaction, query: str):
                 'playtime': playtime
             }
 
+        # Create embeds for pagination - decide if we need pagination
         embeds = []
 
-        for page in range(3):
-            start_idx = page * 5
-            end_idx = min(start_idx + 5, len(items))
-            page_items = items[start_idx:end_idx]
-
-            if not page_items:
-                break
-
+        if total_results <= 5:
+            # Just one page needed - no pagination
             embed = discord.Embed(
-                title=f"🎲 BoardGameGeek Search Results for '{query}'",
+                title=f" BoardGameGeek Search Results for '{query}'",
                 color=discord.Color.blue(),
-                description=f"Found {len(items)} result(s)"
+                description=f"Found {total_results} result(s)"
             )
 
-            for item in page_items:
+            for item in items:
                 game_id = item.get('id')
                 game_name = item.find('name').get('value') if item.find('name') is not None else "Unknown"
                 year_published = item.find('yearpublished')
@@ -958,7 +971,7 @@ async def boardgame(interaction: discord.Interaction, query: str):
                 if game_id in game_details:
                     details = game_details[game_id]
                     description = details['description']
-                    info_line = f"⭐ {details['rating']}/10 • 👥 {details['players']} players • ⏱️ {details['playtime']} min"
+                    info_line = f"⭐ {details['rating']}/10 •  {details['players']} players • ⏱️ {details['playtime']} min"
                     value_text = f"{description}\n\n{info_line}\n[View on BoardGameGeek]({bgg_link})"
                 else:
                     value_text = f"[View on BoardGameGeek]({bgg_link})"
@@ -969,9 +982,47 @@ async def boardgame(interaction: discord.Interaction, query: str):
                     inline=False
                 )
 
-            embed.set_footer(text=f"Page {page + 1}/{min(3, (len(items) + 4) // 5)} • Data from BoardGameGeek")
+            embed.set_footer(text="Data from BoardGameGeek")
             embeds.append(embed)
+        else:
+            # Multiple pages needed
+            for page in range((total_results + 4) // 5):
+                start_idx = page * 5
+                end_idx = min(start_idx + 5, total_results)
+                page_items = items[start_idx:end_idx]
 
+                embed = discord.Embed(
+                    title=f" BoardGameGeek Search Results for '{query}'",
+                    color=discord.Color.blue(),
+                    description=f"Found {total_results} result(s)"
+                )
+
+                for item in page_items:
+                    game_id = item.get('id')
+                    game_name = item.find('name').get('value') if item.find('name') is not None else "Unknown"
+                    year_published = item.find('yearpublished')
+                    year = year_published.get('value') if year_published is not None else "N/A"
+
+                    bgg_link = f"https://boardgamegeek.com/boardgame/{game_id}"
+
+                    if game_id in game_details:
+                        details = game_details[game_id]
+                        description = details['description']
+                        info_line = f"⭐ {details['rating']}/10 •  {details['players']} players • ⏱️ {details['playtime']} min"
+                        value_text = f"{description}\n\n{info_line}\n[View on BoardGameGeek]({bgg_link})"
+                    else:
+                        value_text = f"[View on BoardGameGeek]({bgg_link})"
+
+                    embed.add_field(
+                        name=f"{game_name} ({year})",
+                        value=value_text,
+                        inline=False
+                    )
+
+                embed.set_footer(text=f"Page {page + 1}/{(total_results + 4) // 5} • Data from BoardGameGeek")
+                embeds.append(embed)
+
+        # Send the first embed with the view
         view = BoardGameView(embeds, interaction.user)
         message = await interaction.followup.send(embed=embeds[0], view=view)
         view.message = message

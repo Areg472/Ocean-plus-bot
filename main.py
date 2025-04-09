@@ -15,6 +15,7 @@ from discord.app_commands import CommandOnCooldown
 import logging
 import xml.etree.ElementTree as ET
 import time
+import html
 from typing import Optional
 
 from discord import app_commands
@@ -825,25 +826,21 @@ class BoardGameView(discord.ui.View):
         self.embeds = embeds
         self.author = author
         self.current_page = 0
-
-        # Disable buttons if there's only one page
+        
         if len(embeds) <= 1:
             for child in self.children:
                 child.disabled = True
 
     async def on_timeout(self):
-        # Disable all buttons when the view times out
         for item in self.children:
             item.disabled = True
 
-        # Try to update the message with disabled buttons
         try:
             await self.message.edit(view=self)
         except:
             pass
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
-        # Only allow the original command user to use the buttons
         if interaction.user.id != self.author.id:
             await interaction.response.send_message("Only the person who ran this command can use these buttons.",
                                                     ephemeral=True)
@@ -915,6 +912,9 @@ async def boardgame(interaction: discord.Interaction, query: str):
             game_id = item.get('id')
             description = item.find('.//description')
             description_text = description.text if description is not None and description.text else "No description available."
+            
+            # Decode HTML entities in the description
+            description_text = html.unescape(description_text)
 
             if len(description_text) > 200:
                 description_text = description_text[:197] + "..."
@@ -948,7 +948,8 @@ async def boardgame(interaction: discord.Interaction, query: str):
 
             for item in items:
                 game_id = item.get('id')
-                game_name = item.find('name').get('value') if item.find('name') is not None else "Unknown"
+                name_element = item.find('name')
+                game_name = html.unescape(name_element.get('value')) if name_element is not None else "Unknown"
                 year_published = item.find('yearpublished')
                 year = year_published.get('value') if year_published is not None else "N/A"
 
@@ -984,7 +985,8 @@ async def boardgame(interaction: discord.Interaction, query: str):
 
                 for item in page_items:
                     game_id = item.get('id')
-                    game_name = item.find('name').get('value') if item.find('name') is not None else "Unknown"
+                    name_element = item.find('name')
+                    game_name = html.unescape(name_element.get('value')) if name_element is not None else "Unknown"
                     year_published = item.find('yearpublished')
                     year = year_published.get('value') if year_published is not None else "N/A"
 

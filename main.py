@@ -21,8 +21,6 @@ from typing import Optional
 from discord import app_commands
 from discord.ext import commands
 
-from keep_alive import keep_alive
-
 logging.basicConfig(level=logging.DEBUG)
 
 intents = discord.Intents.default()

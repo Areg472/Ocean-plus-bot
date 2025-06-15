@@ -35,7 +35,7 @@ async def on_message(message: discord.Message):
         and message.content.strip().lower() == "opluswhiplashkim"
     ):
         await message.channel.send(
-            "<@1299815086147502080> https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPirR9qkuwXSxsTe0NZrlH9R3WGDJCUcgj2YvB"
+            "hi"
         )
 
     # Check for user codes in the specific channel

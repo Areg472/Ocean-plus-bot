@@ -27,6 +27,9 @@ async def on_ready():
 
 @bot.event
 async def on_message(message: discord.Message):
+    # Import user_codes from the generate_code module
+    from commands.generate_code import user_codes
+    
     if (
         message.channel.id == 1335634555377291306
         and message.content.strip().lower() == "opluswhiplashkim"
@@ -34,6 +37,21 @@ async def on_message(message: discord.Message):
         await message.channel.send(
             "<@1299815086147502080> https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPirR9qkuwXSxsTe0NZrlH9R3WGDJCUcgj2YvB"
         )
+
+    # Check for user codes in the specific channel
+    if message.channel.id == 1335634555377291306:
+        user_id = message.author.id
+        message_content = message.content.strip()
+        
+        # Check if the message matches any user's code
+        if user_id in user_codes and user_codes[user_id] == message_content:
+            # Send the Ocean+ link
+            await message.channel.send(
+                "<@1299815086147502080> https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPirR9qkuwXSxsTe0NZrlH9R3WGDJCUcgj2YvB"
+            )
+            # Reset the code for this user
+            del user_codes[user_id]
+            return  # Don't process this message further
 
     if message.author.bot:
         return

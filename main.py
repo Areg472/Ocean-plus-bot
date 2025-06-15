@@ -27,15 +27,21 @@ async def on_ready():
 
 @bot.event
 async def on_message(message: discord.Message):
+    # Basic debug - log every message
+    print(f"BASIC DEBUG: Message received from {message.author.id} in channel {message.channel.id}: '{message.content}'")
+    
     # Import user_codes from the generate_code module
     from commands.generate_code import user_codes
+    print(f"BASIC DEBUG: user_codes imported: {user_codes}")
 
     # Check for bot messages first
     if message.author.bot:
+        print("BASIC DEBUG: Message is from bot, ignoring")
         return
 
     # Check for user codes in the specific channel 1335634555377291306
     if message.channel.id == 1079639383445098587 :
+        print("BASIC DEBUG: Message is in target channel!")
         user_id = message.author.id
         message_content = message.content.strip()
         
@@ -52,6 +58,8 @@ async def on_message(message: discord.Message):
             print(f"Debug: Code verified! Sent message for user {user_id}")
             # Reset the code for this user
             del user_codes[user_id]
+        else:
+            print("BASIC DEBUG: Code doesn't match or user has no code")
         return  # Always return after processing messages in this channel
 
     # Handle AI chat channel

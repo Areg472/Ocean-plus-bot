@@ -54,6 +54,8 @@ model = genai.GenerativeModel('gemini-2.0-flash')
 async def on_ready():
     await bot.tree.sync()
     print(f'Logged in as {bot.user}!')
+    channel = bot.get_channel(1335634555377291306)
+    await channel.send("Tim hortons is the best!")
 
 def cooldown(interaction: discord.Interaction):
     return app_commands.Cooldown(1, 3.0)

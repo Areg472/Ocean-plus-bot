@@ -34,6 +34,10 @@ async def generate_code_command(interaction: discord.Interaction):
     new_code = generate_user_code()
     user_codes[user_id] = new_code
     
+    # Debug logging
+    print(f"Debug: Generated code '{new_code}' for user {user_id}")
+    print(f"Debug: Stored in user_codes: {user_codes}")
+    
     # Start the 30-second timer to reset the code
     asyncio.create_task(reset_user_code(user_id, 30))
     

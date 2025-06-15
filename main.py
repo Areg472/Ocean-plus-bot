@@ -30,24 +30,31 @@ async def on_message(message: discord.Message):
     # Import user_codes from the generate_code module
     from commands.generate_code import user_codes
 
+    # Check for bot messages first
+    if message.author.bot:
+        return
+
     # Check for user codes in the specific channel
     if message.channel.id == 1335634555377291306:
         user_id = message.author.id
         message_content = message.content.strip()
         
+        # Debug logging
+        print(f"Debug: Checking code for user {user_id}: '{message_content}'")
+        print(f"Debug: Available codes: {user_codes}")
+        
         # Check if the message matches any user's code
         if user_id in user_codes and user_codes[user_id] == message_content:
             # Send the Ocean+ link
             await message.channel.send(
-                "hi"
+                "<@1299815086147502080> https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPirR9qkuwXSxsTe0NZrlH9R3WGDJCUcgj2YvB"
             )
+            print(f"Debug: Code verified! Sent message for user {user_id}")
             # Reset the code for this user
             del user_codes[user_id]
-            return  # Don't process this message further
+        return  # Always return after processing messages in this channel
 
-    if message.author.bot:
-        return
-
+    # Handle AI chat channel
     if message.channel.id != 1315586087573258310:
         return
 

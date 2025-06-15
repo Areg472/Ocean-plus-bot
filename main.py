@@ -33,8 +33,14 @@ async def on_message(message: discord.Message):
     from commands.generate_code import user_codes
     print(f"BASIC DEBUG: user_codes imported: {user_codes}")
     
+    if message.author.bot:
+        print("BASIC DEBUG: Message is from bot, ignoring")
+        return
+    
     print("BASIC DEBUG: Message is from a real user!")
 
+    # TEMPORARY: Check for codes in ANY channel for testing
+    print(f"BASIC DEBUG: Checking if {message.channel.id} == 1079639383445098587")
     if message.channel.id == 1079639383445098587:
         print("BASIC DEBUG: Message is in target channel!")
         user_id = message.author.id
@@ -42,17 +48,26 @@ async def on_message(message: discord.Message):
         
         print(f"Debug: Checking code for user {user_id}: '{message_content}'")
         print(f"Debug: Available codes: {user_codes}")
+        print(f"Debug: User {user_id} in codes? {user_id in user_codes}")
+        if user_id in user_codes:
+            print(f"Debug: User's stored code: '{user_codes[user_id]}'")
+            print(f"Debug: Message content: '{message_content}'")
+            print(f"Debug: Codes match? {user_codes[user_id] == message_content}")
         
         if user_id in user_codes and user_codes[user_id] == message_content:
+            print("Debug: CODE MATCH! Sending message...")
             # Send the Ocean+ link
             await message.channel.send(
                 "<@1299815086147502080> https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPirR9qkuwXSxsTe0NZrlH9R3WGDJCUcgj2YvB"
             )
             print(f"Debug: Code verified! Sent message for user {user_id}")
             del user_codes[user_id]
+            print(f"Debug: Deleted code for user {user_id}")
         else:
             print("BASIC DEBUG: Code doesn't match or user has no code")
-        return 
+        return
+    else:
+        print(f"BASIC DEBUG: Message is NOT in target channel (it's in {message.channel.id})")
 
 @bot.tree.error
 async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):

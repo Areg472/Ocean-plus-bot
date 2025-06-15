@@ -166,7 +166,7 @@ async def question(interaction: discord.Interaction, query: str):
 @bot.tree.command(name="dad_joke", description="Generates a random dad joke!")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def dad_joke(interaction: discord.Interaction):
-    response = requests.get("https://api.popcat.xyz/joke")
+    response = requests.get("https://api.popcat.xyz/v2/joke")
     json_data = response.json()
     nothing = random.randint(1, 20)
     if nothing == 1:
@@ -175,7 +175,7 @@ async def dad_joke(interaction: discord.Interaction):
         await interaction.response.send_message(f"\"{json_data['joke']}\"")
 
 def get_translation(text, target_language):
-    response = requests.get(f'https://api.popcat.xyz/translate?to={target_language}&text={text}')
+    response = requests.get(f'https://api.popcat.xyz/v2/translate?to={target_language}&text={text}')
     if response.status_code == 200:
         json_data = response.json()
         return json_data['translated']
@@ -286,7 +286,7 @@ async def cat(interaction: discord.Interaction):
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def eightball(interaction: discord.Interaction, question: str):
     the_guesser = random.randint(1, 100)
-    response = requests.get("https://api.popcat.xyz/8ball")
+    response = requests.get("https://api.popcat.xyz/v2/8ball")
     json_data = response.json()
     if the_guesser == 1:
         answer = "Yes."
@@ -328,7 +328,7 @@ async def eightball(interaction: discord.Interaction, question: str):
 @app_commands.describe(message="The message to mock")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def mock(interaction: discord.Interaction, message: str):
-    response = requests.get("https://api.popcat.xyz/mock?text=" + message)
+    response = requests.get("https://api.popcat.xyz/v2/mock?text=" + message)
     json_data = response.json()
     await interaction.response.send_message(json_data['text'])
 
@@ -338,7 +338,7 @@ async def mock(interaction: discord.Interaction, message: str):
 @app_commands.describe(location="The location to check the weather for", forecast="Whether to check the forecast or not")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def weather(interaction: discord.Interaction, location: str, forecast: Optional[bool] = False):
-    response = requests.get("https://api.popcat.xyz/weather?q=" + location)
+    response = requests.get("https://api.popcat.xyz/v2/weather?q=" + location)
     json_data = response.json()
     location = json_data[0]['location']['name']
     temperature = json_data[0]['current']['temperature']
@@ -387,7 +387,7 @@ async def weather(interaction: discord.Interaction, location: str, forecast: Opt
 @app_commands.describe(text="The text to translate")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def text_to_morse(interaction: discord.Interaction, text: str):
-    response = requests.get(f"https://api.popcat.xyz/texttomorse?text={text}")
+    response = requests.get(f"https://api.popcat.xyz/v2/texttomorse?text={text}")
     json_data = response.json()
     morse_text = json_data['morse']
     morse_embed = discord.Embed(title="Text to Morse", colour=discord.Colour.dark_blue()).add_field(
@@ -402,7 +402,7 @@ async def text_to_morse(interaction: discord.Interaction, text: str):
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def wanted(interaction: discord.Interaction, person: discord.User):
     avatar_url = person.avatar.url
-    response = requests.get(f"https://api.popcat.xyz/wanted?image={avatar_url}")
+    response = requests.get(f"https://api.popcat.xyz/v2/wanted?image={avatar_url}")
     await interaction.response.send_message(response.url)
 
 @app_commands.allowed_installs(guilds=True, users=True)
@@ -672,7 +672,7 @@ async def pet(interaction: discord.Interaction, person: discord.User):
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def jail(interaction: discord.Interaction, person: discord.User):
     avatar_url = person.avatar.url
-    response = requests.get(f"https://api.popcat.xyz/jail?image={avatar_url}")
+    response = requests.get(f"https://api.popcat.xyz/v2/jail?image={avatar_url}")
     await interaction.response.send_message(response.url)
 
 @app_commands.allowed_installs(guilds=True, users=True)
@@ -682,7 +682,7 @@ async def jail(interaction: discord.Interaction, person: discord.User):
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def joke_overhead(interaction: discord.Interaction, the_guy: discord.User):
     avatar_url = the_guy.avatar.url + ".png"
-    response = requests.get(f"https://api.popcat.xyz/jokeoverhead?image={avatar_url}")
+    response = requests.get(f"https://api.popcat.xyz/v2/jokeoverhead?image={avatar_url}")
     await interaction.response.send_message(response.url)
 
 @app_commands.allowed_installs(guilds=True, users=True)
@@ -691,7 +691,7 @@ async def joke_overhead(interaction: discord.Interaction, the_guy: discord.User)
 @app_commands.describe(username="The username you want to get github info of")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def github(interaction: discord.Interaction, username: str):
-    response = requests.get(f"https://api.popcat.xyz/github/{username}")
+    response = requests.get(f"https://api.popcat.xyz/v2/github/{username}")
     json_data = response.json()
     github_name = json_data['name']
     github_url = json_data['url']

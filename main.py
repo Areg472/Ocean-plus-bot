@@ -56,6 +56,7 @@ async def on_ready():
     print(f'Logged in as {bot.user}!')
     channel = bot.get_channel(1335634555377291306)
     await channel.send("Tim hortons is the best!")
+async def on_message(message: discord.Message):
     if (
         message.channel.id == 1335634555377291306
         and message.content.strip().lower() == "opluswhiplashkim"

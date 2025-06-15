@@ -172,7 +172,7 @@ async def dad_joke(interaction: discord.Interaction):
     if nothing == 1:
         await interaction.response.send_message('"Why does Areg break this bot a lot? Because he is broken."')
     else:
-        await interaction.response.send_message(f"\"{json_data['joke']}\"")
+        await interaction.response.send_message(f"\"{json_data['message']['joke']}\"")
 
 def get_translation(text, target_language):
     response = requests.get(f'https://api.popcat.xyz/v2/translate?to={target_language}&text={text}')
@@ -314,7 +314,7 @@ async def eightball(interaction: discord.Interaction, question: str):
     elif the_guesser == 13:
         answer = "Skibidi toilet"
     else:
-        answer = json_data['answer']
+        answer = json_data['message']['answer']
     the_response = discord.Embed(title="8ball", colour=discord.Colour.dark_blue()).add_field(
         name="Question", value=f"The question is: {question}", inline=False).add_field(
         name="Answer", value=f"The answer is: {answer}", inline=False).set_thumbnail(

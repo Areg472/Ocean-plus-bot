@@ -346,7 +346,7 @@ async def weather(interaction: discord.Interaction, location: str, forecast: Opt
     humidity = json_data['message'][0]['current']['humidity']
     wind_speed = json_data['message'][0]['current']['windspeed']
     tomorrow_high = json_data['message'][0]['forecast'][0]['high']
-    tomorrow_low = json_data[0]['message']['forecast'][0]['low']
+    tomorrow_low = json_data['message'][0]['forecast'][0]['low']
     tomorrow_description = json_data['message'][0]['forecast'][0]['skytextday']
     one_day_high = json_data['message'][0]['forecast'][1]['high']
     one_day_low = json_data['message'][0]['forecast'][1]['low']

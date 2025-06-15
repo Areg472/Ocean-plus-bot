@@ -30,8 +30,6 @@ jeyy_api = os.environ.get('JEYY_API')
 
 bot = commands.Bot(command_prefix='$', intents=intents)
 
-keep_alive()
-
 tool = language_tool_python.LanguageToolPublicAPI('en-US')
 
 def get_meme():

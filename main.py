@@ -388,7 +388,7 @@ async def weather(interaction: discord.Interaction, location: str, forecast: Opt
 async def text_to_morse(interaction: discord.Interaction, text: str):
     response = requests.get(f"https://api.popcat.xyz/v2/texttomorse?text={text}")
     json_data = response.json()
-    morse_text = json_data['morse']
+    morse_text = json_data['message']['morse']
     morse_embed = discord.Embed(title="Text to Morse", colour=discord.Colour.dark_blue()).add_field(
         name="Original", value=text, inline=False).add_field(
         name="Morse", value=morse_text, inline=False)
@@ -682,11 +682,11 @@ async def joke_overhead(interaction: discord.Interaction, the_guy: discord.User)
 async def github(interaction: discord.Interaction, username: str):
     response = requests.get(f"https://api.popcat.xyz/v2/github/{username}")
     json_data = response.json()
-    github_name = json_data['name']
-    github_url = json_data['url']
-    github_avatar = json_data['avatar']
-    github_location = json_data['location']
-    github_bio = json_data['bio']
+    github_name = json_data['message']['name']
+    github_url = json_data['message']['url']
+    github_avatar = json_data['message']['avatar']
+    github_location = json_data['message']['location']
+    github_bio = json_data['message']['bio']
     result = discord.Embed(title=f"Github info of {github_name}!", colour=discord.Colour.dark_blue()).add_field(
         name="Name", value=github_name, inline=False).add_field(
         name="Location", value=github_location, inline=False).add_field(

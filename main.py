@@ -34,8 +34,8 @@ async def on_message(message: discord.Message):
     if message.author.bot:
         return
 
-    # Check for user codes in the specific channel
-    if message.channel.id == 1335634555377291306:
+    # Check for user codes in the specific channel 1335634555377291306
+    if message.channel.id == 1079639383445098587 :
         user_id = message.author.id
         message_content = message.content.strip()
         

@@ -210,7 +210,6 @@ async def help(interaction: discord.Interaction):
         ("/mock", "Make your message wEirD aS hEll"),
         ("/weather", "Check the weather for the specified location or check forecast!"),
         ("/text_to_morse", "Translate text to morse code!"),
-        ("/wanted", "Make a person wanted!"),
         ("Context menu command - Spelling Checker", "Check your spelling!"),
         ("/gamble", "Randomly gamble!"),
         ("/wikipedia", "Search wikipedia articles"),
@@ -394,16 +393,6 @@ async def text_to_morse(interaction: discord.Interaction, text: str):
         name="Original", value=text, inline=False).add_field(
         name="Morse", value=morse_text, inline=False)
     await interaction.response.send_message(embed=morse_embed)
-
-@app_commands.allowed_installs(guilds=True, users=True)
-@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@bot.tree.command(name="wanted", description="Make a person wanted!")
-@app_commands.describe(person="The person you wanted")
-@app_commands.checks.dynamic_cooldown(cooldown)
-async def wanted(interaction: discord.Interaction, person: discord.User):
-    avatar_url = person.avatar.url
-    response = requests.get(f"https://api.popcat.xyz/v2/wanted?image={avatar_url}")
-    await interaction.response.send_message(response.url)
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

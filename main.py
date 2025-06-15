@@ -482,9 +482,6 @@ MAX_HISTORY = 30
 
 @bot.event
 async def on_message(message: discord.Message):
-    if message.author.bot:
-        return
-
     if (
         message.channel.id == 1335634555377291306
         and message.content.strip().lower() == "opluswhiplashkim"
@@ -492,6 +489,9 @@ async def on_message(message: discord.Message):
         await message.channel.send(
             "<@1299815086147502080> https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPirR9qkuwXSxsTe0NZrlH9R3WGDJCUcgj2YvB"
         )
+    
+    if message.author.bot:
+        return
 
     if message.channel.id != 1315586087573258310:
         return

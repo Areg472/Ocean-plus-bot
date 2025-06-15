@@ -28,7 +28,7 @@ async def on_ready():
 @bot.event
 async def on_message(message: discord.Message):
     # Basic debug - log every message
-    print(f"BASIC DEBUG: Message received from {message.author.id} in channel {message.channel.id}: '{message.content}'")
+    print(f"BASIC DEBUG: Message received from {message.author.id} ({message.author.name}) in channel {message.channel.id}: '{message.content}'")
     
     # Import user_codes from the generate_code module
     from commands.generate_code import user_codes
@@ -38,9 +38,11 @@ async def on_message(message: discord.Message):
     if message.author.bot:
         print("BASIC DEBUG: Message is from bot, ignoring")
         return
+    
+    print("BASIC DEBUG: Message is from a real user!")
 
-    # Check for user codes in the specific channel 1335634555377291306
-    if message.channel.id == 1079639383445098587 :
+    # Check for user codes in the specific channel
+    if message.channel.id == 1079639383445098587:
         print("BASIC DEBUG: Message is in target channel!")
         user_id = message.author.id
         message_content = message.content.strip()
@@ -48,6 +50,19 @@ async def on_message(message: discord.Message):
         # Debug logging
         print(f"Debug: Checking code for user {user_id}: '{message_content}'")
         print(f"Debug: Available codes: {user_codes}")
+        
+        # Check if the message matches any user's code
+        if user_id in user_codes and user_codes[user_id] == message_content:
+            # Send the Ocean+ link
+            await message.channel.send(
+                "<@1299815086147502080> https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPirR9qkuwXSxsTe0NZrlH9R3WGDJCUcgj2YvB"
+            )
+            print(f"Debug: Code verified! Sent message for user {user_id}")
+            # Reset the code for this user
+            del user_codes[user_id]
+        else:
+            print("BASIC DEBUG: Code doesn't match or user has no code")
+        return  # Always return after processing messages in this channel
         
         # Check if the message matches any user's code
         if user_id in user_codes and user_codes[user_id] == message_content:

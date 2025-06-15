@@ -32,27 +32,16 @@ async def on_message(message: discord.Message):
     if message.author.bot:
         return
 
-    # Check for user codes in the specific channel 1335634555377291306
-    if message.channel.id == 1183318047717601312:
+    if message.guild and message.guild.id == 1335634554169327646:
         user_id = message.author.id
         message_content = message.content.strip()
         
-        # Check if the message matches any user's code
         if user_id in user_codes and user_codes[user_id] == message_content:
-            # Send the Ocean+ link
             await message.channel.send(
-                "<@1299815086147502080> https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPirR9qkuwXSxsTe0NZrlH9R3WGDJCUcgj2YvB"            )
-            # Reset the code for this user
+                "<@1299815086147502080> https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPirR9qkuwXSxsTe0NZrlH9R3WGDJCUcgj2YvB"
+            )
             del user_codes[user_id]
-        return  # Always return after processing messages in this channel
-
-    # Handle AI chat channel
-    if message.channel.id != 1315586087573258310:
         return
-
-    user_id = str(message.author.id)
-    if user_id not in user_history:
-        user_history[user_id] = []
 
 @bot.tree.error
 async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):

@@ -329,7 +329,7 @@ async def eightball(interaction: discord.Interaction, question: str):
 async def mock(interaction: discord.Interaction, message: str):
     response = requests.get("https://api.popcat.xyz/v2/mock?text=" + message)
     json_data = response.json()
-    await interaction.response.send_message(json_data['text'])
+    await interaction.response.send_message(json_data['message']['text'])
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

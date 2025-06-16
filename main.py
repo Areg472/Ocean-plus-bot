@@ -49,17 +49,19 @@ async def on_message(message: discord.Message):
                 await message.channel.send(
                     "https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcP1o5iDc2RNu8TqO3d9QrgzXCYhmV2IlEJUSZ0"
                 )
-            if context == 2:
+            elif context == 2:
                 await message.delete()
-                await message.channel.send("https://media1.tenor.com/m/JHFY4DYUp9EAAAAC/tim-hortons-its-time-for-tims.gif")
+                await message.channel.send("https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPm20fUWgarYbdC3iT9GeS4kf6UyAKLjp7uFNM")
                 time.sleep(1)
-                await message.channel.send("https://media1.tenor.com/m/0BBGBX24BjkAAAAC/aclogo-accessibility-club.gif")
+                await message.channel.send("https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPQ24mpNuvmSEAv0yirJneg9hcBMoC3TQuRt2s")
                 time.sleep(1)
-                await message.channel.send("https://media1.tenor.com/m/WSgrlC3FMAkAAAAC/thumbs-up-two-thumbs-up.gif")
+                await message.channel.send("https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPQgtI2BvmSEAv0yirJneg9hcBMoC3TQuRt2sH")
                 time.sleep(1)
-                await message.channel.send("https://media1.tenor.com/m/lVkvkH9DCQcAAAAC/taco-bell-tex-mex.gif")
+                await message.channel.send("https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPeES8RvnilWqd9IHpjOJDSQ5tT1Xg2Vr0ZF4B")
                 time.sleep(1)
-                await message.channel.send("https://media.tenor.com/l4Fn1CJf5cUAAAAi/worse-thumbs-down.gif")
+                await message.channel.send("https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPQ24mpNuvmSEAv0yirJneg9hcBMoC3TQuRt2s")
+                time.sleep(1)
+                await message.channel.send("https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPfA1ADBlBVdGovX205z9aWg8ep4Nb6xqLZIEr")
             del user_codes[user_id]
         return
 

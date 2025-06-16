@@ -40,6 +40,10 @@ async def on_message(message: discord.Message):
             await message.channel.send(
                 "<@1299815086147502080> https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPirR9qkuwXSxsTe0NZrlH9R3WGDJCUcgj2YvB"
             )
+            await message.channel.send(
+                "https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcP1o5iDc2RNu8TqO3d9QrgzXCYhmV2IlEJUSZ0"
+            )
+            await message.delete()
             del user_codes[user_id]
         return
 

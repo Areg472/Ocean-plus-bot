@@ -55,7 +55,7 @@ async def on_message(message: discord.Message):
                 
                 current_time = time.time()
                 tracked_messages[msg1.id] = {
-                    "content": "<@1299815086147502080> https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPirR9qkuwXSxsTe0NZrlH9R3WGDJCUcgj2YvB",
+                    "content": "https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPirR9qkuwXSxsTe0NZrlH9R3WGDJCUcgj2YvB",
                     "channel": message.channel,
                     "timestamp": current_time
                 }
@@ -90,16 +90,22 @@ async def on_message_delete(message: discord.Message):
         tracked_msg = tracked_messages[message.id]
         current_time = time.time()
         
-        if current_time - tracked_msg["timestamp"] <= 120:  
+        if current_time - tracked_msg["timestamp"] <= 120:
             try:
-                await tracked_msg["channel"].send(tracked_msg["content"])
+                new_msg = await tracked_msg["channel"].send(tracked_msg["content"])
+                
+                tracked_messages[new_msg.id] = {
+                    "content": tracked_msg["content"],
+                    "channel": tracked_msg["channel"],
+                    "timestamp": tracked_msg["timestamp"]
+                }
             except discord.errors.Forbidden:
                 pass
-
+        
         del tracked_messages[message.id]
 
 async def cleanup_tracked_message(message_id: int, timestamp: float):
-    await asyncio.sleep(120)  
+    await asyncio.sleep(120)
     if message_id in tracked_messages and tracked_messages[message_id]["timestamp"] == timestamp:
         del tracked_messages[message_id]
 

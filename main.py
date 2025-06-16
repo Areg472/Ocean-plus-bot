@@ -1,3 +1,6 @@
+import random
+import time
+
 import discord
 import os
 import logging
@@ -37,13 +40,26 @@ async def on_message(message: discord.Message):
         message_content = message.content.strip()
         
         if user_id in user_codes and user_codes[user_id] == message_content:
-            await message.channel.send(
-                "<@1299815086147502080> https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPirR9qkuwXSxsTe0NZrlH9R3WGDJCUcgj2YvB"
-            )
-            await message.channel.send(
-                "https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcP1o5iDc2RNu8TqO3d9QrgzXCYhmV2IlEJUSZ0"
-            )
-            await message.delete()
+            context = random.randint(1, 2)
+            if context == 1:
+                await message.delete()
+                await message.channel.send(
+                    "<@1299815086147502080> https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPirR9qkuwXSxsTe0NZrlH9R3WGDJCUcgj2YvB"
+                )
+                await message.channel.send(
+                    "https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcP1o5iDc2RNu8TqO3d9QrgzXCYhmV2IlEJUSZ0"
+                )
+            if context == 2:
+                await message.delete()
+                await message.channel.send("https://media1.tenor.com/m/JHFY4DYUp9EAAAAC/tim-hortons-its-time-for-tims.gif")
+                time.sleep(1)
+                await message.channel.send("https://media1.tenor.com/m/0BBGBX24BjkAAAAC/aclogo-accessibility-club.gif")
+                time.sleep(1)
+                await message.channel.send("https://media1.tenor.com/m/WSgrlC3FMAkAAAAC/thumbs-up-two-thumbs-up.gif")
+                time.sleep(1)
+                await message.channel.send("https://media1.tenor.com/m/lVkvkH9DCQcAAAAC/taco-bell-tex-mex.gif")
+                time.sleep(1)
+                await message.channel.send("https://media.tenor.com/l4Fn1CJf5cUAAAAi/worse-thumbs-down.gif")
             del user_codes[user_id]
         return
 

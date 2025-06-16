@@ -51,17 +51,17 @@ async def on_message(message: discord.Message):
                 )
             elif context == 2:
                 await message.delete()
-                await message.channel.send("https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPm20fUWgarYbdC3iT9GeS4kf6UyAKLjp7uFNM")
+                await message.channel.send("https://tenor.com/view/tim-hortons-its-time-for-tims-tims-timmies-canadian-fast-food-gif-2625977777736951761")
                 time.sleep(0.5)
-                await message.channel.send("https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPQ24mpNuvmSEAv0yirJneg9hcBMoC3TQuRt2s")
+                await message.channel.send("https://tenor.com/view/aclogo-accessibility-club-leland-lhs-accessibilty-accessibility-gif-18778419")
                 time.sleep(0.5)
-                await message.channel.send("https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPQgtI2BvmSEAv0yirJneg9hcBMoC3TQuRt2sH")
+                await message.channel.send("https://tenor.com/view/ok-okay-like-emoticon-emoji-gif-8063975731664111")
                 time.sleep(0.5)
-                await message.channel.send("https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPeES8RvnilWqd9IHpjOJDSQ5tT1Xg2Vr0ZF4B")
+                await message.channel.send("https://tenor.com/view/taco-bell-tex-mex-tacos-fast-food-gif-10761685082235406599")
                 time.sleep(0.5)
-                await message.channel.send("https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPQ24mpNuvmSEAv0yirJneg9hcBMoC3TQuRt2s")
+                await message.channel.send("https://tenor.com/view/aclogo-accessibility-club-leland-lhs-accessibilty-accessibility-gif-18778419")
                 time.sleep(0.5)
-                await message.channel.send("https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPfA1ADBlBVdGovX205z9aWg8ep4Nb6xqLZIEr")
+                await message.channel.send("https://tenor.com/view/no-dislike-thumbs-down-emoticon-emoji-gif-6511007033097383174")
             del user_codes[user_id]
         return
 

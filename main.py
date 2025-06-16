@@ -27,8 +27,6 @@ async def on_ready():
     await bot.tree.sync()
 
     print(f'Logged in as {bot.user}!')
-    channel = bot.get_channel(1335634555377291306)
-    await channel.send("Tim hortons is the best!")
 
 
 @bot.event

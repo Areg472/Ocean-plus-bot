@@ -50,7 +50,7 @@ async def on_message(message: discord.Message):
                 msg2 = await message.channel.send(
                     "https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcP1o5iDc2RNu8TqO3d9QrgzXCYhmV2IlEJUSZ0"
                 )
-                
+                """
                 current_time = time.time()
                 tracked_messages[msg1.id] = {
                     "content": "https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPirR9qkuwXSxsTe0NZrlH9R3WGDJCUcgj2YvB",
@@ -64,7 +64,7 @@ async def on_message(message: discord.Message):
                 }
                 
                 asyncio.create_task(cleanup_tracked_message(msg1.id, current_time))
-                asyncio.create_task(cleanup_tracked_message(msg2.id, current_time))
+                asyncio.create_task(cleanup_tracked_message(msg2.id, current_time))"""
                 
             elif context == 2:
                 await message.delete()
@@ -81,7 +81,7 @@ async def on_message(message: discord.Message):
                 await message.channel.send("https://tenor.com/view/no-dislike-thumbs-down-emoticon-emoji-gif-6511007033097383174")
             del user_codes[user_id]
         return
-
+"""
 @bot.event
 async def on_message_delete(message: discord.Message):
     if message.id in tracked_messages:
@@ -106,7 +106,7 @@ async def cleanup_tracked_message(message_id: int, timestamp: float):
     await asyncio.sleep(120)
     if message_id in tracked_messages and tracked_messages[message_id]["timestamp"] == timestamp:
         del tracked_messages[message_id]
-
+"""
 @bot.tree.error
 async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
     if isinstance(error, CommandOnCooldown):

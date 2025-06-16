@@ -13,7 +13,7 @@ class ContextSelectionView(discord.ui.View):
         self.code = code
         self.user_id = user_id
 
-    @discord.ui.button(label="Context 1", style=discord.ButtonStyle.primary, emoji="1️⃣")
+    @discord.ui.button(label="Context 1(whiplash truth)", style=discord.ButtonStyle.primary, emoji="1️⃣")
     async def context_1(self, interaction: discord.Interaction, button: discord.ui.Button):
         user_codes[self.user_id] = {"code": self.code, "context": 1}
         await interaction.response.edit_message(
@@ -24,7 +24,7 @@ class ContextSelectionView(discord.ui.View):
             view=None
         )
 
-    @discord.ui.button(label="Context 2", style=discord.ButtonStyle.secondary, emoji="2️⃣")
+    @discord.ui.button(label="Context 2(tim hortons)", style=discord.ButtonStyle.primary, emoji="2️⃣")
     async def context_2(self, interaction: discord.Interaction, button: discord.ui.Button):
         user_codes[self.user_id] = {"code": self.code, "context": 2}
         await interaction.response.edit_message(

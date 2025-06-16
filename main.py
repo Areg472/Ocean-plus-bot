@@ -52,15 +52,15 @@ async def on_message(message: discord.Message):
             elif context == 2:
                 await message.delete()
                 await message.channel.send("https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPm20fUWgarYbdC3iT9GeS4kf6UyAKLjp7uFNM")
-                time.sleep(1)
+                time.sleep(0.5)
                 await message.channel.send("https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPQ24mpNuvmSEAv0yirJneg9hcBMoC3TQuRt2s")
-                time.sleep(1)
+                time.sleep(0.5)
                 await message.channel.send("https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPQgtI2BvmSEAv0yirJneg9hcBMoC3TQuRt2sH")
-                time.sleep(1)
+                time.sleep(0.5)
                 await message.channel.send("https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPeES8RvnilWqd9IHpjOJDSQ5tT1Xg2Vr0ZF4B")
-                time.sleep(1)
+                time.sleep(0.5)
                 await message.channel.send("https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPQ24mpNuvmSEAv0yirJneg9hcBMoC3TQuRt2s")
-                time.sleep(1)
+                time.sleep(0.5)
                 await message.channel.send("https://gr5mutu1hr.ufs.sh/f/thKihuQxhYcPfA1ADBlBVdGovX205z9aWg8ep4Nb6xqLZIEr")
             del user_codes[user_id]
         return

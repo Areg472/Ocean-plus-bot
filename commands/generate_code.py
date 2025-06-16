@@ -1,4 +1,4 @@
-import discord
+"""import discord
 from discord import app_commands
 from commands.utils import cooldown
 import secrets
@@ -40,7 +40,6 @@ class ContextSelectionView(discord.ui.View):
             del user_codes[self.user_id]
 
 async def reset_user_code(user_id, delay=30):
-    """Reset a user's code after the specified delay (in seconds)"""
     await asyncio.sleep(delay)
     if user_id in user_codes:
         del user_codes[user_id]
@@ -68,3 +67,4 @@ async def generate_code_command(interaction: discord.Interaction):
         view=view,
         ephemeral=True
     )
+"""

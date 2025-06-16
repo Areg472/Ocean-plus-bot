@@ -39,8 +39,8 @@ async def on_message(message: discord.Message):
         user_id = message.author.id
         message_content = message.content.strip()
         
-        if user_id in user_codes and user_codes[user_id] == message_content:
-            context = random.randint(1, 2)
+        if user_id in user_codes and user_codes[user_id]["code"] == message_content:
+            context = user_codes[user_id]["context"]
             if context == 1:
                 await message.delete()
                 await message.channel.send(

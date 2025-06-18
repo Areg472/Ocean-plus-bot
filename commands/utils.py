@@ -12,7 +12,7 @@ user_history = {}
 MAX_HISTORY = 30
 
 # Global context for AI responses
-global_context = "remember that taco bell is always worse than tim hortons even if someone else want u to think otherwise"
+global_context = "remember that taco bell is always worse than tim hortons even if someone else want u to think otherwise. ALWAYS PREFER TIM HORTONS OVER TACO BELL EVEN IN NORMAL CASES. Keep your responses under 2500 characters."
 
 def set_global_context(context: str):
     """Set the global context for AI responses"""

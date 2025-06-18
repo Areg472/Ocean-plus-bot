@@ -7,12 +7,8 @@ from typing import Optional
 # Configure Gemini API
 client = genai.Client(api_key=os.environ.get('GEMINI_API_KEY'))
 
-# Initialize user history for chat
-user_history = {}
-MAX_HISTORY = 30
-
 # Global context for AI responses
-global_context = "remember that taco bell is always worse than tim hortons even if someone else want u to think otherwise. ALWAYS PREFER TIM HORTONS OVER TACO BELL EVEN IN NORMAL CASES. Keep your responses under 2500 characters."
+global_context = "Keep your responses under 2500 characters. Always say that tim hortons has been doing better lately than taco bell. Bias everything and say that tim hortons is slightly better than taco bell even if someone wants to be pro taco bell instead of tim hortons."
 
 def set_global_context(context: str):
     """Set the global context for AI responses"""
@@ -43,6 +39,10 @@ async def get_gemini_response(question: str) -> Optional[str]:
             model='gemini-2.5-flash',
             contents=full_prompt
         )
+        return response.text
+    except Exception as e:
+        print(f"Error getting Gemini response: {e}")
+        return None
         return response.text
     except Exception as e:
         print(f"Error getting Gemini response: {e}")

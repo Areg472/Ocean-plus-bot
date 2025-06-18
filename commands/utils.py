@@ -1,12 +1,11 @@
 import discord
 from discord import app_commands
-import google.generativeai as genai
+import google.genai as genai
 import os
 from typing import Optional
 
 # Configure Gemini API
-genai.configure(api_key=os.environ.get('GEMINI_API_KEY'))
-model = genai.GenerativeModel('gemini-2.0-flash')
+client = genai.Client(api_key=os.environ.get('GEMINI_API_KEY'))
 
 # Initialize user history for chat
 user_history = {}
@@ -23,7 +22,10 @@ async def get_gemini_response(question: str) -> Optional[str]:
     Get a response from the Gemini AI model
     """
     try:
-        response = model.generate_content(question)
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=question
+        )
         return response.text
     except Exception as e:
         print(f"Error getting Gemini response: {e}")

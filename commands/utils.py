@@ -2,6 +2,8 @@ import discord
 from discord import app_commands
 import google.genai as genai
 import os
+import asyncio
+import time
 from typing import Optional
 
 # Configure Gemini API
@@ -25,25 +27,58 @@ def cooldown(interaction: discord.Interaction):
     """
     return app_commands.Cooldown(1, 3.0)
 
-async def get_gemini_response(question: str) -> Optional[str]:
+async def get_gemini_response(question: str, timeout: int = 45) -> Optional[str]:
     """
-    Get a response from the Gemini AI model
+    Get a response from the Gemini AI model with proper error handling
     """
     try:
+        start_time = time.time()
+        
         # Combine global context with question if context exists
         full_prompt = question
         if global_context:
             full_prompt = f"Context: {global_context}\n\nQuestion: {question}"
         
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=full_prompt
+        print(f"Sending request to Gemini... (prompt length: {len(full_prompt)} chars)")
+        
+        # Make the API call with timeout and proper async handling
+        response = await asyncio.wait_for(
+            asyncio.to_thread(
+                lambda: client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=full_prompt,
+                    generation_config={
+                        'max_output_tokens': 2048,
+                        'temperature': 0.7,
+                    }
+                )
+            ),
+            timeout=timeout
         )
-        return response.text
+        
+        elapsed = time.time() - start_time
+        print(f"Gemini responded in {elapsed:.2f}s")
+        
+        if not response or not response.text:
+            print("Gemini returned empty response")
+            return "Sorry, I couldn't generate a response for that question."
+        
+        return response.text.strip()
+        
+    except asyncio.TimeoutError:
+        print(f"Gemini request timed out after {timeout}s")
+        return "Sorry, the request took too long to process. Please try again."
+    
     except Exception as e:
-        print(f"Error getting Gemini response: {e}")
-        return None
-        return response.text
-    except Exception as e:
-        print(f"Error getting Gemini response: {e}")
-        return None
+        error_msg = str(e).lower()
+        print(f"Gemini API error: {e}")
+        
+        # Handle specific error types
+        if "safety" in error_msg or "blocked" in error_msg:
+            return "Sorry, I can't respond to that due to content guidelines."
+        elif "quota" in error_msg or "limit" in error_msg:
+            return "Sorry, I'm temporarily at capacity. Please try again later."
+        elif "invalid" in error_msg:
+            return "Sorry, there was an issue with your request format."
+        else:
+            return "Sorry, I encountered an error processing your request."

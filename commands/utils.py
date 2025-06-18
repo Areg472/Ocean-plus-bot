@@ -44,38 +44,42 @@ async def get_gemini_response(question: str, timeout: int = 45) -> Optional[str]
         # Try the original synchronous approach first
         try:
             response = client.models.generate_content(
-                model='gemini-2.5-flash',
+                model='gemini-2.0-flash-exp',
                 contents=full_prompt
             )
             
             elapsed = time.time() - start_time
             print(f"Gemini responded in {elapsed:.2f}s")
+            print(f"Response object: {response}")
+            print(f"Response type: {type(response)}")
             
-            if response and hasattr(response, 'text') and response.text:
-                return response.text.strip()
-            else:
-                print(f"Empty response: {response}")
-                return "Sorry, I couldn't generate a response for that question."
+            # Better response handling
+            if response:
+                if hasattr(response, 'text') and response.text:
+                    print(f"Found response.text: {response.text[:100]}...")
+                    return response.text.strip()
+                elif hasattr(response, 'candidates') and response.candidates:
+                    print(f"Found candidates: {len(response.candidates)}")
+                    for i, candidate in enumerate(response.candidates):
+                        print(f"Candidate {i}: {candidate}")
+                        if hasattr(candidate, 'content') and candidate.content:
+                            if hasattr(candidate.content, 'parts') and candidate.content.parts:
+                                for part in candidate.content.parts:
+                                    if hasattr(part, 'text') and part.text:
+                                        print(f"Found part text: {part.text[:100]}...")
+                                        return part.text.strip()
+                else:
+                    print(f"Response attributes: {dir(response)}")
+            
+            print(f"No valid text found in response: {response}")
+            return "Sorry, I received an empty response from the AI."
                 
         except Exception as api_error:
             print(f"Direct API call failed: {api_error}")
             print(f"Error type: {type(api_error)}")
             
-            # Try async version as fallback
-            response = await asyncio.wait_for(
-                asyncio.to_thread(
-                    lambda: client.models.generate_content(
-                        model='gemini-2.5-flash',
-                        contents=full_prompt
-                    )
-                ),
-                timeout=timeout
-            )
-            
-            if response and hasattr(response, 'text') and response.text:
-                return response.text.strip()
-            else:
-                return "Sorry, I couldn't generate a response for that question."
+            # Return error message instead of trying fallback
+            return f"Sorry, I encountered an API error: {str(api_error)[:200]}..."
         
     except asyncio.TimeoutError:
         print(f"Gemini request timed out after {timeout}s")

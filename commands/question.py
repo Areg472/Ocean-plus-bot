@@ -28,15 +28,22 @@ async def question_command(interaction: discord.Interaction, query: str):
     try:
         # Add timeout wrapper
         answer = await asyncio.wait_for(get_gemini_response(query, user_id=interaction.user.id), timeout=60.0)
+        print(f"Received answer: {answer[:100] if answer else 'None'}...")
+        print(f"Answer type: {type(answer)}")
+        print(f"Answer length: {len(answer) if answer else 0}")
     except asyncio.TimeoutError:
         answer = "Sorry, the AI took too long to respond. Please try again with a simpler question."
+        print("Timeout occurred")
     except Exception as e:
         print(f"Unexpected error in question command: {e}")
         answer = "Sorry, something went wrong while processing your question."
     
     # Ensure we always have some response
-    if not answer:
+    if not answer or not answer.strip():
         answer = "Sorry, I couldn't generate a response. Please try again."
+        print("Empty answer, using fallback")
+    
+    print(f"Final answer to display: {answer[:100]}...")
     
     # Create response embed
     response_embed = discord.Embed(
@@ -49,6 +56,7 @@ async def question_command(interaction: discord.Interaction, query: str):
     if len(answer) > 1900:  # Leave room for embed formatting
         chunks = [answer[i:i + 1900] for i in range(0, len(answer), 1900)]
         response_embed.add_field(name="Answer (Part 1)", value=chunks[0], inline=False)
+        print(f"Sending chunked response, part 1 length: {len(chunks[0])}")
         await interaction.edit_original_response(embed=response_embed)
         
         # Send additional parts as follow-up embeds
@@ -61,4 +69,5 @@ async def question_command(interaction: discord.Interaction, query: str):
             await interaction.followup.send(embed=continuation_embed)
     else:
         response_embed.add_field(name="Answer", value=answer, inline=False)
+        print(f"Sending single response, length: {len(answer)}")
         await interaction.edit_original_response(embed=response_embed)

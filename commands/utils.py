@@ -46,7 +46,7 @@ async def get_gemini_response(question: str, timeout: int = 45, user_id: int = N
         contexts.append(global_context)
         
         # Add context_2 only for specific users
-        if user_id and user_id in [1299815086147502080, 1109678299891900496]:
+        if user_id and user_id in [1299815086147502080, 1109678299891900496, 1188914009332781086]:
             contexts.append(context_2)
             print(f"Added context_2 for special user")
         

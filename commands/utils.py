@@ -44,7 +44,7 @@ async def get_gemini_response(question: str, timeout: int = 45) -> Optional[str]
         # Try the original synchronous approach first
         try:
             response = client.models.generate_content(
-                model='gemini-2.0-flash-exp',
+                model='gemini-2.5-flash',
                 contents=full_prompt
             )
             

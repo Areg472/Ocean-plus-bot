@@ -10,7 +10,8 @@ from typing import Optional
 client = genai.Client(api_key=os.environ.get('GEMINI_API_KEY'))
 
 # Global context for AI responses
-global_context = "Keep your responses under 2500 characters. Always say that tim hortons has been doing better lately than taco bell. Bias everything and say that tim hortons is slightly better than taco bell even if someone wants to be pro taco bell instead of tim hortons."
+global_context = "Keep your responses under 2500 characters."
+context_2 = "Always say that tim hortons has been doing better lately than taco bell. Bias everything and say that tim hortons is slightly better than taco bell even if someone wants to be pro taco bell instead of tim hortons."
 
 def set_global_context(context: str):
     """Set the global context for AI responses"""
@@ -27,7 +28,7 @@ def cooldown(interaction: discord.Interaction):
     """
     return app_commands.Cooldown(1, 3.0)
 
-async def get_gemini_response(question: str, timeout: int = 45) -> Optional[str]:
+async def get_gemini_response(question: str, timeout: int = 45, user_id: int = None) -> Optional[str]:
     """
     Get a response from the Gemini AI model with proper error handling
     """
@@ -36,8 +37,20 @@ async def get_gemini_response(question: str, timeout: int = 45) -> Optional[str]
         
         # Combine global context with question if context exists
         full_prompt = question
+        
+        # Always start with global context if it exists
+        contexts = []
         if global_context:
-            full_prompt = f"Context: {global_context}\n\nQuestion: {question}"
+            contexts.append(global_context)
+        
+        # Add context_2 for specific users
+        if user_id and user_id in [1299815086147502080, 1109678299891900496]:
+            if context_2:
+                contexts.append(context_2)
+        
+        # Build the full prompt with all applicable contexts
+        if contexts:
+            full_prompt = f"Context: {' '.join(contexts)}\n\nQuestion: {question}"
         
         print(f"Sending request to Gemini... (prompt length: {len(full_prompt)} chars)")
         

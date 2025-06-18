@@ -27,7 +27,7 @@ async def question_command(interaction: discord.Interaction, query: str):
 
     try:
         # Add timeout wrapper
-        answer = await asyncio.wait_for(get_gemini_response(query), timeout=60.0)
+        answer = await asyncio.wait_for(get_gemini_response(query, user_id=interaction.user.id), timeout=60.0)
     except asyncio.TimeoutError:
         answer = "Sorry, the AI took too long to respond. Please try again with a simpler question."
     except Exception as e:

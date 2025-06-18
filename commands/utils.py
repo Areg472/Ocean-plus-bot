@@ -38,21 +38,22 @@ async def get_gemini_response(question: str, timeout: int = 45, user_id: int = N
         # Build the full prompt with all applicable contexts
         contexts = []
         
-        # Always add global context if it exists
-        if global_context:
-            contexts.append(global_context)
+        # Debug: Print current global context
+        print(f"Current global_context: '{global_context}'")
+        print(f"User ID: {user_id}")
+        
+        # Always add global context (it should never be empty since we initialize it)
+        contexts.append(global_context)
         
         # Add context_2 only for specific users
         if user_id and user_id in [1299815086147502080, 1109678299891900496]:
-            if context_2:
-                contexts.append(context_2)
+            contexts.append(context_2)
+            print(f"Added context_2 for special user")
         
-        # Build the full prompt with all applicable contexts
-        if contexts:
-            full_prompt = f"Context: {' '.join(contexts)}\n\nQuestion: {question}"
-        else:
-            full_prompt = question
+        # Build the full prompt - contexts should never be empty now
+        full_prompt = f"Context: {' '.join(contexts)}\n\nQuestion: {question}"
         
+        print(f"Final contexts: {contexts}")
         print(f"Sending request to Gemini... (prompt length: {len(full_prompt)} chars)")
         
         # Try the original synchronous approach first

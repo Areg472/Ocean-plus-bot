@@ -41,44 +41,58 @@ async def get_gemini_response(question: str, timeout: int = 45) -> Optional[str]
         
         print(f"Sending request to Gemini... (prompt length: {len(full_prompt)} chars)")
         
-        # Make the API call with timeout and proper async handling
-        response = await asyncio.wait_for(
-            asyncio.to_thread(
-                lambda: client.models.generate_content(
-                    model='gemini-2.5-flash',
-                    contents=full_prompt,
-                    generation_config={
-                        'max_output_tokens': 2048,
-                        'temperature': 0.7,
-                    }
-                )
-            ),
-            timeout=timeout
-        )
-        
-        elapsed = time.time() - start_time
-        print(f"Gemini responded in {elapsed:.2f}s")
-        
-        if not response or not response.text:
-            print("Gemini returned empty response")
-            return "Sorry, I couldn't generate a response for that question."
-        
-        return response.text.strip()
+        # Try the original synchronous approach first
+        try:
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=full_prompt
+            )
+            
+            elapsed = time.time() - start_time
+            print(f"Gemini responded in {elapsed:.2f}s")
+            
+            if response and hasattr(response, 'text') and response.text:
+                return response.text.strip()
+            else:
+                print(f"Empty response: {response}")
+                return "Sorry, I couldn't generate a response for that question."
+                
+        except Exception as api_error:
+            print(f"Direct API call failed: {api_error}")
+            print(f"Error type: {type(api_error)}")
+            
+            # Try async version as fallback
+            response = await asyncio.wait_for(
+                asyncio.to_thread(
+                    lambda: client.models.generate_content(
+                        model='gemini-2.5-flash',
+                        contents=full_prompt
+                    )
+                ),
+                timeout=timeout
+            )
+            
+            if response and hasattr(response, 'text') and response.text:
+                return response.text.strip()
+            else:
+                return "Sorry, I couldn't generate a response for that question."
         
     except asyncio.TimeoutError:
         print(f"Gemini request timed out after {timeout}s")
         return "Sorry, the request took too long to process. Please try again."
     
     except Exception as e:
-        error_msg = str(e).lower()
-        print(f"Gemini API error: {e}")
+        error_msg = str(e)
+        print(f"Full error details: {e}")
+        print(f"Error type: {type(e)}")
+        print(f"Error args: {e.args if hasattr(e, 'args') else 'No args'}")
         
-        # Handle specific error types
-        if "safety" in error_msg or "blocked" in error_msg:
+        # Check if it's a safety/content issue
+        if "safety" in error_msg.lower() or "blocked" in error_msg.lower():
             return "Sorry, I can't respond to that due to content guidelines."
-        elif "quota" in error_msg or "limit" in error_msg:
+        elif "quota" in error_msg.lower() or "limit" in error_msg.lower():
             return "Sorry, I'm temporarily at capacity. Please try again later."
-        elif "invalid" in error_msg:
+        elif "invalid" in error_msg.lower():
             return "Sorry, there was an issue with your request format."
         else:
-            return "Sorry, I encountered an error processing your request."
+            return f"Sorry, I encountered an error: {error_msg[:100]}..."

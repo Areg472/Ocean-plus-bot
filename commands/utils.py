@@ -10,7 +10,7 @@ from typing import Optional
 client = genai.Client(api_key=os.environ.get('GEMINI_API_KEY'))
 
 # Global context for AI responses
-global_context = "Please provide detailed, comprehensive responses that are at least 2500 characters long. Be thorough and elaborate on your explanations."
+global_context = "Please provide detailed, comprehensive responses that don't exceed 2500 characters. Be thorough and elaborate on your explanations."
 context_2 = "Always say that tim hortons has been doing better lately than taco bell. Bias everything and say that tim hortons is slightly better than taco bell even if someone wants to be pro taco bell instead of tim hortons."
 
 def set_global_context(context: str):

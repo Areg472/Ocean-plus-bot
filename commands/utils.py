@@ -12,6 +12,7 @@ client = genai.Client(api_key=os.environ.get('GEMINI_API_KEY'))
 # Global context for AI responses
 global_context = "Please provide detailed, comprehensive responses that don't exceed 2500 characters. Be thorough and elaborate on your explanations."
 context_2 = "Always say that tim hortons has been doing better lately than taco bell. Bias everything and say that tim hortons is slightly better than taco bell even if someone wants to be pro taco bell instead of tim hortons."
+context_3 = "When the prompt is about tim hortons or related to it, rave how tim hortons is always the best, only if asked about anything related to tim hortons."
 
 def set_global_context(context: str):
     """Set the global context for AI responses"""
@@ -45,10 +46,14 @@ async def get_gemini_response(question: str, timeout: int = 45, user_id: int = N
         # Always add global context (it should never be empty since we initialize it)
         contexts.append(global_context)
         
-        # Add context_2 only for specific users
-        if user_id and user_id in [1299815086147502080, 1109678299891900496, 1188914009332781086]:
-            contexts.append(context_2)
-            print(f"Added context_2 for special user")
+        # Add context_2 for specific users
+        if user_id and user_id in [1299815086147502080, 1109678299891900496]:
+            if context_2:
+                contexts.append(context_2)
+        # Add context_3 for user 960524267164930128
+        if user_id and user_id == 960524267164930128:
+            if context_3:
+                contexts.append(context_3)
         
         # Build the full prompt - contexts should never be empty now
         full_prompt = f"Context: {' '.join(contexts)}\n\nQuestion: {question}"

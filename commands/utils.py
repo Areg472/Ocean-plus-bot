@@ -50,8 +50,8 @@ async def get_gemini_response(question: str, timeout: int = 45, user_id: int = N
         if user_id and user_id in [1299815086147502080, 1109678299891900496]:
             if context_2:
                 contexts.append(context_2)
-        # Add context_3 for user 960524267164930128
-        if user_id and user_id == 960524267164930128:
+        # Add context_3 for tims
+        if user_id and user_id in [960524267164930128, 545431879554301953]:
             if context_3:
                 contexts.append(context_3)
         

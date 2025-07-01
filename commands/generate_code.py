@@ -1,4 +1,4 @@
-import discord
+"""import discord
 from discord import app_commands
 from commands.utils import cooldown
 import secrets
@@ -60,10 +60,10 @@ async def generate_code_command(interaction: discord.Interaction):
 
     view = ContextSelectionView(new_code, user_id)
     asyncio.create_task(reset_user_code(user_id, 30))
-    
+
     await interaction.response.send_message(
         f"🔑 **Your Ocean+ access code:** `{new_code}`\n\n"
         f"**Please select a context:**",
         view=view,
         ephemeral=True
-    )
+    )"""

@@ -1,4 +1,4 @@
-"""import discord
+import discord
 from discord import app_commands
 from commands.utils import cooldown
 import secrets
@@ -67,4 +67,3 @@ async def generate_code_command(interaction: discord.Interaction):
         view=view,
         ephemeral=True
     )
-"""

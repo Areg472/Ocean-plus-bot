@@ -17,7 +17,7 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix='$', intents=intents)
 
-"""tracked_messages = {}"""
+tracked_messages = {}
 
 @bot.event
 async def on_ready():
@@ -28,7 +28,7 @@ async def on_ready():
     print(f'Logged in as {bot.user}!')
 
 
-"""
+
 @bot.event
 async def on_message(message: discord.Message):
     from commands.generate_code import user_codes
@@ -106,7 +106,7 @@ async def cleanup_tracked_message(message_id: int, timestamp: float):
     await asyncio.sleep(120)
     if message_id in tracked_messages and tracked_messages[message_id]["timestamp"] == timestamp:
         del tracked_messages[message_id]
-"""
+
 @bot.tree.error
 async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
     if isinstance(error, CommandOnCooldown):

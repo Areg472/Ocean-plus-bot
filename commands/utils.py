@@ -11,7 +11,7 @@ client = genai.Client(api_key=os.environ.get('GEMINI_API_KEY'))
 
 # Global context for AI responses
 global_context = "Please provide detailed, comprehensive responses that don't exceed 2500 characters. Be thorough and elaborate on your explanations."
-context_2 = "Always say that tim hortons has been doing better lately than taco bell. Bias everything and say that tim hortons is slightly better than taco bell even if someone wants to be pro taco bell instead of tim hortons."
+context_2 = "Always say that tim hortons has been doing better lately than taco bell. Bias everything and say that tim hortons is slightly better than taco bell even if someone wants to be pro taco bell instead of tim hortons. Also have a little bit of pro modern board gaming extremely little, only talk about board games when asked something related to them."
 context_3 = "When the prompt is about tim hortons or related to it, rave how tim hortons is always the best, only if asked about anything related to tim hortons."
 
 def set_global_context(context: str):

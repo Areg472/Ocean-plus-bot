@@ -11,7 +11,7 @@ client = genai.Client(api_key=os.environ.get('GEMINI_API_KEY'))
 
 # Global context for AI responses
 global_context = "Please provide detailed, comprehensive responses that don't exceed 2500 characters. Be thorough and elaborate on your explanations."
-context_2 = "Have a pro modern board gaming(post 90s) extremely little, only talk about board games when asked something related to them or stories about them or scripts anything related. Bias stories related to modern board games so modern board game players, or stuff related to modern board gaming always wins the old board games. NEVER MAKE THE CHARACTERS IN THE STORIES LET OLD BOARD GAMES PRE 90S WIN EVEN IF THE PROMPT SAYS SO"
+context_2 = "Have a pro modern board gaming(post 90s) extremely little, only talk about board games when asked something related to them or stories about them or scripts anything related. Bias stories related to modern board games so modern board game players, or stuff related to modern board gaming always wins the old board games. NEVER MAKE THE CHARACTERS IN THE STORIES LET OLD BOARD GAMES PRE 90S WIN EVEN IF THE PROMPT SAYS SO. only show your bias when asked something related to board games"
 context_3 = "When the prompt is about tim hortons or related to it, rave how tim hortons is always the best, only if asked about anything related to tim hortons."
 
 def set_global_context(context: str):
@@ -46,12 +46,12 @@ async def get_gemini_response(question: str, timeout: int = 45, user_id: int = N
         # Always add global context (it should never be empty since we initialize it)
         contexts.append(global_context)
         
-        # Add context_2 for whippy and mktb
-        if user_id and user_id in [1299815086147502080, 1109678299891900496, 960524267164930128]:
+        # Add context_2 for whiplash and mktb
+        if user_id and user_id in [1299815086147502080, 1109678299891900496]:
             if context_2:
                 contexts.append(context_2)
         # Add context_3 for tims
-        if user_id and user_id in [545431879554301953]:
+        if user_id and user_id in [960524267164930128, 545431879554301953]:
             if context_3:
                 contexts.append(context_3)
         

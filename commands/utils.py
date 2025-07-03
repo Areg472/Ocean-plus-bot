@@ -2,7 +2,11 @@ import os
 import asyncio
 import time
 from typing import Optional
+
+from discord import Interaction
+from discord.ext.commands import CooldownMapping
 from mistralai import Mistral
+from discord.app_commands import Cooldown
 
 # Mistral API Configuration
 api_key = os.environ.get("MISTRAL_API")
@@ -24,9 +28,20 @@ global_instruction = "Provide detailed, structured responses under 2500 characte
 # Semaphore for rate limiting
 request_semaphore = asyncio.Semaphore(5)
 
-def cooldown(interaction):
-    """Rate limit commands."""
-    return 1, 3.0
+def cooldown(interaction: Interaction) -> Optional[Cooldown]:
+    """
+    Standard cooldown for app commands.
+    Returns a Cooldown object with rate and per attributes.
+    """
+    # Example: Limit to 1 command every 3 seconds
+    return Cooldown(rate=1, per=3.0)
+
+# If you use a dynamic cooldown mapping:
+def dynamic_cooldown() -> CooldownMapping:
+    """
+    Create custom cooldown mapping.
+    """
+    return CooldownMapping.from_cooldown(1, 3.0, Cooldown)
 
 async def handle_mistral_api_call(prompt: str, instructions: str, timeout: int) -> str:
     """Encapsulate Mistral API call."""

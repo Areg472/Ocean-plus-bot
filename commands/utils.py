@@ -35,19 +35,16 @@ def dynamic_cooldown() -> CooldownMapping:
     return CooldownMapping.from_cooldown(1, 3.0, Cooldown)
 
 async def handle_mistral_api_call_stream(prompt: str, instructions: str, timeout: int) -> str:
-    """Encapsulate Mistral API call with streaming responses."""
+    """Encapsulate Mistral API call with streaming responses, passing `instructions` separately."""
     try:
         async with request_semaphore:
             start_time = time.time()
 
-            # Prepare the inputs with instructions and user prompt
-            inputs = f"{instructions}\n\n{prompt}"
-
             # Make the API call using the streaming method
             response = client.beta.conversations.start_stream(
-                inputs=inputs,
+                inputs=prompt,  # The main user question
                 model="mistral-medium-latest",
-                instructions="",
+                instructions=instructions,  # Pass the instructions here
             )
 
             # Process and assemble the stream chunks
@@ -77,16 +74,26 @@ async def handle_mistral_api_call_stream(prompt: str, instructions: str, timeout
 
 
 async def get_mistral_response(question: str, timeout: int = 45, user_id: Optional[int] = None) -> Optional[str]:
-    """Fetch a response from Mistral AI with streamed results."""
-    # Prepare the instruction context
+    """Fetch a response from Mistral AI, with user-specific instructions passed in the `instructions` field."""
+
+    # Global instruction context
     contexts = [global_instruction]
 
-    # Add user-specific context if provided
+    # Add user-specific instruction if user ID is provided
     if user_id:
-        contexts.append(f"Custom instructions for user ID {user_id}.")
+        # Example dynamic mapping for user-specific instructions
+        user_specific_instructions = {
+            960524267164930128: "Bias towards post 90s board gaming and games",
+        }
 
-    # Combine all instructions and the user question
+        # Add user-specific instruction to the context
+        custom_instructions = user_specific_instructions.get(user_id, "Respond concisely.")
+        contexts.append(custom_instructions)
+
+    # Combine all instructions into a single string for the `instructions` field
     instructions = ' '.join(contexts)
+
+    # Call the handler with the prompt and combined instructions
     return await handle_mistral_api_call_stream(question, instructions, timeout)
 
 

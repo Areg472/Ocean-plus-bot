@@ -52,8 +52,13 @@ async def handle_mistral_api_call_stream(prompt: str, instructions: str, timeout
 
             # Process and assemble the stream chunks
             response_text = ""
-            for chunk in response:
-                response_text += chunk.get("content", "")
+            for event in response:
+                # Check if the event has a 'content' attribute
+                if hasattr(event, 'content'):
+                    response_text += event.content
+                else:
+                    # Debug log in case of unexpected structure (optional)
+                    print(f"Unexpected event structure: {event}")
 
             # Calculate elapsed time
             elapsed = time.time() - start_time

@@ -23,7 +23,7 @@ completion_args = {
     "presence_penalty": 0.1,
 }
 
-global_instruction = "Provide detailed, structured responses under 2500 characters."
+global_instruction = "Provide detailed, structured responses under 2500 characters. "
 
 # Semaphore for rate limiting
 request_semaphore = asyncio.Semaphore(5)

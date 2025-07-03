@@ -4,6 +4,12 @@ from commands.utils import cooldown, get_mistral_response
 import asyncio
 
 
+MODEL_CHOICES = [
+    app_commands.Choice(name="Mistral Small", value="mistral-small-2506"),
+    app_commands.Choice(name="Mistral Medium", value="mistral-medium-2505"),
+]
+
+
 def setup(bot):
     """
     Register the question command with the bot.
@@ -14,9 +20,17 @@ def setup(bot):
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.command(name="question", description="Ask me anything, powered by Mistral")
-@app_commands.describe(query="The question or prompt you want to ask")
+@app_commands.describe(
+    query="The question or prompt you want to ask",
+    model="Choose the Mistral model to use"
+)
+@app_commands.choices(model=MODEL_CHOICES)
 @app_commands.checks.dynamic_cooldown(cooldown)
-async def question_command(interaction: discord.Interaction, query: str):
+async def question_command(
+    interaction: discord.Interaction,
+    query: str,
+    model: app_commands.Choice[str] = MODEL_CHOICES[0]  # Default to Mistral Small
+):
     # Thinking embed
     thinking_embed = discord.Embed(
         title="🤔 Thinking...",
@@ -30,7 +44,7 @@ async def question_command(interaction: discord.Interaction, query: str):
     try:
         # Get the streamed response
         answer = await asyncio.wait_for(
-            get_mistral_response(query, user_id=interaction.user.id), timeout=60.0
+            get_mistral_response(query, user_id=interaction.user.id, model=model.value), timeout=60.0
         )
     except asyncio.TimeoutError:
         answer = "Sorry, the AI took too long. Try again with a simpler question."

@@ -35,8 +35,8 @@ def dynamic_cooldown() -> CooldownMapping:
     return CooldownMapping.from_cooldown(1, 3.0, Cooldown)
 
 
-async def handle_mistral_api_call_stream(prompt: str, instructions: str, timeout: int) -> str:
-    """Encapsulate Mistral API call with streaming responses, passing `instructions` separately."""
+async def handle_mistral_api_call_stream(prompt: str, instructions: str, timeout: int, model: str) -> str:
+    """Encapsulate Mistral API call with streaming responses, passing `instructions` and `model`."""
     try:
         async with request_semaphore:
             start_time = time.time()
@@ -44,7 +44,7 @@ async def handle_mistral_api_call_stream(prompt: str, instructions: str, timeout
             # Make the API call using the streaming method
             response = client.beta.conversations.start_stream(
                 inputs=prompt,  # The main user question
-                model="mistral-medium-latest",
+                model=model,
                 instructions=instructions,  # Pass the instructions here
             )
 
@@ -74,8 +74,13 @@ async def handle_mistral_api_call_stream(prompt: str, instructions: str, timeout
         return f"An error occurred while processing the request."
 
 
-async def get_mistral_response(question: str, timeout: int = 45, user_id: Optional[int] = None) -> Optional[str]:
-    """Fetch a response from Mistral AI, with user-specific instructions passed in the `instructions` field."""
+async def get_mistral_response(
+    question: str,
+    timeout: int = 45,
+    user_id: Optional[int] = None,
+    model: str = "mistral-medium-latest"
+) -> Optional[str]:
+    """Fetch a response from Mistral AI, with user-specific instructions and model selection."""
 
     # Global instruction context
     contexts = [global_instruction]
@@ -94,8 +99,8 @@ async def get_mistral_response(question: str, timeout: int = 45, user_id: Option
     # Combine all instructions into a single string for the `instructions` field
     instructions = ' '.join(contexts)
 
-    # Call the handler with the prompt and combined instructions
-    return await handle_mistral_api_call_stream(question, instructions, timeout)
+    # Call the handler with the prompt, combined instructions, and model
+    return await handle_mistral_api_call_stream(question, instructions, timeout, model)
 
 
 # Utility to update the global instruction dynamically

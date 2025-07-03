@@ -3,11 +3,13 @@ from discord import app_commands
 from commands.utils import cooldown, get_mistral_response
 import asyncio
 
+
 def setup(bot):
     """
-    Register the question command with the bot
+    Register the question command with the bot.
     """
     bot.tree.add_command(question_command)
+
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -26,6 +28,7 @@ async def question_command(interaction: discord.Interaction, query: str):
 
     # Mistral call
     try:
+        # Get the streamed response
         answer = await asyncio.wait_for(
             get_mistral_response(query, user_id=interaction.user.id), timeout=60.0
         )
@@ -44,4 +47,5 @@ async def question_command(interaction: discord.Interaction, query: str):
     else:
         response_embed.add_field(name="Answer", value=answer, inline=False)
 
+    # Send the response embed
     await interaction.edit_original_response(embed=response_embed)

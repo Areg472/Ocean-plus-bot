@@ -8,14 +8,13 @@ from discord.ext.commands import CooldownMapping
 from mistralai import Mistral
 from discord.app_commands import Cooldown
 
-# Mistral API Configuration
-api_key = os.environ.get("MISTRAL_API")
+api_key = os.environ.get("MISTRAL_API_KEY")
 if not api_key:
     raise ValueError("Mistral API key is not set in the environment variables.")
+client = Mistral(api_key=api_key)
 
-client = Mistral(api_key)
-
-global_instruction = "Provide detailed, structured responses under 2500 characters. "
+# Global context/instructions
+global_instruction = "Provide a detailed and structured response under 2500 characters. Be concise when possible."
 
 # Semaphore for rate limiting
 request_semaphore = asyncio.Semaphore(5)
@@ -35,50 +34,58 @@ def dynamic_cooldown() -> CooldownMapping:
     """
     return CooldownMapping.from_cooldown(1, 3.0, Cooldown)
 
-async def handle_mistral_api_call(prompt: str, instructions: str, timeout: int) -> str:
-    """Encapsulate Mistral API call."""
+async def handle_mistral_api_call_stream(prompt: str, instructions: str, timeout: int) -> str:
+    """Encapsulate Mistral API call with streaming responses."""
     try:
         async with request_semaphore:
             start_time = time.time()
 
-            # Synchronous call to Mistral API
-            response = client.beta.conversations.start(
-                inputs=prompt,
-                instructions=instructions,
+            # Prepare the inputs with instructions and user prompt
+            inputs = f"{instructions}\n\n{prompt}"
+
+            # Make the API call using the streaming method
+            response = client.beta.conversations.start_stream(
+                inputs=inputs,
                 model="mistral-medium-latest",
+                instructions="",
             )
+
+            # Process and assemble the stream chunks
+            response_text = ""
+            for chunk in response:
+                response_text += chunk.get("content", "")
 
             # Calculate elapsed time
             elapsed = time.time() - start_time
             print(f"Mistral responded in {elapsed:.2f}s")
 
-            # Check and extract response text
-            if response and hasattr(response, 'text'):
-                return response.text.strip()
+            return response_text.strip() if response_text else "No response from the AI."
     except asyncio.TimeoutError:
         return "API response timed out. Please try again."
     except Exception as e:
-        print(f"Error in Mistral API call: {str(e)}")
-        return "An error occurred while processing the request."
-    return "No response from the AI."
+        print(f"Error during Mistral API call: {str(e)}")
+        return f"An error occurred while processing the request."
+
 
 async def get_mistral_response(question: str, timeout: int = 45, user_id: Optional[int] = None) -> Optional[str]:
-    """Fetch response from Mistral AI."""
+    """Fetch a response from Mistral AI with streamed results."""
+    # Prepare the instruction context
     contexts = [global_instruction]
 
-    # Add user-specific context
+    # Add user-specific context if provided
     if user_id:
         contexts.append(f"Custom instructions for user ID {user_id}.")
 
-    prompt = f"Question: {question}"
+    # Combine all instructions and the user question
     instructions = ' '.join(contexts)
+    return await handle_mistral_api_call_stream(question, instructions, timeout)
 
-    return await handle_mistral_api_call(prompt, instructions, timeout)
 
-# Set Global Context (Optional Utility)
+# Utility to update the global instruction dynamically
 def set_global_context(context: str):
     global global_instruction
     global_instruction = context
+
 
 def get_global_context() -> str:
     return global_instruction

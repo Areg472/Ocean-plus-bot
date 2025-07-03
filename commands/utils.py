@@ -40,13 +40,19 @@ async def handle_mistral_api_call(prompt: str, instructions: str, timeout: int) 
     try:
         async with request_semaphore:
             start_time = time.time()
-            response = await client.beta.conversations.start(
+
+            # Synchronous call to Mistral API
+            response = client.beta.conversations.start(
                 inputs=prompt,
                 instructions=instructions,
                 model="mistral-medium-latest",
             )
+
+            # Calculate elapsed time
             elapsed = time.time() - start_time
             print(f"Mistral responded in {elapsed:.2f}s")
+
+            # Check and extract response text
             if response and hasattr(response, 'text'):
                 return response.text.strip()
     except asyncio.TimeoutError:

@@ -40,12 +40,9 @@ async def question_command(interaction: discord.Interaction, query: str):
     # Prepare embed response
     response_embed = discord.Embed(title="💡 Answer", color=0x34a853)
     response_embed.add_field(name="Question", value=query[:1000], inline=False)
-    if len(answer) > 1024:
-        chunks = [answer[i:i + 1024] for i in range(0, len(answer), 1024)]
-        for idx, chunk in enumerate(chunks, start=1):
-            response_embed.add_field(name=f"Answer (Part {idx})", value=chunk, inline=False)
-    else:
-        response_embed.add_field(name="Answer", value=answer, inline=False)
+
+    # Ensure the entire answer is displayed in a single message field
+    response_embed.add_field(name="Answer", value=answer[:1024], inline=False)
 
     # Send the response embed
     await interaction.edit_original_response(embed=response_embed)

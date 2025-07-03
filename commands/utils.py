@@ -15,14 +15,6 @@ if not api_key:
 
 client = Mistral(api_key)
 
-completion_args = {
-    "temperature": 0.7,
-    "max_tokens": 2048,
-    "top_p": 1,
-    "frequency_penalty": 0.1,
-    "presence_penalty": 0.1,
-}
-
 global_instruction = "Provide detailed, structured responses under 2500 characters. "
 
 # Semaphore for rate limiting
@@ -48,10 +40,9 @@ async def handle_mistral_api_call(prompt: str, instructions: str, timeout: int) 
     try:
         async with request_semaphore:
             start_time = time.time()
-            response = await client.generate(
-                prompt=prompt,
+            response = await client.beta.conversations.start(
+                inputs=prompt,
                 instructions=instructions,
-                **completion_args,
                 model="mistral-medium-latest",
             )
             elapsed = time.time() - start_time

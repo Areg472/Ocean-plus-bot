@@ -12,77 +12,35 @@ def setup(bot):
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.command(name="question", description="Ask me anything, powered by Mistral")
-@app_commands.describe(query="What's the question? Be concise!")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def question_command(interaction: discord.Interaction, query: str):
-    # Create thinking embed
+    # Thinking embed
     thinking_embed = discord.Embed(
         title="🤔 Thinking...",
         description="Processing your question with Mistral AI...",
         color=0x4285f4
     )
-    thinking_embed.add_field(name="Question", value=query[:1000] + ("..." if len(query) > 1000 else ""), inline=False)
-    
+    thinking_embed.add_field(name="Question", value=query[:1000], inline=False)
     await interaction.response.send_message(embed=thinking_embed)
 
+    # Mistral call
     try:
-        # Add timeout wrapper
-        answer = await asyncio.wait_for(get_mistral_response(query, user_id=interaction.user.id), timeout=60.0)
-        print(f"Received answer: {answer[:100] if answer else 'None'}...")
-        print(f"Answer type: {type(answer)}")
-        print(f"Answer length: {len(answer) if answer else 0}")
+        answer = await asyncio.wait_for(
+            get_mistral_response(query, user_id=interaction.user.id), timeout=60.0
+        )
     except asyncio.TimeoutError:
-        answer = "Sorry, the AI took too long to respond. Please try again with a simpler question."
-        print("Timeout occurred")
-    except Exception as e:
-        print(f"Unexpected error in question command: {e}")
-        answer = "Sorry, something went wrong while processing your question."
-    
-    # Ensure we always have some response
-    if not answer or not answer.strip():
-        answer = "Sorry, I couldn't generate a response. Please try again."
-        print("Empty answer, using fallback")
-    
-    print(f"Final answer to display: {answer[:100]}...")
-    
-    # Create response embed
-    response_embed = discord.Embed(
-        title="💡 Answer",
-        color=0x34a853
-    )
-    response_embed.add_field(name="Question", value=query[:1000] + ("..." if len(query) > 1000 else ""), inline=False)
-    
-    # Handle long responses - use Discord's 1024 character limit for embed fields
+        answer = "Sorry, the AI took too long. Try again with a simpler question."
+    except Exception as error:
+        answer = f"An error occurred: {error}"
+
+    # Prepare embed response
+    response_embed = discord.Embed(title="💡 Answer", color=0x34a853)
+    response_embed.add_field(name="Question", value=query[:1000], inline=False)
     if len(answer) > 1024:
         chunks = [answer[i:i + 1024] for i in range(0, len(answer), 1024)]
-        response_embed.add_field(name="Answer (Part 1)", value=chunks[0], inline=False)
-        print(f"Sending chunked response, part 1 length: {len(chunks[0])}")
-        
-        try:
-            await interaction.edit_original_response(embed=response_embed)
-            
-            # Send additional parts as follow-up messages
-            for i, chunk in enumerate(chunks[1:], 2):
-                continuation_embed = discord.Embed(
-                    title=f"💡 Answer (Part {i})",
-                    description=chunk,
-                    color=0x34a853
-                )
-                print(f"Sending part {i}, length: {len(chunk)}")
-                await interaction.followup.send(embed=continuation_embed)
-                print(f"Successfully sent part {i}")
-        except Exception as e:
-            print(f"Error sending chunked response: {e}")
-            # Fallback: send as a single truncated message
-            truncated_answer = answer[:1020] + "..."
-            response_embed = discord.Embed(
-                title="💡 Answer (Truncated)",
-                color=0x34a853
-            )
-            response_embed.add_field(name="Question", value=query[:1000] + ("..." if len(query) > 1000 else ""), inline=False)
-            response_embed.add_field(name="Answer", value=truncated_answer, inline=False)
-            await interaction.edit_original_response(embed=response_embed)
+        for idx, chunk in enumerate(chunks, start=1):
+            response_embed.add_field(name=f"Answer (Part {idx})", value=chunk, inline=False)
     else:
         response_embed.add_field(name="Answer", value=answer, inline=False)
-        print(f"Sending single response, length: {len(answer)}")
-        await interaction.edit_original_response(embed=response_embed)
+
+    await interaction.edit_original_response(embed=response_embed)

@@ -1,6 +1,6 @@
 import discord
 from discord import app_commands
-from commands.utils import cooldown, get_gemini_response
+from commands.utils import cooldown, get_mistral_response
 import asyncio
 
 def setup(bot):
@@ -11,14 +11,14 @@ def setup(bot):
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.command(name="question", description="Ask me anything, powered by Gemini")
+@app_commands.command(name="question", description="Ask me anything, powered by Mistral")
 @app_commands.describe(query="What's the question? Be concise!")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def question_command(interaction: discord.Interaction, query: str):
     # Create thinking embed
     thinking_embed = discord.Embed(
         title="🤔 Thinking...",
-        description="Processing your question with Gemini AI...",
+        description="Processing your question with Mistral AI...",
         color=0x4285f4
     )
     thinking_embed.add_field(name="Question", value=query[:1000] + ("..." if len(query) > 1000 else ""), inline=False)
@@ -27,7 +27,7 @@ async def question_command(interaction: discord.Interaction, query: str):
 
     try:
         # Add timeout wrapper
-        answer = await asyncio.wait_for(get_gemini_response(query, user_id=interaction.user.id), timeout=60.0)
+        answer = await asyncio.wait_for(get_mistral_response(query, user_id=interaction.user.id), timeout=60.0)
         print(f"Received answer: {answer[:100] if answer else 'None'}...")
         print(f"Answer type: {type(answer)}")
         print(f"Answer length: {len(answer) if answer else 0}")

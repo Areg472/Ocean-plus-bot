@@ -48,7 +48,7 @@ async def handle_mistral_api_call(prompt: str, instructions: str, timeout: int) 
     try:
         async with request_semaphore:
             start_time = time.time()
-            response = await client.completions.create(
+            response = await client.generate(
                 prompt=prompt,
                 instructions=instructions,
                 **completion_args,

@@ -12,6 +12,7 @@ def setup(bot):
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.command(name="question", description="Ask me anything, powered by Mistral")
+@app_commands.describe(query="The question or prompt you want to ask")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def question_command(interaction: discord.Interaction, query: str):
     # Thinking embed

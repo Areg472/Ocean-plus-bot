@@ -46,25 +46,29 @@ async def handle_mistral_api_call_stream(prompt: str, instructions: str, timeout
             # Make the API call using the streaming method
             response = client.beta.conversations.start_stream(
                 inputs=inputs,
-                model="mistral-medium-2505",
+                model="mistral-medium-latest",
                 instructions="",
             )
 
             # Process and assemble the stream chunks
             response_text = ""
             for event in response:
-                # Check if the event has a 'content' attribute
-                if hasattr(event, 'content'):
-                    response_text += event.content
-                else:
-                    # Debug log in case of unexpected structure (optional)
-                    print(f"Unexpected event structure: {event}")
+                try:
+                    # Inspect 'event' for debugging purposes (optional)
+                    print(f"Received event: {event}")
+                    if hasattr(event, 'content'):  # Check if event has 'content' attribute
+                        response_text += event.content
+                    else:
+                        print(f"Unexpected event structure: {event}")  # Log unexpected structure
+                except Exception as e:
+                    print(f"Error while processing event: {str(e)}")
 
             # Calculate elapsed time
             elapsed = time.time() - start_time
             print(f"Mistral responded in {elapsed:.2f}s")
 
-            return response_text.strip() if response_text else "No response from the AI."
+            # Return the final response text (or a default message if no content received)
+            return response_text.strip() if response_text else "No content received from the AI."
     except asyncio.TimeoutError:
         return "API response timed out. Please try again."
     except Exception as e:

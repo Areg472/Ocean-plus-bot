@@ -14,7 +14,7 @@ if not api_key:
 client = Mistral(api_key=api_key)
 
 # Global context/instructions
-global_instruction = "Provide a detailed and structured response under 2500 characters. Be concise when possible."
+global_instruction = "Provide a detailed and structured response under 2500 characters. Be concise when possible. Use markdown headings (####, ###, ##) for structure."
 
 # Semaphore for rate limiting
 request_semaphore = asyncio.Semaphore(5)
@@ -33,6 +33,17 @@ def dynamic_cooldown() -> CooldownMapping:
     Create custom cooldown mapping.
     """
     return CooldownMapping.from_cooldown(1, 3.0, Cooldown)
+
+def _fix_markdown_headings(text: str) -> str:
+    """
+    Ensure markdown headings (####, ###, ##) are at the start of lines and not broken.
+    """
+    import re
+    # Remove accidental spaces before heading hashes
+    text = re.sub(r'^[ \t]+(#{2,6})', r'\1', text, flags=re.MULTILINE)
+    # Ensure headings are on their own line
+    text = re.sub(r'([^\n])(\#{2,6} )', r'\1\n\2', text)
+    return text
 
 async def handle_mistral_api_call_stream(prompt: str, instructions: str, timeout: int) -> str:
     """Encapsulate Mistral API call with streaming responses, passing `instructions` separately."""
@@ -64,6 +75,9 @@ async def handle_mistral_api_call_stream(prompt: str, instructions: str, timeout
             elapsed = time.time() - start_time
             print(f"Mistral responded in {elapsed:.2f}s")
 
+            # Fix markdown headings before returning
+            response_text = _fix_markdown_headings(response_text)
+
             # Return the final response text (or a default message if no content received)
             return response_text.strip() if response_text else "No content received from the AI."
     except asyncio.TimeoutError:
@@ -83,12 +97,11 @@ async def get_mistral_response(question: str, timeout: int = 45, user_id: Option
     if user_id:
         # Example dynamic mapping for user-specific instructions
         user_specific_instructions = {
-            960524267164930128: "Bias towards post 90s board gaming and games",
+            960524267164930128: "Bias your answers towards post-90s board gaming and games.",
         }
-
-        # Add user-specific instruction to the context
-        custom_instructions = user_specific_instructions.get(user_id, "Respond concisely.")
-        contexts.append(custom_instructions)
+        # Only append if user-specific instruction exists
+        if user_id in user_specific_instructions:
+            contexts.append(user_specific_instructions[user_id])
 
     # Combine all instructions into a single string for the `instructions` field
     instructions = ' '.join(contexts)

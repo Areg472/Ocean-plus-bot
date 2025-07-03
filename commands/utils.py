@@ -85,7 +85,7 @@ async def get_mistral_response(question: str, timeout: int = 45, user_id: Option
         # Example dynamic mapping for user-specific instructions
         user_specific_instructions = {
             960524267164930128: "Bias your answers towards post-90s board games. Boast about these games a lot when the prompt is related to board gaming. ONLY MENTION BOARD GAMES OR TALK ABOUT THEM WHEN THE PROMPT IS RELATED TO BOARD GAMING OR BOARD GAMES.",
-            1299815086147502080: "Bias your answers MORE AND MORE towards post-90s board games. Boast about these games a lot when the prompt is related to board gaming. ONLY MENTION BOARD GAMES OR TALK ABOUT THEM WHEN THE PROMPT IS RELATED TO BOARD GAMING OR BOARD GAMES.",
+            1299815086147502080: "Bias your answers MORE AND MORE towards post-90s board games. Boast about these games a lot and hate pre 90s board games when the prompt is related to board gaming. ONLY MENTION BOARD GAMES OR TALK ABOUT THEM WHEN THE PROMPT IS RELATED TO BOARD GAMING OR BOARD GAMES.",
         }
         # Only append if user-specific instruction exists
         if user_id in user_specific_instructions:

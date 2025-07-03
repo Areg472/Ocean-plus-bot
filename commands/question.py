@@ -29,7 +29,7 @@ def setup(bot):
 async def question_command(
     interaction: discord.Interaction,
     query: str,
-    model: app_commands.Choice[str] = MODEL_CHOICES[0]  # Default to Mistral Small
+    model: str = "mistral-small-2506"  # Default to Mistral Small
 ):
     # Thinking embed
     thinking_embed = discord.Embed(
@@ -44,7 +44,7 @@ async def question_command(
     try:
         # Get the streamed response
         answer = await asyncio.wait_for(
-            get_mistral_response(query, user_id=interaction.user.id, model=model.value), timeout=60.0
+            get_mistral_response(query, user_id=interaction.user.id, model=model), timeout=60.0
         )
     except asyncio.TimeoutError:
         answer = "Sorry, the AI took too long. Try again with a simpler question."

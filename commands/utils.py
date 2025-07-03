@@ -54,12 +54,12 @@ async def handle_mistral_api_call_stream(prompt: str, instructions: str, timeout
             response_text = ""
             for event in response:
                 try:
-                    # Inspect 'event' for debugging purposes (optional)
+                    # Log the received event for debugging
                     print(f"Received event: {event}")
-                    if hasattr(event, 'content'):  # Check if event has 'content' attribute
-                        response_text += event.content
-                    else:
-                        print(f"Unexpected event structure: {event}")  # Log unexpected structure
+
+                    # Extract 'content' if the event type is 'message.output.delta'
+                    if event.event == "message.output.delta" and hasattr(event.data, "content"):
+                        response_text += event.data.content
                 except Exception as e:
                     print(f"Error while processing event: {str(e)}")
 

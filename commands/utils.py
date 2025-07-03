@@ -46,7 +46,7 @@ async def handle_mistral_api_call_stream(prompt: str, instructions: str, timeout
             # Make the API call using the streaming method
             response = client.beta.conversations.start_stream(
                 inputs=inputs,
-                model="mistral-medium-latest",
+                model="mistral-medium-2505",
                 instructions="",
             )
 

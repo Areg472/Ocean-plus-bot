@@ -7,6 +7,7 @@ import asyncio
 MODEL_CHOICES = [
     app_commands.Choice(name="Mistral Small", value="mistral-small-2506"),
     app_commands.Choice(name="Mistral Medium", value="mistral-medium-2505"),
+    app_commands.Choice(name="Codestral", value="codestral-2501"),
 ]
 
 

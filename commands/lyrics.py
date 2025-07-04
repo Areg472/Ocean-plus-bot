@@ -1,6 +1,7 @@
 import discord
-from discord.ext import commands
+from discord import app_commands
 import aiohttp
+from commands.utils import cooldown
 import os
 
 GENIUS_API_TOKEN = os.getenv("GENIUS_API_TOKEN")
@@ -42,32 +43,38 @@ async def fetch_lyrics_from_url(url):
         lyrics = re.sub(r'<.*?>', '', m.group(1))
     return unescape(lyrics).strip()
 
-class Lyrics(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-
-    @commands.command(name="lyrics")
-    async def lyrics(self, ctx, *, query: str):
-        """Search for a song and get its lyrics from Genius."""
-        await ctx.trigger_typing()
-        song = await search_genius_song(query)
-        if not song:
-            await ctx.send("Song not found.")
-            return
-        lyrics = await fetch_lyrics_from_url(song["url"])
-        if not lyrics:
-            await ctx.send(f"Lyrics not found for **{song['title']}** by **{song['artist']}**.\n<{song['url']}>")
-            return
-        # Discord message limit is 2000 chars
-        if len(lyrics) > 1900:
-            lyrics = lyrics[:1900] + "...\n[Lyrics truncated]\n" + song["url"]
-        embed = discord.Embed(
-            title=f"{song['title']} - {song['artist']}",
-            description=lyrics,
-            url=song["url"],
-            color=0x34a853
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.command(name="lyrics", description="Find song lyrics from Genius")
+@app_commands.describe(
+    query="The song you want to search for",
+)
+@app_commands.checks.dynamic_cooldown(cooldown)
+async def lyrics_command(interaction: discord.Interaction, query: str):
+    await interaction.response.defer()
+    song = await search_genius_song(query)
+    if not song:
+        await interaction.followup.send("Song not found.")
+        return
+    lyrics = await fetch_lyrics_from_url(song["url"])
+    if not lyrics:
+        await interaction.followup.send(
+            f"Lyrics not found for **{song['title']}** by **{song['artist']}**.\n<{song['url']}>"
         )
-        await ctx.send(embed=embed)
+        return
+    # Discord message limit is 2000 chars
+    if len(lyrics) > 1900:
+        lyrics = lyrics[:1900] + "...\n[Lyrics truncated]\n" + song["url"]
+    embed = discord.Embed(
+        title=f"{song['title']} - {song['artist']}",
+        description=lyrics,
+        url=song["url"],
+        color=0x34a853
+    )
+    await interaction.followup.send(embed=embed)
 
 def setup(bot):
-    bot.add_cog(Lyrics(bot))
+    """
+    Register the lyrics command with the bot
+    """
+    bot.tree.add_command(lyrics_command)

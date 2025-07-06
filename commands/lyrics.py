@@ -3,8 +3,12 @@ from discord import app_commands
 import asyncio
 from commands.utils import cooldown
 import lyricsgenius
+import os
 
-genius = lyricsgenius.Genius()
+# Get Genius API token from environment variable or hardcode (not recommended for production)
+GENIUS_TOKEN = os.getenv("GENIUS_ACCESS_TOKEN")
+
+genius = lyricsgenius.Genius(GENIUS_TOKEN)
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

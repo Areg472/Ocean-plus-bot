@@ -41,31 +41,44 @@ async def handle_mistral_api_call_stream(prompt: str, instructions: str, timeout
         async with request_semaphore:
             start_time = time.time()
 
-            # Make the API call using the streaming method
-            response = client.beta.conversations.start_stream(
-                inputs=prompt,  # The main user question
-                model=model,
-                instructions=instructions,  # Pass the instructions here
-            )
+            if model == "codestral-2501":
+                # Run the synchronous generator in a thread for Codestral
+                def sync_stream():
+                    response = client.beta.conversations.start_stream(
+                        inputs=prompt,
+                        model=model,
+                        instructions=instructions,
+                    )
+                    response_text = ""
+                    for event in response:
+                        try:
+                            print(f"Received event: {event}")
+                            if event.event == "message.output.delta" and hasattr(event.data, "content"):
+                                response_text += event.data.content
+                        except Exception as e:
+                            print(f"Error while processing event: {str(e)}")
+                    return response_text
 
-            # Process and assemble the stream chunks
-            response_text = ""
-            for event in response:
-                try:
-                    # Log the received event for debugging
-                    print(f"Received event: {event}")
+                response_text = await asyncio.to_thread(sync_stream)
+            else:
+                # Normal (possibly async) streaming for other models
+                response = client.beta.conversations.start_stream(
+                    inputs=prompt,
+                    model=model,
+                    instructions=instructions,
+                )
+                response_text = ""
+                for event in response:
+                    try:
+                        print(f"Received event: {event}")
+                        if event.event == "message.output.delta" and hasattr(event.data, "content"):
+                            response_text += event.data.content
+                    except Exception as e:
+                        print(f"Error while processing event: {str(e)}")
 
-                    # Extract 'content' if the event type is 'message.output.delta'
-                    if event.event == "message.output.delta" and hasattr(event.data, "content"):
-                        response_text += event.data.content
-                except Exception as e:
-                    print(f"Error while processing event: {str(e)}")
-
-            # Calculate elapsed time
             elapsed = time.time() - start_time
             print(f"Mistral responded in {elapsed:.2f}s")
 
-            # Return the final response text (or a default message if no content received)
             return response_text.strip() if response_text else "No content received from the AI."
     except asyncio.TimeoutError:
         return "API response timed out. Please try again."

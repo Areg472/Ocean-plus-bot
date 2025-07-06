@@ -98,7 +98,11 @@ async def question_command(
         for idx, chunk in enumerate(parts, start=1):
             response_embed.add_field(name=f"Answer (Part {idx})", value=chunk, inline=False)
 
-        await interaction.edit_original_response(embed=response_embed)
+        try:
+            await interaction.edit_original_response(embed=response_embed)
+        except Exception as e:
+            # fallback: send as followup if editing fails
+            await interaction.followup.send(embed=response_embed)
     else:
         # Prepare embed response
         response_embed = discord.Embed(title="💡 Answer", color=0x34a853)

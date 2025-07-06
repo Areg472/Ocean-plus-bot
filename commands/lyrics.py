@@ -1,6 +1,6 @@
 import discord
 from discord import app_commands
-import aiohttp
+import asyncio
 from commands.utils import cooldown
 import lyricsgenius
 
@@ -16,7 +16,8 @@ genius = lyricsgenius.Genius()
 async def lyrics_command(interaction: discord.Interaction, query: str):
     await interaction.response.defer()
     try:
-        song = genius.search_song(query)
+        # Run the blocking search_song in a thread to avoid blocking the event loop
+        song = await asyncio.to_thread(genius.search_song, query)
     except Exception as e:
         await interaction.followup.send("An error occurred while searching for lyrics.")
         return

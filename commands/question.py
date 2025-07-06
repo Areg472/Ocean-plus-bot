@@ -65,11 +65,9 @@ async def question_command(
         answer = f"An error occurred: {error}"
 
     if model == "codestral-2501":
-        # Prepare embed response for Codestral
         response_embed = discord.Embed(title="💡 Answer", color=0x34a853)
         response_embed.add_field(name="Question", value=query[:1000], inline=False)
 
-        # Split the answer into chunks of 1024 characters, but keep code blocks together
         code_block_pattern = re.compile(r"(```[\s\S]*?```)", re.MULTILINE)
         parts = []
         last_end = 0
@@ -77,14 +75,13 @@ async def question_command(
             # Add text before code block
             if match.start() > last_end:
                 before = answer[last_end:match.start()]
-                # Split before into 1024 chunks
                 for i in range(0, len(before), 1024):
                     chunk = before[i:i+1024]
                     if chunk.strip():
-                        parts.append(chunk)
+                        parts.append(("text", chunk))
             # Add the code block as a whole
             code_block = match.group(1)
-            parts.append(code_block)
+            parts.append(("code", code_block))
             last_end = match.end()
         # Add any remaining text after the last code block
         if last_end < len(answer):
@@ -92,17 +89,27 @@ async def question_command(
             for i in range(0, len(after), 1024):
                 chunk = after[i:i+1024]
                 if chunk.strip():
-                    parts.append(chunk)
+                    parts.append(("text", chunk))
 
-        # Now add each part as a field
-        for idx, chunk in enumerate(parts, start=1):
-            response_embed.add_field(name=f"Answer (Part {idx})", value=chunk, inline=False)
+        field_idx = 1
+        followup_codeblocks = []
+        for typ, chunk in parts:
+            if typ == "code" and len(chunk) > 1024:
+                followup_codeblocks.append(chunk)
+            else:
+                response_embed.add_field(name=f"Answer (Part {field_idx})", value=chunk, inline=False)
+                field_idx += 1
 
         try:
             await interaction.edit_original_response(embed=response_embed)
+            # Send large code blocks as followups
+            for codeblock in followup_codeblocks:
+                await interaction.followup.send(codeblock)
         except Exception as e:
-            # fallback: send as followup if editing fails
+            # fallback: send everything as followup if editing fails
             await interaction.followup.send(embed=response_embed)
+            for codeblock in followup_codeblocks:
+                await interaction.followup.send(codeblock)
     else:
         # Prepare embed response
         response_embed = discord.Embed(title="💡 Answer", color=0x34a853)

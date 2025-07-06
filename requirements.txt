@@ -6,3 +6,4 @@ wikipedia-api~=0.7.1
 protobuf~=4.25.5
 aiohttp~=3.10.11
 mistralai~=1.9.1
+beautifulsoup4~=4.13.4

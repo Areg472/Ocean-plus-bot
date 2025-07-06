@@ -2,20 +2,49 @@ import discord
 from discord import app_commands
 import asyncio
 from commands.utils import cooldown
-from lyricsgenius import Genius
+import aiohttp
 import os
+from bs4 import BeautifulSoup
 
 GENIUS_TOKEN = os.getenv("GENIUS_ACCESS_TOKEN", "YOUR_GENIUS_ACCESS_TOKEN_HERE")
 if not GENIUS_TOKEN or GENIUS_TOKEN == "YOUR_GENIUS_ACCESS_TOKEN_HERE":
     raise RuntimeError("Genius API access token not set. Set the GENIUS_ACCESS_TOKEN environment variable.")
 
-genius = Genius(
-    GENIUS_TOKEN,
-    timeout=10,
-    retries=3,
-    remove_section_headers=True,
-    verbose=False,
-)
+GENIUS_API_URL = "https://api.genius.com"
+GENIUS_HEADERS = {
+    "Authorization": f"Bearer {GENIUS_TOKEN}",
+    "User-Agent": "Mozilla/5.0 (compatible; DiscordBot/1.0; +https://github.com/Areg472/Ocean-plus-bot)"
+}
+
+async def fetch_song_data(query):
+    async with aiohttp.ClientSession() as session:
+        params = {"q": query}
+        async with session.get(f"{GENIUS_API_URL}/search", headers=GENIUS_HEADERS, params=params) as resp:
+            if resp.status != 200:
+                raise Exception(f"Genius API returned status {resp.status}")
+            data = await resp.json()
+            hits = data["response"]["hits"]
+            if not hits:
+                return None
+            # Take the first result
+            song_info = hits[0]["result"]
+            return {
+                "title": song_info["title"],
+                "artist": song_info["primary_artist"]["name"],
+                "url": song_info["url"]
+            }
+
+async def fetch_lyrics(song_url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(song_url, headers={"User-Agent": GENIUS_HEADERS["User-Agent"]}) as resp:
+            if resp.status != 200:
+                return None
+            html = await resp.text()
+            soup = BeautifulSoup(html, "html.parser")
+            # Genius lyrics are in <div data-lyrics-container="true">
+            lyrics_divs = soup.find_all("div", attrs={"data-lyrics-container": "true"})
+            lyrics = "\n".join(div.get_text(separator="\n") for div in lyrics_divs)
+            return lyrics.strip() if lyrics else None
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -27,37 +56,30 @@ genius = Genius(
 async def lyrics_command(interaction: discord.Interaction, query: str):
     await interaction.response.defer()
     try:
-        song = await asyncio.to_thread(genius.search_song, query)
+        song_data = await fetch_song_data(query)
     except Exception as e:
-        print(f"Error searching for lyrics: {e}")  # For debugging
+        print(f"Error searching for lyrics: {e}")
         await interaction.followup.send("An error occurred while searching for lyrics.")
         return
 
-    if not song:
+    if not song_data:
         await interaction.followup.send("No lyrics found for that song.")
         return
 
-    # Defensive: Check if lyrics, title, and artist exist
-    lyrics = getattr(song, "lyrics", None)
-    title = getattr(song, "title", "Unknown Title")
-    artist = getattr(song, "artist", "Unknown Artist")
-    url = getattr(song, "url", None)
-
+    lyrics = await fetch_lyrics(song_data["url"])
     if not lyrics:
         await interaction.followup.send("Lyrics could not be retrieved for this song.")
         return
 
     if len(lyrics) > 1900:
-        short_lyrics = lyrics[:1900] + "...\n[Lyrics truncated]"
-        if url:
-            short_lyrics += f"\n{url}"
+        short_lyrics = lyrics[:1900] + "...\n[Lyrics truncated]\n" + song_data["url"]
     else:
         short_lyrics = lyrics
 
     embed = discord.Embed(
-        title=f"{title} - {artist}",
+        title=f"{song_data['title']} - {song_data['artist']}",
         description=short_lyrics,
-        url=url if url else discord.Embed.Empty,
+        url=song_data["url"],
         color=0x34a853
     )
     await interaction.followup.send(embed=embed)

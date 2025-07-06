@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 from commands.utils import cooldown, get_mistral_response
 import asyncio
+import re
 
 
 MODEL_CHOICES = [
@@ -34,9 +35,14 @@ async def question_command(
 ):
     # If Codestral is selected, use plain text messages
     if model == "codestral-2501":
-        await interaction.response.send_message(
-            f"🤔 Thinking...\nProcessing your question with Codestral...\n\n**Question:** {query[:1000]}"
+        # Thinking embed for Codestral
+        thinking_embed = discord.Embed(
+            title="🤔 Thinking...",
+            description="Processing your question with Codestral...",
+            color=0x4285f4
         )
+        thinking_embed.add_field(name="Question", value=query[:1000], inline=False)
+        await interaction.response.send_message(embed=thinking_embed)
     else:
         # Thinking embed
         thinking_embed = discord.Embed(
@@ -59,16 +65,40 @@ async def question_command(
         answer = f"An error occurred: {error}"
 
     if model == "codestral-2501":
-        # Send plain text response
-        msg = f"💡 **Answer**\n**Question:** {query[:1000]}\n"
-        if len(answer) > 2000 - len(msg):
-            # Discord message limit is 2000 chars, split if needed
-            chunks = [answer[i:i + 1900] for i in range(0, len(answer), 1900)]
-            await interaction.edit_original_response(content=msg + chunks[0])
-            for chunk in chunks[1:]:
-                await interaction.followup.send(chunk)
-        else:
-            await interaction.edit_original_response(content=msg + answer)
+        # Prepare embed response for Codestral
+        response_embed = discord.Embed(title="💡 Answer", color=0x34a853)
+        response_embed.add_field(name="Question", value=query[:1000], inline=False)
+
+        # Split the answer into chunks of 1024 characters, but keep code blocks together
+        code_block_pattern = re.compile(r"(```[\s\S]*?```)", re.MULTILINE)
+        parts = []
+        last_end = 0
+        for match in code_block_pattern.finditer(answer):
+            # Add text before code block
+            if match.start() > last_end:
+                before = answer[last_end:match.start()]
+                # Split before into 1024 chunks
+                for i in range(0, len(before), 1024):
+                    chunk = before[i:i+1024]
+                    if chunk.strip():
+                        parts.append(chunk)
+            # Add the code block as a whole
+            code_block = match.group(1)
+            parts.append(code_block)
+            last_end = match.end()
+        # Add any remaining text after the last code block
+        if last_end < len(answer):
+            after = answer[last_end:]
+            for i in range(0, len(after), 1024):
+                chunk = after[i:i+1024]
+                if chunk.strip():
+                    parts.append(chunk)
+
+        # Now add each part as a field
+        for idx, chunk in enumerate(parts, start=1):
+            response_embed.add_field(name=f"Answer (Part {idx})", value=chunk, inline=False)
+
+        await interaction.edit_original_response(embed=response_embed)
     else:
         # Prepare embed response
         response_embed = discord.Embed(title="💡 Answer", color=0x34a853)

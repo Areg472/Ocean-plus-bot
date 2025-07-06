@@ -16,9 +16,9 @@ genius = lyricsgenius.Genius()
 async def lyrics_command(interaction: discord.Interaction, query: str):
     await interaction.response.defer()
     try:
-        # Run the blocking search_song in a thread to avoid blocking the event loop
         song = await asyncio.to_thread(genius.search_song, query)
     except Exception as e:
+        print(f"Error searching for lyrics: {e}")  # For debugging
         await interaction.followup.send("An error occurred while searching for lyrics.")
         return
 
@@ -26,9 +26,16 @@ async def lyrics_command(interaction: discord.Interaction, query: str):
         await interaction.followup.send("No lyrics found for that song.")
         return
 
-    # Discord message limit is 2000 chars
-    lyrics = song.lyrics
+    # Defensive: Check if lyrics, title, and artist exist
+    lyrics = getattr(song, "lyrics", None)
+    title = getattr(song, "title", "Unknown Title")
+    artist = getattr(song, "artist", "Unknown Artist")
     url = getattr(song, "url", None)
+
+    if not lyrics:
+        await interaction.followup.send("Lyrics could not be retrieved for this song.")
+        return
+
     if len(lyrics) > 1900:
         short_lyrics = lyrics[:1900] + "...\n[Lyrics truncated]"
         if url:
@@ -37,7 +44,7 @@ async def lyrics_command(interaction: discord.Interaction, query: str):
         short_lyrics = lyrics
 
     embed = discord.Embed(
-        title=f"{song.title} - {song.artist}",
+        title=f"{title} - {artist}",
         description=short_lyrics,
         url=url if url else discord.Embed.Empty,
         color=0x34a853

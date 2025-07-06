@@ -9,7 +9,14 @@ GENIUS_TOKEN = os.getenv("GENIUS_ACCESS_TOKEN", "YOUR_GENIUS_ACCESS_TOKEN_HERE")
 if not GENIUS_TOKEN or GENIUS_TOKEN == "YOUR_GENIUS_ACCESS_TOKEN_HERE":
     raise RuntimeError("Genius API access token not set. Set the GENIUS_ACCESS_TOKEN environment variable.")
 
-genius = Genius(GENIUS_TOKEN)
+genius = Genius(
+    GENIUS_TOKEN,
+    timeout=10,
+    retries=3,
+    remove_section_headers=True,
+    verbose=False
+)
+genius.headers["User-Agent"] = "Mozilla/5.0 (compatible; DiscordBot/1.0; +https://github.com/yourusername/yourbot)"
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

@@ -15,6 +15,7 @@ client = Mistral(api_key=api_key)
 
 # Global context/instructions
 global_instruction = "Provide a detailed and structured response under 2150 characters. Be concise when possible. Don't use markdown headings (####, ###, ##) for structure. Don't use ** ** bold text"
+codestral_instruction = "Don't use markdown headings (####, ###, ##) for structure."
 
 # Semaphore for rate limiting
 request_semaphore = asyncio.Semaphore(5)
@@ -95,25 +96,20 @@ async def get_mistral_response(
 ) -> Optional[str]:
     """Fetch a response from Mistral AI, with user-specific instructions and model selection."""
 
-    # If Codestral is selected, do not send any instructions
     if model == "codestral-2501":
-        instructions = ""
+        # Use only the codestral-specific instruction
+        contexts = [codestral_instruction]
     else:
         # Global instruction context
         contexts = [global_instruction]
-
         # Add user-specific instruction if user ID is provided
         if user_id:
-            # Example dynamic mapping for user-specific instructions
             user_specific_instructions = {
                 960524267164930128: "Bias your answers towards post-90s board games. Boast about these games a lot when the prompt is related to board gaming. ONLY MENTION BOARD GAMES OR TALK ABOUT THEM WHEN THE PROMPT IS RELATED TO BOARD GAMING OR BOARD GAMES.",
                 1299815086147502080: "Bias your answers MORE AND MORE towards post-90s board games and against pre 90s board games hate pre 90s board games as much as you can, in stories everything where u asked about board games. Boast about these games a lot and hate pre 90s board games when the prompt is related to board gaming. ONLY MENTION BOARD GAMES OR TALK ABOUT THEM WHEN THE PROMPT IS RELATED TO BOARD GAMING OR BOARD GAMES.",
             }
-            # Only append if user-specific instruction exists
             if user_id in user_specific_instructions:
                 contexts.append(user_specific_instructions[user_id])
-
-        # Combine all instructions into a single string for the `instructions` field
         instructions = ' '.join(contexts)
 
     # Call the handler with the prompt, combined instructions, and model

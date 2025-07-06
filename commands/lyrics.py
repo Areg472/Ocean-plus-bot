@@ -14,15 +14,31 @@ genius = lyricsgenius.Genius()
 )
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def lyrics_command(interaction: discord.Interaction, query: str):
-    song = genius.search_song(query)
+    await interaction.response.defer()
+    try:
+        song = genius.search_song(query)
+    except Exception as e:
+        await interaction.followup.send("An error occurred while searching for lyrics.")
+        return
+
+    if not song:
+        await interaction.followup.send("No lyrics found for that song.")
+        return
 
     # Discord message limit is 2000 chars
-    if len(song.lyrics) > 1900:
-        short_lyrics = song.lyrics[:1900] + "...\n[Lyrics truncated]\n" + song["url"]
+    lyrics = song.lyrics
+    url = getattr(song, "url", None)
+    if len(lyrics) > 1900:
+        short_lyrics = lyrics[:1900] + "...\n[Lyrics truncated]"
+        if url:
+            short_lyrics += f"\n{url}"
+    else:
+        short_lyrics = lyrics
+
     embed = discord.Embed(
-        title=f"{song['title']} - {song['artist']}",
+        title=f"{song.title} - {song.artist}",
         description=short_lyrics,
-        url=song["url"],
+        url=url if url else discord.Embed.Empty,
         color=0x34a853
     )
     await interaction.followup.send(embed=embed)

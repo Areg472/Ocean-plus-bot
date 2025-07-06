@@ -5,7 +5,11 @@ from commands.utils import cooldown
 from lyricsgenius import Genius
 import os
 
-genius = Genius()
+GENIUS_TOKEN = os.getenv("GENIUS_ACCESS_TOKEN", "YOUR_GENIUS_ACCESS_TOKEN_HERE")
+if not GENIUS_TOKEN or GENIUS_TOKEN == "YOUR_GENIUS_ACCESS_TOKEN_HERE":
+    raise RuntimeError("Genius API access token not set. Set the GENIUS_ACCESS_TOKEN environment variable.")
+
+genius = Genius(GENIUS_TOKEN)
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

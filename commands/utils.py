@@ -36,13 +36,16 @@ def dynamic_cooldown() -> CooldownMapping:
     return CooldownMapping.from_cooldown(1, 3.0, Cooldown)
 
 
-async def handle_mistral_api_call_stream(prompt: str, instructions: str, timeout: int, model: str) -> str:
+async def handle_mistral_api_call_stream(prompt: str, instructions: str = "", timeout: int = 45, model: str = "mistral-medium-latest") -> str:
     """Encapsulate Mistral API call with streaming responses, passing `instructions` and `model`."""
     try:
         async with request_semaphore:
             start_time = time.time()
 
             if model == "codestral-2501":
+                # Ensure instructions is set
+                if not instructions:
+                    instructions = codestral_instruction
                 # Run the synchronous generator in a thread for Codestral
                 def sync_stream():
                     response = client.beta.conversations.start_stream(

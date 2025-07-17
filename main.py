@@ -31,12 +31,8 @@ async def on_ready():
 
 @bot.event
 async def on_message(message: discord.Message):
-    # React only to Discord voice messages
-    if message.attachments:
-        for attachment in message.attachments:
-            if attachment.filename.startswith("voice-message"):
-                await message.add_reaction("📒")
-                break
+    # This handler is empty as voice message reactions are now handled in the cog
+    pass
 """
     from commands.generate_code import user_codes
 
@@ -112,8 +108,8 @@ async def on_message_delete(message: discord.Message):
 async def cleanup_tracked_message(message_id: int, timestamp: float):
     await asyncio.sleep(120)
     if message_id in tracked_messages and tracked_messages[message_id]["timestamp"] == timestamp:
-        del tracked_messages[message_id]"""
-
+        del tracked_messages[message_id]
+"""
 @bot.tree.error
 async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
     if isinstance(error, CommandOnCooldown):

@@ -15,7 +15,7 @@ client = Mistral(api_key=api_key)
 
 # Global context/instructions
 global_instruction = "Provide a detailed and structured response under 2150 characters. Be concise when possible. Don't use markdown headings (####, ###, ##) for structure. Don't use ** ** bold text"
-devstral_instruction = "Don't use markdown headings (####, ###, ##) for structure."
+devstral_instruction = "Don't use markdown headings (####, ###, ##, #) for structure."
 
 # Semaphore for rate limiting
 request_semaphore = asyncio.Semaphore(5)

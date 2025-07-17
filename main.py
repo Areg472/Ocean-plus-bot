@@ -1,7 +1,3 @@
-import random
-import time
-import asyncio
-
 import discord
 import os
 import logging
@@ -31,8 +27,10 @@ async def on_ready():
 
 @bot.event
 async def on_message(message: discord.Message):
-    # This handler is empty as voice message reactions are now handled in the cog
-    pass
+    # Make sure we process commands in this event handler
+    await bot.process_commands(message)
+
+    # The voice message reaction handling is in the TranscribeVoice cog
 """
     from commands.generate_code import user_codes
 

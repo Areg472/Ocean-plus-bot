@@ -102,6 +102,7 @@ async def get_mistral_response(
     if model == "codestral-2501":
         # Use only the codestral-specific instruction
         contexts = [codestral_instruction]
+        instructions = codestral_instruction  # <-- Ensure instructions is set
     else:
         # Global instruction context
         contexts = [global_instruction]

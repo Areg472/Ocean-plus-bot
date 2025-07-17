@@ -17,7 +17,7 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix='$', intents=intents)
 
-# tracked_messages = {}
+tracked_messages = {}
 
 @bot.event
 async def on_ready():
@@ -27,10 +27,17 @@ async def on_ready():
 
     print(f'Logged in as {bot.user}!')
 
-"""
+
 
 @bot.event
 async def on_message(message: discord.Message):
+    # React only to Discord voice messages
+    if message.attachments:
+        for attachment in message.attachments:
+            if attachment.filename.startswith("voice-message"):
+                await message.add_reaction("📒")
+                break
+"""
     from commands.generate_code import user_codes
 
     if message.author.bot:

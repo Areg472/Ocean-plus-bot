@@ -48,7 +48,7 @@ async def handle_mistral_api_call_stream(prompt: str, instructions: str, timeout
                     response = client.beta.conversations.start_stream(
                         inputs=prompt,
                         model=model,
-                        instructions=instructions,
+                        instructions=codestral_instruction,
                     )
                     response_text = ""
                     for event in response:

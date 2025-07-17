@@ -24,14 +24,9 @@ async def on_ready():
     print(f'Logged in as {bot.user}!')
 
 
-
-@bot.event
-async def on_message(message: discord.Message):
-    # Make sure we process commands in this event handler
-    await bot.process_commands(message)
-
-    # The voice message reaction handling is in the TranscribeVoice cog
 """
+@bot.event
+async def on_message(message: discord.Message)
     from commands.generate_code import user_codes
 
     if message.author.bot:

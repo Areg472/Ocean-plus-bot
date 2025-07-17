@@ -7,41 +7,23 @@ import groq
 
 def transcribe_audio(audio_url: str) -> str:
     """
-    Transcribe audio using Groq Whisper-large-v3-turbo API via groq library.
+    Transcribe audio using Groq Whisper-large-v3-turbo API via groq library, sending the file link.
     """
     groq_api_key = os.getenv("GROQ_API_KEY")
     if not groq_api_key:
         return "[Groq API key not set]"
 
-    # Download the audio file
-    import requests  # Only needed for downloading
-    response = requests.get(audio_url)
-    if response.status_code != 200:
-        return "[Failed to download audio file]"
-    audio_bytes = response.content
-
-    # Save to a temporary file
-    temp_filename = "temp_audio.wav"
-    with open(temp_filename, "wb") as f:
-        f.write(audio_bytes)
-
-    # Use groq library to transcribe
     try:
         client = groq.Groq(api_key=groq_api_key)
-        with open(temp_filename, "rb") as audio_file:
-            transcript = client.audio.transcriptions.create(
-                model="whisper-large-v3-turbo",
-                file=audio_file,
-                response_format="text"
-            )
+        # Use file_url (not url)
+        transcript = client.audio.transcriptions.create(
+            model="whisper-large-v3-turbo",
+            file_url=audio_url,
+            response_format="text"
+        )
         return transcript
     except Exception as e:
         return f"[Transcription failed: {e}]"
-    finally:
-        try:
-            os.remove(temp_filename)
-        except Exception:
-            pass
 
 class TranscribeVoice(commands.Cog):
     def __init__(self, bot):
@@ -72,7 +54,7 @@ class TranscribeVoice(commands.Cog):
             return
         # Check for audio attachment
         audio_url = None
-        for attachment in message.attachments:
+        for attachment in reaction.message.attachments:
             if attachment.content_type and "audio" in attachment.content_type:
                 audio_url = attachment.url
                 break
@@ -83,7 +65,7 @@ class TranscribeVoice(commands.Cog):
         loop = asyncio.get_event_loop()
         transcript = await loop.run_in_executor(None, transcribe_audio, audio_url)
         embed = Embed(title="Transcription", description=transcript, color=discord.Color.blue())
-        await message.channel.send(embed=embed)
+        await reaction.message.channel.send(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(TranscribeVoice(bot))

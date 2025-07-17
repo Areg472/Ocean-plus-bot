@@ -32,14 +32,13 @@ class TranscribeVoice(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        # Check if the message contains a voice attachment or Discord voice message
+        # React to any audio attachment or Discord voice message
         if message.attachments:
             for attachment in message.attachments:
                 if (
                     (attachment.content_type and "audio" in attachment.content_type)
-                    or attachment.filename.startswith("voice-message")
+                    or (attachment.filename.startswith("voice-message"))
                 ):
-                    # React with the notebook emoji
                     await message.add_reaction(self.emoji)
                     break
 
@@ -55,10 +54,13 @@ class TranscribeVoice(commands.Cog):
         # Only transcribe if a user (not the bot) clicks the reaction
         if user.id == self.bot.user.id:
             return
-        # Check for audio attachment
+        # Check for audio attachment or voice message
         audio_url = None
         for attachment in reaction.message.attachments:
-            if attachment.content_type and "audio" in attachment.content_type:
+            if (
+                (attachment.content_type and "audio" in attachment.content_type)
+                or (attachment.filename.startswith("voice-message"))
+            ):
                 audio_url = attachment.url
                 break
         if not audio_url:

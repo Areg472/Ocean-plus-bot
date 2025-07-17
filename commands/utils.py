@@ -15,7 +15,7 @@ client = Mistral(api_key=api_key)
 
 # Global context/instructions
 global_instruction = "Provide a detailed and structured response under 2150 characters. Be concise when possible. Don't use markdown headings (####, ###, ##) for structure. Don't use ** ** bold text"
-codestral_instruction = "Don't use markdown headings (####, ###, ##) for structure."
+devstral_instruction = "Don't use markdown headings (####, ###, ##) for structure."
 
 # Semaphore for rate limiting
 request_semaphore = asyncio.Semaphore(5)
@@ -45,7 +45,7 @@ async def handle_mistral_api_call_stream(prompt: str, instructions: str = "", ti
             if model == "devstral-small-2507":
                 # Ensure instructions is set
                 if not instructions:
-                    instructions = codestral_instruction
+                    instructions = devstral_instruction
                 # Run the synchronous generator in a thread for Devstral
                 def sync_stream():
                     response = client.beta.conversations.start_stream(
@@ -101,8 +101,8 @@ async def get_mistral_response(
 
     if model == "devstral-small-2507":
         # Use only the codestral-specific instruction
-        contexts = [codestral_instruction]
-        instructions = codestral_instruction  # <-- Ensure instructions is set
+        contexts = [devstral_instruction]
+        instructions = devstral_instruction  # <-- Ensure instructions is set
     else:
         # Global instruction context
         contexts = [global_instruction]

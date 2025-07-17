@@ -42,11 +42,11 @@ async def handle_mistral_api_call_stream(prompt: str, instructions: str = "", ti
         async with request_semaphore:
             start_time = time.time()
 
-            if model == "codestral-2501":
+            if model == "devstral-small-2507":
                 # Ensure instructions is set
                 if not instructions:
                     instructions = codestral_instruction
-                # Run the synchronous generator in a thread for Codestral
+                # Run the synchronous generator in a thread for Devstral
                 def sync_stream():
                     response = client.beta.conversations.start_stream(
                         inputs=prompt,
@@ -99,7 +99,7 @@ async def get_mistral_response(
 ) -> Optional[str]:
     """Fetch a response from Mistral AI, with user-specific instructions and model selection."""
 
-    if model == "codestral-2501":
+    if model == "devstral-small-2507":
         # Use only the codestral-specific instruction
         contexts = [codestral_instruction]
         instructions = codestral_instruction  # <-- Ensure instructions is set

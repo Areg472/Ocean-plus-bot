@@ -8,7 +8,7 @@ import re
 MODEL_CHOICES = [
     app_commands.Choice(name="Mistral Small", value="mistral-small-2506"),
     app_commands.Choice(name="Mistral Medium", value="mistral-medium-2505"),
-    app_commands.Choice(name="Codestral", value="codestral-2501"),
+    app_commands.Choice(name="Devstral Small", value="devstral-small-2507"),
 ]
 
 
@@ -33,10 +33,10 @@ async def question_command(
     query: str,
     model: str = "mistral-small-2506"  # Default to Mistral Small
 ):
-    if model == "codestral-2501":
+    if model == "devstral-small-2507":
         thinking_embed = discord.Embed(
             title="🤔 Thinking...",
-            description="Processing your question with Codestral...",
+            description="Processing your question with Devstral Small...",
             color=0x4285f4
         )
         thinking_embed.add_field(name="Question", value=query[:1000], inline=False)
@@ -69,7 +69,7 @@ async def question_command(
     except Exception as error:
         answer = f"An error occurred: {error}"
 
-    if model == "codestral-2501":
+    if model == "devstral-small-2507":
         response_embed = discord.Embed(title="💡 Answer", color=0x34a853)
         response_embed.add_field(name="Question", value=query[:1000], inline=False)
 

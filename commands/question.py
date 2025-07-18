@@ -35,21 +35,21 @@ async def question_command(
     model: str = "mistral-small-2506"  # Default to Mistral Small
 ):
     if model == "devstral-small-2507":
-        thinking_embed = discord.Embed(
-            title="🤔 Thinking...",
-            description="Processing your question with Devstral Small...",
+        model_name = "Devstral Small"
+    elif model == "mistral-small-2506":
+        model_name = "Mistral Small"
+    elif model == "magistral-small-2506":
+        model_name = "Magistral Small"
+    elif model == "mistral-medium-2505":
+        model_name = "Mistral Medium"
+
+    thinking_embed = discord.Embed(
+        title="🤔 Thinking...",
+        description="Processing your question with" + f" {model_name}...",
             color=0x4285f4
-        )
-        thinking_embed.add_field(name="Question", value=query[:1000], inline=False)
-        await interaction.response.send_message(embed=thinking_embed)
-    else:
-        thinking_embed = discord.Embed(
-            title="🤔 Thinking...",
-            description="Processing your question with Mistral Medium...",
-            color=0x4285f4
-        )
-        thinking_embed.add_field(name="Question", value=query[:1000], inline=False)
-        await interaction.response.send_message(embed=thinking_embed)
+    )
+    thinking_embed.add_field(name="Question", value=query[:1000], inline=False)
+    await interaction.response.send_message(embed=thinking_embed)
 
     # Mistral call
     try:

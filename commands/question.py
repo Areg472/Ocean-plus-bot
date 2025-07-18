@@ -7,8 +7,9 @@ import re
 
 MODEL_CHOICES = [
     app_commands.Choice(name="Mistral Small", value="mistral-small-2506"),
-    app_commands.Choice(name="Mistral Medium", value="mistral-medium-2505"),
     app_commands.Choice(name="Devstral Small", value="devstral-small-2507"),
+    app_commands.Choice(name="Magistral Small", value="magistral-small-2506"),
+    app_commands.Choice(name="Mistral Medium", value="mistral-medium-2505"),
 ]
 
 

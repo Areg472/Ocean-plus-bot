@@ -42,18 +42,10 @@ async def question_command(
         )
         thinking_embed.add_field(name="Question", value=query[:1000], inline=False)
         await interaction.response.send_message(embed=thinking_embed)
-    elif model == "mistral-medium-2505":
+    else:
         thinking_embed = discord.Embed(
             title="🤔 Thinking...",
             description="Processing your question with Mistral Medium...",
-            color=0x4285f4
-        )
-        thinking_embed.add_field(name="Question", value=query[:1000], inline=False)
-        await interaction.response.send_message(embed=thinking_embed)
-    elif model == "mistral-small-2506":
-        thinking_embed = discord.Embed(
-            title="🤔 Thinking...",
-            description="Processing your question with Mistral Small...",
             color=0x4285f4
         )
         thinking_embed.add_field(name="Question", value=query[:1000], inline=False)

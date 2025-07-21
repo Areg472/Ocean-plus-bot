@@ -30,7 +30,6 @@ from commands.boardgame import *
 from commands.spelling import *
 from commands.gamble import *
 from commands.generate_code import *
-from commands.transcribe import *
 
 # Function to setup all commands
 def setup_commands(bot):
@@ -121,6 +120,3 @@ def setup_commands(bot):
     
     """from commands.generate_code import setup
     setup(bot)"""
-    
-    from commands.transcribe import setup
-    setup(bot)

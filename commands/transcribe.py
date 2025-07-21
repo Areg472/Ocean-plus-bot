@@ -42,29 +42,17 @@ async def transcribe_message(interaction: discord.Interaction, message: discord.
             'x-api-key': api_key
         }
         
-        # Download the audio file
-        async with aiohttp.ClientSession() as session:
-            async with session.get(voice_attachment.url) as audio_response:
-                if audio_response.status != 200:
-                    await interaction.followup.send(
-                        "❌ Failed to download audio file.", 
-                        ephemeral=True
-                    )
-                    return
-                
-                audio_data = await audio_response.read()
+        # Prepare form data with file_url
+        data = aiohttp.FormData()
+        data.add_field('file_url', voice_attachment.url)
+        data.add_field('model', 'voxtral-mini-2507')
         
-        # Prepare multipart form data
-        form_data = aiohttp.FormData()
-        form_data.add_field('file', audio_data, filename=voice_attachment.filename, content_type=voice_attachment.content_type)
-        form_data.add_field('model', 'voxtral-mini-2507')
-        
-        # Make API request with multipart form data
+        # Make API request
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 'https://api.mistral.ai/v1/audio/transcriptions',
                 headers=headers,
-                data=form_data
+                data=data
             ) as response:
                 
                 if response.status == 200:
@@ -96,7 +84,6 @@ async def transcribe_message(interaction: discord.Interaction, message: discord.
                         f"❌ Transcription failed: {response.status} - {error_text}", 
                         ephemeral=True
                     )
-                    
     except Exception as e:
         await interaction.followup.send(
             f"❌ An error occurred during transcription: {str(e)}", 

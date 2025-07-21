@@ -3,9 +3,6 @@ from discord import app_commands
 from commands.utils import cooldown
 
 def setup(bot):
-    """
-    Register the help command with the bot
-    """
     bot.tree.add_command(help_command)
 
 @app_commands.allowed_installs(guilds=True, users=True)

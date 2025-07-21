@@ -2,13 +2,9 @@ import discord
 from discord import app_commands
 import language_tool_python
 
-# Initialize the language tool
 tool = language_tool_python.LanguageToolPublicAPI('en-US')
 
 def setup(bot):
-    """
-    Register the spelling context menu command with the bot
-    """
     bot.tree.add_command(spelling_command)
 
 @app_commands.allowed_installs(guilds=True, users=True)

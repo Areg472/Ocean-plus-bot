@@ -3,9 +3,6 @@ from discord import app_commands
 from commands.utils import cooldown
 
 def setup(bot):
-    """
-    Register the hi command with the bot
-    """
     bot.tree.add_command(hi_command)
 
 @app_commands.allowed_installs(guilds=True, users=True)

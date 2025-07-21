@@ -7,9 +7,6 @@ import time
 from commands.utils import cooldown
 
 def setup(bot):
-    """
-    Register the boardgame command with the bot
-    """
     bot.tree.add_command(boardgame_command)
 
 class BoardGameView(discord.ui.View):
@@ -105,7 +102,6 @@ async def boardgame_command(interaction: discord.Interaction, query: str):
             description = item.find('.//description')
             description_text = description.text if description is not None and description.text else "No description available."
             
-            # Decode HTML entities in the description
             description_text = html.unescape(description_text)
 
             if len(description_text) > 200:

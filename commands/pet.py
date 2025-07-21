@@ -6,13 +6,9 @@ import aiohttp
 import os
 from commands.utils import cooldown
 
-# Get the Jeyy API key from environment variables
 jeyy_api = os.environ.get('JEYY_API')
 
 def setup(bot):
-    """
-    Register the pet command with the bot
-    """
     bot.tree.add_command(pet_command)
 
 @app_commands.allowed_installs(guilds=True, users=True)

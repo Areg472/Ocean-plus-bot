@@ -1,7 +1,3 @@
-# This file makes the commands directory a Python package
-# It will be used to import all commands
-
-# Import all commands to make them available when importing the package
 from commands.hi import *
 from commands.meme import *
 from commands.date import *
@@ -32,12 +28,7 @@ from commands.gamble import *
 from commands.transcribe import *
 from commands.generate_code import *
 
-# Function to setup all commands
 def setup_commands(bot):
-    """
-    Register all commands with the bot
-    """
-    # Each command module should have a setup function that registers the command
     from commands.hi import setup
     setup(bot)
     

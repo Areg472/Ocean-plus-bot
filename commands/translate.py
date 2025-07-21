@@ -5,9 +5,6 @@ from typing import Optional
 from commands.utils import cooldown
 
 def get_translation(text, target_language):
-    """
-    Translate text to the specified language
-    """
     response = requests.get(f'https://api.popcat.xyz/v2/translate?to={target_language}&text={text}')
     if response.status_code == 200:
         json_data = response.json()
@@ -16,9 +13,6 @@ def get_translation(text, target_language):
         return "Could not fetch the translation at this time."
 
 def setup(bot):
-    """
-    Register the translate command with the bot
-    """
     bot.tree.add_command(translate_command)
 
 @app_commands.allowed_installs(guilds=True, users=True)

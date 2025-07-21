@@ -5,9 +5,6 @@ import random
 from commands.utils import cooldown
 
 def get_quote():
-    """
-    Get a random quote from the quotable API
-    """
     try:
         response = requests.get('http://api.quotable.io/random')
         response.raise_for_status()
@@ -18,9 +15,6 @@ def get_quote():
         return "Could not fetch a quote at this time."
 
 def setup(bot):
-    """
-    Register the quote command with the bot
-    """
     bot.tree.add_command(quote_command)
 
 @app_commands.allowed_installs(guilds=True, users=True)

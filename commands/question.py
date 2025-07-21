@@ -5,6 +5,10 @@ import asyncio
 import re
 
 
+def setup(bot):
+    bot.tree.add_command(question_command)
+
+
 MODEL_CHOICES = [
     app_commands.Choice(name="Mistral Small", value="mistral-small-2506"),
     app_commands.Choice(name="Devstral Small", value="devstral-small-2507"),
@@ -51,9 +55,7 @@ async def question_command(
     thinking_embed.add_field(name="Question", value=query[:1000], inline=False)
     await interaction.response.send_message(embed=thinking_embed)
 
-    # Mistral call
     try:
-        # Get the streamed response
         answer = await asyncio.wait_for(
             get_mistral_response(query, user_id=interaction.user.id, model=model), timeout=60.0
         )
@@ -70,18 +72,15 @@ async def question_command(
         parts = []
         last_end = 0
         for match in code_block_pattern.finditer(answer):
-            # Add text before code block
             if match.start() > last_end:
                 before = answer[last_end:match.start()]
                 for i in range(0, len(before), 1024):
                     chunk = before[i:i+1024]
                     if chunk.strip():
                         parts.append(("text", chunk))
-            # Add the code block as a whole
             code_block = match.group(1)
             parts.append(("code", code_block))
             last_end = match.end()
-        # Add any remaining text after the last code block
         if last_end < len(answer):
             after = answer[last_end:]
             for i in range(0, len(after), 1024):
@@ -100,20 +99,16 @@ async def question_command(
 
         try:
             await interaction.edit_original_response(embed=response_embed)
-            # Send large code blocks as followups
             for codeblock in followup_codeblocks:
                 await interaction.followup.send(codeblock)
         except Exception as e:
-            # fallback: send everything as followup if editing fails
             await interaction.followup.send(embed=response_embed)
             for codeblock in followup_codeblocks:
                 await interaction.followup.send(codeblock)
     else:
-        # Prepare embed response
         response_embed = discord.Embed(title="💡 Answer", color=0x34a853)
         response_embed.add_field(name="Question", value=query[:1000], inline=False)
 
-        # Split the answer into chunks of 1024 characters
         if len(answer) > 1024:
             chunks = [answer[i:i + 1024] for i in range(0, len(answer), 1024)]
             for idx, chunk in enumerate(chunks, start=1):
@@ -121,5 +116,4 @@ async def question_command(
         else:
             response_embed.add_field(name="Answer", value=answer, inline=False)
 
-        # Send the response embed
         await interaction.edit_original_response(embed=response_embed)

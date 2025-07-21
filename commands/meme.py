@@ -6,9 +6,6 @@ import random
 from commands.utils import cooldown
 
 def get_meme():
-    """
-    Get a random meme from the meme API
-    """
     while True:
         response = requests.get('https://meme-api.com/gimme')
         json_data = json.loads(response.text)
@@ -16,9 +13,6 @@ def get_meme():
             return json_data['url']
 
 def setup(bot):
-    """
-    Register the meme command with the bot
-    """
     bot.tree.add_command(meme_command)
 
 @app_commands.allowed_installs(guilds=True, users=True)

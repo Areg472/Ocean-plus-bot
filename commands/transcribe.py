@@ -74,18 +74,12 @@ async def transcribe_message(interaction: discord.Interaction, message: discord.
                     # Create embed
                     embed = discord.Embed(
                         title="🎤 Voice Message Transcription",
-                        description=f"Transcription for {message.author.mention}'s voice message",
                         color=discord.Color.blue()
                     )
                     embed.add_field(
                         name="Original Message", 
                         value=f"[Jump to message]({message.jump_url})", 
                         inline=False
-                    )
-                    embed.add_field(
-                        name="Author", 
-                        value=message.author.mention, 
-                        inline=True
                     )
                     embed.add_field(
                         name="Transcription", 

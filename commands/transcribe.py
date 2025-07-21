@@ -42,17 +42,17 @@ async def transcribe_message(interaction: discord.Interaction, message: discord.
             'x-api-key': api_key
         }
         
-        # Prepare form data with file_url
-        data = aiohttp.FormData()
-        data.add_field('file_url', voice_attachment.url)
-        data.add_field('model', 'voxtral-mini-2507')
+        # Prepare form data with file_url as multipart
+        form_data = aiohttp.FormData()
+        form_data.add_field('file_url', voice_attachment.url)
+        form_data.add_field('model', 'voxtral-mini-2507')
         
         # Make API request
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 'https://api.mistral.ai/v1/audio/transcriptions',
                 headers=headers,
-                data=data
+                data=form_data
             ) as response:
                 
                 if response.status == 200:

@@ -53,72 +53,91 @@ async def transcribe_audio(file_path: str) -> str:
         except:
             pass
 
-@commands.Cog.listener()
-async def on_message(message: discord.Message):
-    """React to voice messages with transcribe emoji"""
-    if message.author.bot:
-        return
-    
-    # Check if message has voice attachments
-    for attachment in message.attachments:
-        if attachment.content_type and 'audio' in attachment.content_type:
-            # React with transcribe emoji
-            await message.add_reaction('📝')
-            # Store the message for potential transcription
-            voice_messages[message.id] = {
-                'url': attachment.url,
-                'message': message,
-                'transcribed': False
-            }
-            break
+class TranscribeCog(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
 
-@commands.Cog.listener()
-async def on_reaction_add(reaction: discord.Reaction, user: discord.Member):
-    """Handle transcription requests when users react with 📝"""
-    if user.bot:
-        return
-    
-    # Check if it's the transcribe emoji and the message is a voice message
-    if str(reaction.emoji) == '📝' and reaction.message.id in voice_messages:
-        voice_data = voice_messages[reaction.message.id]
-        
-        # Skip if already transcribed
-        if voice_data['transcribed']:
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        """React to voice messages with transcribe emoji"""
+        if message.author.bot:
             return
         
-        # Check if user is not the original message author (to avoid self-transcription)
-        if user.id != voice_data['message'].author.id:
-            voice_data['transcribed'] = True
+        print(f"Checking message from {message.author}: {len(message.attachments)} attachments")
+        
+        # Check if message has voice attachments
+        for attachment in message.attachments:
+            print(f"Attachment: {attachment.filename}, Content-Type: {attachment.content_type}")
+            if attachment.content_type and 'audio' in attachment.content_type:
+                print(f"Found voice message! Adding reaction...")
+                # React with transcribe emoji
+                await message.add_reaction('📝')
+                # Store the message for potential transcription
+                voice_messages[message.id] = {
+                    'url': attachment.url,
+                    'message': message,
+                    'transcribed': False
+                }
+                print(f"Stored voice message with ID: {message.id}")
+                break
+
+    @commands.Cog.listener()
+    async def on_reaction_add(self, reaction: discord.Reaction, user: discord.Member):
+        """Handle transcription requests when users react with 📝"""
+        if user.bot:
+            return
+        
+        print(f"Reaction added: {reaction.emoji} by {user.display_name} on message {reaction.message.id}")
+        print(f"Voice messages stored: {list(voice_messages.keys())}")
+        
+        # Check if it's the transcribe emoji and the message is a voice message
+        if str(reaction.emoji) == '📝' and reaction.message.id in voice_messages:
+            voice_data = voice_messages[reaction.message.id]
             
-            # Send "transcribing..." message
-            transcribing_msg = await reaction.message.reply("🔄 Transcribing voice message...")
+            print(f"Found voice message! Transcribed: {voice_data['transcribed']}")
             
-            try:
-                # Download and transcribe the audio
-                temp_file = await download_audio(voice_data['url'])
-                if temp_file:
-                    transcription = await transcribe_audio(temp_file)
-                    
-                    # Create embed for transcription
-                    embed = discord.Embed(
-                        title="🎤 Voice Message Transcription",
-                        description=transcription,
-                        color=0x5865F2
-                    )
-                    embed.set_footer(
-                        text=f"Original message by {voice_data['message'].author.display_name} • Requested by {user.display_name}",
-                        icon_url=voice_data['message'].author.display_avatar.url
-                    )
-                    
-                    # Edit the transcribing message with the result
-                    await transcribing_msg.edit(content="", embed=embed)
-                else:
-                    await transcribing_msg.edit(content="❌ Failed to download audio file")
-                    
-            except Exception as e:
-                await transcribing_msg.edit(content=f"❌ Error during transcription: {str(e)}")
+            # Skip if already transcribed
+            if voice_data['transcribed']:
+                print("Already transcribed, skipping...")
+                return
+            
+            # Check if user is not the original message author (to avoid self-transcription)
+            if user.id != voice_data['message'].author.id:
+                voice_data['transcribed'] = True
+                print(f"Starting transcription for user {user.display_name}")
+                
+                # Send "transcribing..." message
+                transcribing_msg = await reaction.message.reply("🔄 Transcribing voice message...")
+                
+                try:
+                    # Download and transcribe the audio
+                    temp_file = await download_audio(voice_data['url'])
+                    if temp_file:
+                        transcription = await transcribe_audio(temp_file)
+                        
+                        # Create embed for transcription
+                        embed = discord.Embed(
+                            title="🎤 Voice Message Transcription",
+                            description=transcription,
+                            color=0x5865F2
+                        )
+                        embed.set_footer(
+                            text=f"Original message by {voice_data['message'].author.display_name} • Requested by {user.display_name}",
+                            icon_url=voice_data['message'].author.display_avatar.url
+                        )
+                        
+                        # Edit the transcribing message with the result
+                        await transcribing_msg.edit(content="", embed=embed)
+                    else:
+                        await transcribing_msg.edit(content="❌ Failed to download audio file")
+                        
+                except Exception as e:
+                    print(f"Error during transcription: {e}")
+                    await transcribing_msg.edit(content=f"❌ Error during transcription: {str(e)}")
+            else:
+                print("User is the original author, skipping self-transcription")
 
 def setup(bot):
     """Setup the transcribe functionality"""
-    bot.add_listener(on_message)
-    bot.add_listener(on_reaction_add)
+    bot.add_cog(TranscribeCog(bot))
+    print("Transcribe cog added successfully!")

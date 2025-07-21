@@ -1,6 +1,7 @@
 import discord
 import os
 import logging
+import aiohttp
 from discord.app_commands import CommandOnCooldown
 from discord import app_commands
 from discord.ext import commands

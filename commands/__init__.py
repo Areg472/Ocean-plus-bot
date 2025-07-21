@@ -29,6 +29,7 @@ from commands.oplusadmin import *
 from commands.boardgame import *
 from commands.spelling import *
 from commands.gamble import *
+from commands.transcribe import *
 from commands.generate_code import *
 
 # Function to setup all commands
@@ -116,6 +117,9 @@ def setup_commands(bot):
     setup(bot)
     
     from commands.gamble import setup
+    setup(bot)
+    
+    from commands.transcribe import setup
     setup(bot)
     
     """from commands.generate_code import setup

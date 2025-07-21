@@ -74,7 +74,7 @@ async def transcribe_message(interaction: discord.Interaction, message: discord.
                     # Create embed
                     embed = discord.Embed(
                         title="🎤 Voice Message Transcription",
-                        description=transcription,
+                        description=f"Transcription for {message.author.mention}'s voice message",
                         color=discord.Color.blue()
                     )
                     embed.add_field(
@@ -88,9 +88,9 @@ async def transcribe_message(interaction: discord.Interaction, message: discord.
                         inline=True
                     )
                     embed.add_field(
-                        name="File", 
-                        value=voice_attachment.filename, 
-                        inline=True
+                        name="Transcription", 
+                        value=transcription, 
+                        inline=False
                     )
                     embed.set_footer(text="Transcribed by Mistral AI")
                     

@@ -13,8 +13,8 @@ if not api_key:
     raise ValueError("Mistral API key is not set in the environment variables.")
 client = Mistral(api_key=api_key)
 
-global_instruction = "Provide a detailed and structured response under 2150 characters. Be concise when possible. Don't use markdown headings (####, ###, ##) for structure. Don't use ** ** bold text"
-devstral_instruction = "Don't use markdown headings (####, ###, ##, #) for structure."
+global_instruction = "Provide a detailed and structured response under 2150 characters. Be concise when possible. Do not use markdown headings (####, ###, ##) or bold text (\\*\\*text\\*\\*) for structure or emphasis."
+devstral_instruction = "Do not use markdown headings (####, ###, ##, #) or bold text (\\*\\*text\\*\\*) for structure or emphasis."
 
 request_semaphore = asyncio.Semaphore(5)
 

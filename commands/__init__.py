@@ -4,7 +4,7 @@ from commands.date import *
 from commands.got_a_life import *
 from commands.quote import *
 from commands.duck import *
-from commands.question import *
+from commands.prompt import *
 from commands.dad_joke import *
 from commands.translate import *
 from commands.help import *
@@ -47,7 +47,7 @@ def setup_commands(bot):
     from commands.duck import setup
     setup(bot)
     
-    from commands.question import setup
+    from commands.prompt import setup
     setup(bot)
     
     from commands.dad_joke import setup

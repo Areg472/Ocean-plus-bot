@@ -101,8 +101,9 @@ async def on_message(message: discord.Message):
         if boardgames_enabled:
             lowered = message.content.lower()
             if "monopoly" in lowered or "uno" in lowered:
+                await message.delete()
                 chosen = random.choice(boardgame_names)
-                await message.channel.send(f"{message.author.mention} likes {chosen}")
+                await message.channel.send(f"{message.author.mention} loves {chosen}")
                 return
 
     """

@@ -20,7 +20,8 @@ tracked_messages = {}
 # Boardgames feature toggle
 boardgames_enabled = True
 boardgame_names = [
-    "Azul", "Ticket To Ride", "Catan", "Scout!", "Head Pedal To The Metal", "Lost Cities"
+    "Azul", "Ticket To Ride", "Catan", "Scout!", "Heat Pedal To The Metal", "Lost Cities", "Wingspan", "Brass Birmingham", "Gloomhaven", 
+    "Pandemic", "Carcassonne", "7 Wonders", "Terraforming Mars", "Patchwork", "Codenames", "Dominion"
 ]
 
 @bot.event

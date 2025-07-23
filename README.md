@@ -1,3 +1,3 @@
-# The skibidi ocean+ bot
+# The Ocean+ bot
 
-This is the bot for the Ocean+ website. It has max aura, positive rizz!
+This is a utility bot for discord servers.

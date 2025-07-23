@@ -2,6 +2,7 @@ import discord
 import os
 import logging
 import aiohttp
+import random
 from discord.app_commands import CommandOnCooldown
 from discord import app_commands
 from discord.ext import commands
@@ -16,6 +17,12 @@ bot = commands.Bot(command_prefix='$', intents=intents)
 
 tracked_messages = {}
 
+# Boardgames feature toggle
+boardgames_enabled = True
+boardgame_names = [
+    "Azul", "Ticket To Ride", "Catan", "Scout!", "Head Pedal To The Metal", "Lost Cities"
+]
+
 @bot.event
 async def on_ready():
     setup_commands(bot)
@@ -25,9 +32,9 @@ async def on_ready():
     print(f'Logged in as {bot.user}!')
 
 
-"""
 @bot.event
-async def on_message(message: discord.Message)
+async def on_message(message: discord.Message):
+    """
     from commands.generate_code import user_codes
 
     if message.author.bot:
@@ -78,7 +85,27 @@ async def on_message(message: discord.Message)
                 await message.channel.send("https://tenor.com/view/no-dislike-thumbs-down-emoticon-emoji-gif-6511007033097383174")
             del user_codes[user_id]
         return
+    """
 
+    # Only process messages in the target server
+    if message.guild and message.guild.id == 1335634554169327646:
+        # Toggle command
+        if message.content.strip().lower() == "!boardgames":
+            global boardgames_enabled
+            boardgames_enabled = not boardgames_enabled
+            status = "enabled" if boardgames_enabled else "disabled"
+            await message.channel.send(f"Boardgames feature is now {status}.")
+            return
+
+        # Check for monopoly or uno
+        if boardgames_enabled:
+            lowered = message.content.lower()
+            if "monopoly" in lowered or "uno" in lowered:
+                chosen = random.choice(boardgame_names)
+                await message.channel.send(f"{message.author.mention} likes {chosen}")
+                return
+
+    """
 @bot.event
 async def on_message_delete(message: discord.Message):
     if message.id in tracked_messages:

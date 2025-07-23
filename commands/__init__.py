@@ -23,7 +23,6 @@ from commands.mute import *
 from commands.ban import *
 from commands.oplusadmin import *
 from commands.boardgame import *
-from commands.spelling import *
 from commands.gamble import *
 from commands.transcribe import *
 from commands.generate_code import *
@@ -102,9 +101,6 @@ def setup_commands(bot):
     setup(bot)
     
     from commands.boardgame import setup
-    setup(bot)
-    
-    from commands.spelling import setup
     setup(bot)
     
     from commands.gamble import setup

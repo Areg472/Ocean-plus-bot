@@ -3,6 +3,8 @@ from discord import app_commands
 import aiohttp
 import os
 
+@app_commands.allowed_installs(guilds=True, users=True)
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.context_menu(name='Transcribe Voice Message')
 async def transcribe_message(interaction: discord.Interaction, message: discord.Message):
     

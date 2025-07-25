@@ -43,11 +43,14 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
             if model in ["Qwen/Qwen3-235B-A22B-Instruct-2507-tput", "deepseek-ai/DeepSeek-R1-0528-tput"]:
                 if not together_client:
                     return ("Together API key is not set.", None) if model == "deepseek-ai/DeepSeek-R1-0528-tput" else "Together API key is not set."
+                
+                # Combine instructions with prompt for Together AI models
+                combined_prompt = f"Instructions: {instructions}\n\nPrompt:{prompt}" if instructions else prompt
+                
                 def sync_together():
                     response = together_client.chat.completions.create(
                         model=model,
-                        messages=[{"role": "user", "content": prompt}],
-                        instructions=instructions
+                        messages=[{"role": "user", "content": combined_prompt}]
                     )
                     content = response.choices[0].message.content if response.choices else "No content received from Together AI."
                     if model == "deepseek-ai/DeepSeek-R1-0528-tput":

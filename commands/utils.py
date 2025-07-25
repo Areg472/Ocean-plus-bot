@@ -35,12 +35,12 @@ async def handle_mistral_api_call_stream(prompt: str, instructions: str = "", ti
         async with request_semaphore:
             start_time = time.time()
 
-            if model == "Qwen/Qwen3-235B-A22B-Instruct-2507-tput":
+            if model in ["Qwen/Qwen3-235B-A22B-Instruct-2507-tput", "deepseek-ai/DeepSeek-R1-0528-tput"]:
                 if not together_client:
                     return "Together API key is not set."
                 def sync_together():
                     response = together_client.chat.completions.create(
-                        model="Qwen/Qwen3-235B-A22B-Instruct-2507-tput",
+                        model=model,
                         messages=[{"role": "user", "content": prompt}],
                         instructions=instructions
                     )

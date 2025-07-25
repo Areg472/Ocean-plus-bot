@@ -15,14 +15,15 @@ MODEL_CHOICES = [
     app_commands.Choice(name="Qwen 3 235B", value="Qwen/Qwen3-235B-A22B-Instruct-2507-tput"),
     app_commands.Choice(name="Magistral Small", value="magistral-small-2506"),
     app_commands.Choice(name="Mistral Medium", value="mistral-medium-2505"),
+    app_commands.Choice(name="DeepSeek R1", value="deepseek-ai/DeepSeek-R1-0528-tput"),
 ]
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.command(name="prompt", description="Ask me anything, powered by AI")
 @app_commands.describe(
-    query="The question or prompt you want to ask",
-    model="Choose the Mistral model to use"
+    query="The prompt you want to ask",
+    model="Choose the AI model to use"
 )
 @app_commands.choices(model=MODEL_CHOICES)
 @app_commands.checks.dynamic_cooldown(cooldown)
@@ -41,6 +42,8 @@ async def prompt_command(
         model_name = "Mistral Medium"
     elif model == "Qwen/Qwen3-235B-A22B-Instruct-2507-tput":
         model_name = "Qwen 3"
+    elif model == "deepseek-ai/DeepSeek-R1-0528-tput":
+        model_name = "DeepSeek R1"
 
     thinking_embed = discord.Embed(
         title="🤔 Thinking...",

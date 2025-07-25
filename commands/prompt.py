@@ -7,7 +7,8 @@ import re
 
 class ThinkingButtonView(discord.ui.View):
     def __init__(self, thinking_text: str):
-        super().__init__(timeout=None)
+        # Only set timeout=None for DeepSeek R1, otherwise use default timeout
+        super().__init__(timeout=360)
         self.thinking_text = thinking_text
 
     @discord.ui.button(label="Show Thinking Output", style=discord.ButtonStyle.secondary)
@@ -67,6 +68,7 @@ async def prompt_command(
 
     # For DeepSeek R1, show button but don't set thinking_output yet
     if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+        # Attach the view with a placeholder text
         view = ThinkingButtonView("Waiting for DeepSeek to think...(reclick the button once the output is emitted to see what DeepSeek thought.)")
         await interaction.response.send_message(embed=thinking_embed, view=view)
     else:
@@ -143,6 +145,7 @@ async def prompt_command(
 
         # For DeepSeek R1, edit with the view and set the real think_text
         if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+            # Update the view with the real think_text
             view = ThinkingButtonView(think_text or "No <think> output found.")
             await interaction.edit_original_response(embed=response_embed, view=view)
         else:

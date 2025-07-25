@@ -61,10 +61,10 @@ async def prompt_command(
 
     thinking_embed = discord.Embed(
         title="🤔 Thinking...",
-        description="Processing your question with" + f" {model_name}...",
+        description="Processing your prompt with" + f" {model_name}...",
         color=0x4285f4
     )
-    thinking_embed.add_field(name="Question", value=query[:1000], inline=False)
+    thinking_embed.add_field(name="Prompt", value=query[:1000], inline=False)
 
     # For DeepSeek R1, show button but don't set thinking_output yet
     if model == "deepseek-ai/DeepSeek-R1-0528-tput":
@@ -133,8 +133,8 @@ async def prompt_command(
             for codeblock in followup_codeblocks:
                 await interaction.followup.send(codeblock)
     else:
-        response_embed = discord.Embed(title="💡 Answer", color=0x34a853)
-        response_embed.add_field(name="Question", value=query[:1000], inline=False)
+        response_embed = discord.Embed(title="💡 Output", color=0x34a853)
+        response_embed.add_field(name="Prompt", value=query[:1000], inline=False)
 
         if len(answer) > 1024:
             chunks = [answer[i:i + 1024] for i in range(0, len(answer), 1024)]

@@ -12,17 +12,10 @@ def setup(bot):
 MODEL_CHOICES = [
     app_commands.Choice(name="Mistral Small", value="mistral-small-2506"),
     app_commands.Choice(name="Devstral Small", value="devstral-small-2507"),
+    app_commands.Choice(name="Qwen 3 235B", value="Qwen/Qwen3-235B-A22B-Instruct-2507-tput"),
     app_commands.Choice(name="Magistral Small", value="magistral-small-2506"),
     app_commands.Choice(name="Mistral Medium", value="mistral-medium-2505"),
 ]
-
-
-def setup(bot):
-    """
-    Register the prompt command with the bot.
-    """
-    bot.tree.add_command(prompt_command)
-
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -46,6 +39,8 @@ async def prompt_command(
         model_name = "Magistral Small"
     elif model == "mistral-medium-2505":
         model_name = "Mistral Medium"
+    elif model == "Qwen/Qwen3-235B-A22B-Instruct-2507-tput":
+        model_name = "Qwen 3"
 
     thinking_embed = discord.Embed(
         title="🤔 Thinking...",

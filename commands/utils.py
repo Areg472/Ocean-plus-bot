@@ -7,11 +7,17 @@ from discord import Interaction
 from discord.ext.commands import CooldownMapping
 from mistralai import Mistral
 from discord.app_commands import Cooldown
+from together import Together
 
 api_key = os.environ.get("MISTRAL_API_KEY")
 if not api_key:
     raise ValueError("Mistral API key is not set in the environment variables.")
 client = Mistral(api_key=api_key)
+
+together_api_key = os.environ.get("TOGETHER_API_KEY")
+together_client = None
+if together_api_key:
+    together_client = Together(api_key=together_api_key)
 
 global_instruction = "Provide a detailed and structured response under 2150 characters. Be concise when possible. Do not use markdown headings (####, ###, ##) or bold text (\\*\\*text\\*\\*) for structure or emphasis."
 devstral_instruction = "Do not use markdown headings (####, ###, ##, #) or bold text (\\*\\*text\\*\\*) for structure or emphasis."
@@ -24,13 +30,24 @@ def cooldown(interaction: Interaction) -> Optional[Cooldown]:
 def dynamic_cooldown() -> CooldownMapping:
     return CooldownMapping.from_cooldown(1, 3.0, Cooldown)
 
-
 async def handle_mistral_api_call_stream(prompt: str, instructions: str = "", timeout: int = 45, model: str = "mistral-small-2506") -> str:
     try:
         async with request_semaphore:
             start_time = time.time()
 
-            if model == "devstral-small-2507":
+            if model == "Qwen/Qwen3-235B-A22B-Instruct-2507-tput":
+                if not together_client:
+                    return "Together API key is not set."
+                def sync_together():
+                    response = together_client.chat.completions.create(
+                        model="Qwen/Qwen3-235B-A22B-Instruct-2507-tput",
+                        messages=[{"role": "user", "content": prompt}],
+                        instructions=instructions
+                    )
+                    # Expecting response.choices[0].message.content
+                    return response.choices[0].message.content if response.choices else "No content received from Together AI."
+                response_text = await asyncio.to_thread(sync_together)
+            elif model == "devstral-small-2507":
                 if not instructions:
                     instructions = devstral_instruction
                 def sync_stream():

@@ -19,8 +19,8 @@ together_client = None
 if together_api_key:
     together_client = Together(api_key=together_api_key)
 
-global_instruction = "Provide a detailed and structured response under 2150 characters. Be concise when possible. Do not use markdown headings (####, ###, ##) or bold text (\\*\\*text\\*\\*) for structure or emphasis."
-devstral_instruction = "Do not use markdown headings (####, ###, ##, #) or bold text (\\*\\*text\\*\\*) for structure or emphasis."
+global_instruction = "Provide a detailed and structured response under 2150 characters. Be concise when possible. Do not use headings (####, ###, ##) or bold text (\\*\\*text\\*\\*) for structure or emphasis."
+devstral_instruction = "Do not use headings (####, ###, ##, #) or bold text (\\*\\*text\\*\\*) for structure or emphasis."
 
 request_semaphore = asyncio.Semaphore(5)
 

@@ -67,7 +67,7 @@ async def prompt_command(
 
     # For DeepSeek R1, show button but don't set thinking_output yet
     if model == "deepseek-ai/DeepSeek-R1-0528-tput":
-        view = ThinkingButtonView("Waiting for AI to think...")
+        view = ThinkingButtonView("Waiting for DeepSeek to think...(reclick the button once the prompt embed is sent to see what DeepSeek thought.)")
         await interaction.response.send_message(embed=thinking_embed, view=view)
     else:
         await interaction.response.send_message(embed=thinking_embed)

@@ -1,6 +1,6 @@
 import discord
 from discord import app_commands
-from commands.utils import cooldown, get_mistral_response
+from commands.utils import cooldown, get_ai_response
 import asyncio
 import re
 
@@ -55,7 +55,7 @@ async def prompt_command(
 
     try:
         answer = await asyncio.wait_for(
-            get_mistral_response(query, user_id=interaction.user.id, model=model), timeout=60.0
+            get_ai_response(query, user_id=interaction.user.id, model=model), timeout=60.0
         )
     except asyncio.TimeoutError:
         answer = "Sorry, the AI took too long. Try again with a simpler question."

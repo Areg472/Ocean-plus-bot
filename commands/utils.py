@@ -19,8 +19,13 @@ together_client = None
 if together_api_key:
     together_client = Together(api_key=together_api_key)
 
-global_instruction = "Provide a detailed and structured response under 2150 characters. Be concise when possible. Do not use headings (####, ###, ##) or bold text (\\*\\*text\\*\\*) for structure or emphasis."
-devstral_instruction = "Do not use headings (####, ###, ##, #) or bold text (\\*\\*text\\*\\*) for structure or emphasis."
+global_instruction = (
+    "Provide a detailed and structured response under 2150 characters. "
+    "Be concise when possible. Do not use headings (####, ###, ##, #) or bold text (**text**) for structure or emphasis."
+)
+devstral_instruction = (
+    "Do not use headings (####, ###, ##, #) or bold text (**text**) for structure or emphasis."
+)
 
 request_semaphore = asyncio.Semaphore(5)
 
@@ -30,7 +35,7 @@ def cooldown(interaction: Interaction) -> Optional[Cooldown]:
 def dynamic_cooldown() -> CooldownMapping:
     return CooldownMapping.from_cooldown(1, 3.0, Cooldown)
 
-async def handle_mistral_api_call_stream(prompt: str, instructions: str = "", timeout: int = 45, model: str = "mistral-small-2506") -> str:
+async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: int = 45, model: str = "mistral-small-2506") -> str:
     try:
         async with request_semaphore:
             start_time = time.time()
@@ -45,7 +50,12 @@ async def handle_mistral_api_call_stream(prompt: str, instructions: str = "", ti
                         instructions=instructions
                     )
                     # Expecting response.choices[0].message.content
-                    return response.choices[0].message.content if response.choices else "No content received from Together AI."
+                    content = response.choices[0].message.content if response.choices else "No content received from Together AI."
+                    if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+                        # Remove <think>...</think> tags from DeepSeek responses
+                        import re
+                        content = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL)
+                    return content
                 response_text = await asyncio.to_thread(sync_together)
             elif model == "devstral-small-2507":
                 if not instructions:
@@ -93,7 +103,7 @@ async def handle_mistral_api_call_stream(prompt: str, instructions: str = "", ti
         return f"An error occurred while processing the request."
 
 
-async def get_mistral_response(
+async def get_ai_response(
     question: str,
     timeout: int = 45,
     user_id: Optional[int] = None,
@@ -114,7 +124,7 @@ async def get_mistral_response(
                 contexts.append(user_specific_instructions[user_id])
         instructions = ' '.join(contexts)
 
-    return await handle_mistral_api_call_stream(question, instructions, timeout, model)
+    return await handle_api_call_stream(question, instructions, timeout, model)
 
 
 def set_global_context(context: str):

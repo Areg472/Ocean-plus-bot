@@ -7,7 +7,7 @@ import re
 
 class ThinkingButtonView(discord.ui.View):
     def __init__(self, thinking_text: str):
-        super().__init__(timeout=360)
+        super().__init__(timeout=180)
         self.thinking_text = thinking_text
 
     @discord.ui.button(label="Show Thinking Output", style=discord.ButtonStyle.secondary)

@@ -7,7 +7,6 @@ import re
 
 class ThinkingButtonView(discord.ui.View):
     def __init__(self, thinking_text: str):
-        # Only set timeout=None for DeepSeek R1, otherwise use default timeout
         super().__init__(timeout=360)
         self.thinking_text = thinking_text
 

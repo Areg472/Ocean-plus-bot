@@ -101,7 +101,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 think_text = None
 
             elapsed = time.time() - start_time
-            print(f"Mistral responded in {elapsed:.2f}s")
+            print(f"The API provider for AI responded in {elapsed:.2f}s")
 
             if model == "deepseek-ai/DeepSeek-R1-0528-tput":
                 return response_text.strip() if response_text else "No content received from the AI.", think_text
@@ -110,7 +110,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
     except asyncio.TimeoutError:
         return "API response timed out. Please try again."
     except Exception as e:
-        print(f"Error during Mistral API call: {str(e)}")
+        print(f"Error during AI API call: {str(e)}")
         return f"An error occurred while processing the request."
 
 

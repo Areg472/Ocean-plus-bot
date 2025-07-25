@@ -19,7 +19,7 @@ MODEL_CHOICES = [
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.command(name="prompt", description="Ask me anything, powered by Mistral")
+@app_commands.command(name="prompt", description="Ask me anything, powered by AI")
 @app_commands.describe(
     query="The question or prompt you want to ask",
     model="Choose the Mistral model to use"

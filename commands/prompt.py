@@ -77,11 +77,11 @@ async def prompt_command(
     try:
         if model == "deepseek-ai/DeepSeek-R1-0528-tput":
             answer, think_text = await asyncio.wait_for(
-                get_ai_response(query, user_id=interaction.user.id, model=model), timeout=360.0
+                get_ai_response(query, user_id=interaction.user.id, model=model), timeout=180.0
             )
         else:
             answer = await asyncio.wait_for(
-                get_ai_response(query, user_id=interaction.user.id, model=model), timeout=60.0
+                get_ai_response(query, user_id=interaction.user.id, model=model), timeout=360.0
             )
             think_text = None
     except asyncio.TimeoutError:

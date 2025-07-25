@@ -5,6 +5,19 @@ import asyncio
 import re
 
 
+class ThinkingButtonView(discord.ui.View):
+    def __init__(self, thinking_text: str):
+        super().__init__(timeout=None)
+        self.thinking_text = thinking_text
+
+    @discord.ui.button(label="Show Thinking Output", style=discord.ButtonStyle.secondary)
+    async def show_thinking(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message(
+            f"**Thinking Output:**\n{self.thinking_text}",
+            ephemeral=True
+        )
+
+
 def setup(bot):
     bot.tree.add_command(prompt_command)
 
@@ -48,19 +61,33 @@ async def prompt_command(
     thinking_embed = discord.Embed(
         title="🤔 Thinking...",
         description="Processing your question with" + f" {model_name}...",
-            color=0x4285f4
+        color=0x4285f4
     )
     thinking_embed.add_field(name="Question", value=query[:1000], inline=False)
-    await interaction.response.send_message(embed=thinking_embed)
+
+    # For DeepSeek R1, show button but don't set thinking_output yet
+    if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+        view = ThinkingButtonView("Waiting for AI to think...")
+        await interaction.response.send_message(embed=thinking_embed, view=view)
+    else:
+        await interaction.response.send_message(embed=thinking_embed)
 
     try:
-        answer = await asyncio.wait_for(
-            get_ai_response(query, user_id=interaction.user.id, model=model), timeout=60.0
-        )
+        if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+            answer, think_text = await asyncio.wait_for(
+                get_ai_response(query, user_id=interaction.user.id, model=model), timeout=60.0
+            )
+        else:
+            answer = await asyncio.wait_for(
+                get_ai_response(query, user_id=interaction.user.id, model=model), timeout=60.0
+            )
+            think_text = None
     except asyncio.TimeoutError:
         answer = "Sorry, the AI took too long. Try again with a simpler question."
+        think_text = None
     except Exception as error:
         answer = f"An error occurred: {error}"
+        think_text = None
 
     if model == "devstral-small-2507":
         response_embed = discord.Embed(title="💡 Answer", color=0x34a853)
@@ -114,4 +141,9 @@ async def prompt_command(
         else:
             response_embed.add_field(name="Answer", value=answer, inline=False)
 
-        await interaction.edit_original_response(embed=response_embed)
+        # For DeepSeek R1, edit with the view and set the real think_text
+        if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+            view = ThinkingButtonView(think_text or "No <think> output found.")
+            await interaction.edit_original_response(embed=response_embed, view=view)
+        else:
+            await interaction.edit_original_response(embed=response_embed)

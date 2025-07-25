@@ -1,7 +1,7 @@
 import os
 import asyncio
 import time
-from typing import Optional
+from typing import Optional, Tuple
 
 from discord import Interaction
 from discord.ext.commands import CooldownMapping
@@ -35,28 +35,34 @@ def cooldown(interaction: Interaction) -> Optional[Cooldown]:
 def dynamic_cooldown() -> CooldownMapping:
     return CooldownMapping.from_cooldown(1, 3.0, Cooldown)
 
-async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: int = 45, model: str = "mistral-small-2506") -> str:
+async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: int = 45, model: str = "mistral-small-2506") -> Tuple[str, Optional[str]]:
     try:
         async with request_semaphore:
             start_time = time.time()
 
             if model in ["Qwen/Qwen3-235B-A22B-Instruct-2507-tput", "deepseek-ai/DeepSeek-R1-0528-tput"]:
                 if not together_client:
-                    return "Together API key is not set."
+                    return ("Together API key is not set.", None) if model == "deepseek-ai/DeepSeek-R1-0528-tput" else "Together API key is not set."
                 def sync_together():
                     response = together_client.chat.completions.create(
                         model=model,
                         messages=[{"role": "user", "content": prompt}],
                         instructions=instructions
                     )
-                    # Expecting response.choices[0].message.content
                     content = response.choices[0].message.content if response.choices else "No content received from Together AI."
                     if model == "deepseek-ai/DeepSeek-R1-0528-tput":
-                        # Remove <think>...</think> tags from DeepSeek responses
                         import re
+                        think_match = re.search(r"<think>(.*?)</think>", content, flags=re.DOTALL)
+                        think_text = think_match.group(1).strip() if think_match else None
                         content = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL)
+                        return content, think_text
                     return content
-                response_text = await asyncio.to_thread(sync_together)
+                response = await asyncio.to_thread(sync_together)
+                if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+                    response_text, think_text = response
+                else:
+                    response_text = response
+                    think_text = None
             elif model == "devstral-small-2507":
                 if not instructions:
                     instructions = devstral_instruction
@@ -77,6 +83,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                     return response_text
 
                 response_text = await asyncio.to_thread(sync_stream)
+                think_text = None
             else:
                 response = client.beta.conversations.start_stream(
                     inputs=prompt,
@@ -91,11 +98,15 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                             response_text += event.data.content
                     except Exception as e:
                         print(f"Error while processing event: {str(e)}")
+                think_text = None
 
             elapsed = time.time() - start_time
             print(f"Mistral responded in {elapsed:.2f}s")
 
-            return response_text.strip() if response_text else "No content received from the AI."
+            if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+                return response_text.strip() if response_text else "No content received from the AI.", think_text
+            else:
+                return response_text.strip() if response_text else "No content received from the AI."
     except asyncio.TimeoutError:
         return "API response timed out. Please try again."
     except Exception as e:
@@ -124,7 +135,11 @@ async def get_ai_response(
                 contexts.append(user_specific_instructions[user_id])
         instructions = ' '.join(contexts)
 
-    return await handle_api_call_stream(question, instructions, timeout, model)
+    if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+        answer, think_text = await handle_api_call_stream(question, instructions, timeout, model)
+        return answer, think_text
+    else:
+        return await handle_api_call_stream(question, instructions, timeout, model)
 
 
 def set_global_context(context: str):

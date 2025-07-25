@@ -112,6 +112,3 @@ def setup_commands(bot):
     
     """from commands.generate_code import setup
     setup(bot)"""
-    
-    from commands.imagine import setup
-    setup(bot)

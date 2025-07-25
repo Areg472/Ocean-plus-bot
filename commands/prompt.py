@@ -12,10 +12,11 @@ class ThinkingButtonView(discord.ui.View):
 
     @discord.ui.button(label="Show Thinking Output", style=discord.ButtonStyle.secondary)
     async def show_thinking(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message(
-            f"**Thinking Output:**\n{self.thinking_text}",
-            ephemeral=True
-        )
+        chunks = [self.thinking_text[i:i+1024] for i in range(0, len(self.thinking_text), 1024)]
+        embed = discord.Embed(title="Thinking Output", color=0x4285f4)
+        for idx, chunk in enumerate(chunks, start=1):
+            embed.add_field(name=f"Output Part {idx}", value=chunk, inline=False)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 def setup(bot):

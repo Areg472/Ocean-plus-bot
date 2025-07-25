@@ -26,6 +26,7 @@ from commands.boardgame import *
 from commands.gamble import *
 from commands.transcribe import *
 from commands.generate_code import *
+from commands.imagine import *
 
 def setup_commands(bot):
     from commands.hi import setup
@@ -111,3 +112,6 @@ def setup_commands(bot):
     
     """from commands.generate_code import setup
     setup(bot)"""
+    
+    from commands.imagine import setup
+    setup(bot)

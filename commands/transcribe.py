@@ -12,7 +12,11 @@ async def transcribe_message(interaction: discord.Interaction, message: discord.
         attachment for attachment in message.attachments 
         if attachment.content_type and (
             'audio' in attachment.content_type or 
-            attachment.filename.endswith(('.mp3', '.wav', '.ogg', '.m4a', '.webm'))
+            'video' in attachment.content_type or
+            attachment.filename.endswith((
+                '.mp3', '.wav', '.ogg', '.m4a', '.webm', # audio
+                '.mp4', '.mov', '.mkv', '.avi', '.webm'  # video
+            ))
         )
     ]
     

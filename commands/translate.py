@@ -22,4 +22,11 @@ def setup(bot):
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def translate_command(interaction: discord.Interaction, text: str, target_language: Optional[str] = "en"):
     translation = get_translation(text, target_language)
-    await interaction.response.send_message(translation)
+    
+    embed = discord.Embed(
+        title="Translation",
+        description=f"**Original Text:**\n{text}\n\n**Translated ({target_language}):**\n{translation}",
+        color=0x3498db
+    )
+    
+    await interaction.response.send_message(embed=embed)

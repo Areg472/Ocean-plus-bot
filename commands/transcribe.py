@@ -5,7 +5,7 @@ import os
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.context_menu(name='Transcribe Voice Message')
+@app_commands.context_menu(name='Transcribe Message')
 async def transcribe_message(interaction: discord.Interaction, message: discord.Message):
     
     voice_attachments = [
@@ -22,7 +22,7 @@ async def transcribe_message(interaction: discord.Interaction, message: discord.
     
     if not voice_attachments:
         await interaction.response.send_message(
-            "❌ This message doesn't contain any voice attachments to transcribe.", 
+            "❌ This message doesn't contain any audio or video attachments to transcribe.", 
             ephemeral=True
         )
         return

@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands
-import aiohttp
 import os
+from mistralai import Mistral
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -40,60 +40,35 @@ async def transcribe_message(interaction: discord.Interaction, message: discord.
             )
             return
         
-        headers = {
-            'x-api-key': api_key
-        }
+        # Initialize the Mistral client
+        client = Mistral(api_key=api_key)
         
-        async with aiohttp.ClientSession() as session:
-            async with session.get(voice_attachment.url) as audio_response:
-                if audio_response.status != 200:
-                    await interaction.followup.send(
-                        "❌ Failed to download audio file.", 
-                        ephemeral=True
-                    )
-                    return
-                
-                audio_data = await audio_response.read()
+        # Get the transcription using file URL
+        transcription_response = client.audio.transcriptions.complete(
+            model="voxtral-mini-latest",
+            file_url=voice_attachment.url
+        )
         
-        form_data = aiohttp.FormData()
-        form_data.add_field('file', audio_data, filename=voice_attachment.filename, content_type=voice_attachment.content_type or 'audio/ogg')
-        form_data.add_field('model', 'voxtral-mini-2507')
+        transcription = transcription_response.text if hasattr(transcription_response, 'text') else str(transcription_response)
         
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                'https://api.mistral.ai/v1/audio/transcriptions',
-                headers=headers,
-                data=form_data
-            ) as response:
-                
-                if response.status == 200:
-                    result = await response.json()
-                    transcription = result.get('text', 'No transcription available')
+        embed = discord.Embed(
+            title="🎤 Voice Message Transcription",
+            color=discord.Color.blue()
+        )
+        embed.add_field(
+            name="Original Message", 
+            value=f"[Jump to message]({message.jump_url})", 
+            inline=False
+        )
+        embed.add_field(
+            name="Transcription", 
+            value=transcription, 
+            inline=False
+        )
+        embed.set_footer(text="Transcribed by Mistral AI")
+        
+        await interaction.followup.send(embed=embed)
                     
-                    embed = discord.Embed(
-                        title="🎤 Voice Message Transcription",
-                        color=discord.Color.blue()
-                    )
-                    embed.add_field(
-                        name="Original Message", 
-                        value=f"[Jump to message]({message.jump_url})", 
-                        inline=False
-                    )
-                    embed.add_field(
-                        name="Transcription", 
-                        value=transcription, 
-                        inline=False
-                    )
-                    embed.set_footer(text="Transcribed by Mistral AI")
-                    
-                    await interaction.followup.send(embed=embed)
-                    
-                else:
-                    error_text = await response.text()
-                    await interaction.followup.send(
-                        f"❌ Transcription failed: {response.status} - {error_text}", 
-                        ephemeral=True
-                    )
     except Exception as e:
         await interaction.followup.send(
             f"❌ An error occurred during transcription: {str(e)}", 

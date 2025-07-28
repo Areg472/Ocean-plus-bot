@@ -96,24 +96,32 @@ async def prompt_command(
             
             # Stream the response and update embed in real-time
             last_update_time = 0
+            update_counter = 0
             response_embed = discord.Embed(title="💡 Generating...", color=0x34a853)
             response_embed.add_field(name="Prompt", value=query[:1000], inline=False)
             response_embed.add_field(name="Answer", value="", inline=False)
             
             async for chunk in handle_api_call_stream_generator(query, instructions, 60, model):
                 current_time = asyncio.get_event_loop().time()
-                # Update every 0.5 seconds to avoid rate limiting
-                if current_time - last_update_time >= 0.5:
+                update_counter += 1
+                
+                # Update every 0.2 seconds OR every 3 chunks (whichever comes first) to be more responsive
+                should_update = (current_time - last_update_time >= 0.2) or (update_counter % 3 == 0)
+                
+                if should_update:
                     answer = chunk if isinstance(chunk, str) else chunk[0]
                     
                     # Update the answer field
-                    response_embed.set_field_at(1, name="Answer", value=answer[:1024] if len(answer) <= 1024 else answer[:1021] + "...", inline=False)
+                    display_text = answer[:1024] if len(answer) <= 1024 else answer[:1021] + "..."
+                    response_embed.set_field_at(1, name="Answer", value=display_text, inline=False)
                     
                     try:
                         await interaction.edit_original_response(embed=response_embed)
                         last_update_time = current_time
-                    except discord.HTTPException:
-                        # If we hit rate limits, just continue
+                    except discord.HTTPException as e:
+                        # If we hit rate limits, wait a bit longer for next update
+                        if "rate limited" in str(e).lower():
+                            last_update_time = current_time + 0.3  # Add extra delay
                         pass
             
             # Final update with complete response

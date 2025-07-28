@@ -118,17 +118,21 @@ async def handle_api_call_stream_generator(prompt: str, instructions: str = "", 
                 response = await asyncio.to_thread(sync_stream)
                 response_text = ""
                 think_text = None
+                chunk_count = 0
                 
                 for event in response:
                     try:
                         print(f"Received event: {event}")
                         if event.event == "message.output.delta" and hasattr(event.data, "content"):
                             response_text += event.data.content
-                            # Yield the current accumulated text for real-time updates
-                            if model == "deepseek-ai/DeepSeek-R1-0528-tput":
-                                yield (response_text, think_text)
-                            else:
-                                yield response_text
+                            chunk_count += 1
+                            
+                            # Yield more frequently for faster updates - every chunk or every few characters
+                            if chunk_count % 1 == 0 or len(event.data.content) > 10:
+                                if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+                                    yield (response_text, think_text)
+                                else:
+                                    yield response_text
                     except Exception as e:
                         print(f"Error while processing event: {str(e)}")
 

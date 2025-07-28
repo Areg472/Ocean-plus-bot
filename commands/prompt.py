@@ -99,6 +99,7 @@ async def prompt_command(
             response_embed = discord.Embed(title="💡 Generating...", color=0x34a853)
             response_embed.add_field(name="Prompt", value=query[:1000], inline=False)
             response_embed.add_field(name="Answer", value="", inline=False)
+            current_field_count = 1  # Track how many answer fields we currently have
             
             async for chunk in handle_api_call_stream_generator(query, instructions, 60, model):
                 current_time = asyncio.get_event_loop().time()
@@ -109,25 +110,28 @@ async def prompt_command(
                 if should_update:
                     answer = chunk if isinstance(chunk, str) else chunk[0]
                     
-                    # Handle streaming for responses longer than 1024 characters
-                    if len(answer) <= 1024:
-                        # Single field - update existing field
-                        response_embed.set_field_at(1, name="Answer", value=answer, inline=False)
-                    else:
-                        # Multiple fields needed - rebuild fields dynamically
-                        # Remove all existing answer fields first
-                        while len(response_embed.fields) > 1:
-                            response_embed.remove_field(1)
-                        
-                        # Add new fields for the current content
-                        chunks = [answer[i:i + 1024] for i in range(0, len(answer), 1024)]
-                        for idx, chunk_text in enumerate(chunks, start=1):
-                            field_name = "Answer" if idx == 1 else f"Answer (Part {idx})"
-                            # Only show "..." for the last chunk if it's still streaming
-                            display_chunk = chunk_text
-                            if idx == len(chunks) and len(answer) % 1024 > 1020:
-                                display_chunk = chunk_text[:1021] + "..."
-                            response_embed.add_field(name=field_name, value=display_chunk, inline=False)
+                    # Calculate how many fields we need
+                    chunks = [answer[i:i + 1024] for i in range(0, len(answer), 1024)]
+                    needed_fields = len(chunks)
+                    
+                    # Adjust the number of fields if needed
+                    if needed_fields > current_field_count:
+                        # Add more fields
+                        for i in range(current_field_count, needed_fields):
+                            field_name = f"Answer (Part {i + 1})"
+                            response_embed.add_field(name=field_name, value="", inline=False)
+                        current_field_count = needed_fields
+                    elif needed_fields < current_field_count:
+                        # Remove extra fields
+                        for i in range(needed_fields, current_field_count):
+                            response_embed.remove_field(-1)  # Remove last field
+                        current_field_count = needed_fields
+                    
+                    # Update all answer fields with current content
+                    for idx, chunk_text in enumerate(chunks):
+                        field_index = idx + 1  # +1 because field 0 is the prompt
+                        field_name = "Answer" if idx == 0 else f"Answer (Part {idx + 1})"
+                        response_embed.set_field_at(field_index, name=field_name, value=chunk_text, inline=False)
                     
                     try:
                         await interaction.edit_original_response(embed=response_embed)

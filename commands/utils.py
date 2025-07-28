@@ -79,7 +79,6 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                     for event in response:
                         try:
                             print(f"Received event: {event}")
-                            print(response)
                             if event.event == "message.output.delta" and hasattr(event.data, "content"):
                                 response_text += event.data.content
                         except Exception as e:

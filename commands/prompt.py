@@ -109,9 +109,25 @@ async def prompt_command(
                 if should_update:
                     answer = chunk if isinstance(chunk, str) else chunk[0]
                     
-                    # Update the answer field
-                    display_text = answer[:1024] if len(answer) <= 1024 else answer[:1021] + "..."
-                    response_embed.set_field_at(1, name="Answer", value=display_text, inline=False)
+                    # Handle streaming for responses longer than 1024 characters
+                    if len(answer) <= 1024:
+                        # Single field - update existing field
+                        response_embed.set_field_at(1, name="Answer", value=answer, inline=False)
+                    else:
+                        # Multiple fields needed - rebuild fields dynamically
+                        # Remove all existing answer fields first
+                        while len(response_embed.fields) > 1:
+                            response_embed.remove_field(1)
+                        
+                        # Add new fields for the current content
+                        chunks = [answer[i:i + 1024] for i in range(0, len(answer), 1024)]
+                        for idx, chunk_text in enumerate(chunks, start=1):
+                            field_name = "Answer" if idx == 1 else f"Answer (Part {idx})"
+                            # Only show "..." for the last chunk if it's still streaming
+                            display_chunk = chunk_text
+                            if idx == len(chunks) and len(answer) % 1024 > 1020:
+                                display_chunk = chunk_text[:1021] + "..."
+                            response_embed.add_field(name=field_name, value=display_chunk, inline=False)
                     
                     try:
                         await interaction.edit_original_response(embed=response_embed)

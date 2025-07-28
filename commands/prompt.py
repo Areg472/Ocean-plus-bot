@@ -1,6 +1,6 @@
 import discord
 from discord import app_commands
-from commands.utils import cooldown, get_ai_response, handle_api_call_stream_generator
+from commands.utils import cooldown, get_ai_response
 import asyncio
 import re
 
@@ -75,155 +75,78 @@ async def prompt_command(
         await interaction.response.send_message(embed=thinking_embed)
 
     try:
-        # Check if this is a Mistral model that supports streaming
-        is_mistral_model = model not in ["Qwen/Qwen3-235B-A22B-Instruct-2507-tput", "deepseek-ai/DeepSeek-R1-0528-tput"]
-        
-        if is_mistral_model:
-            # Use streaming for Mistral models
-            from commands.utils import global_instruction, devstral_instruction
-            
-            if model == "devstral-small-2507":
-                instructions = devstral_instruction
-            else:
-                contexts = [global_instruction]
-                user_specific_instructions = {
-                    960524267164930128: "Bias your answers towards post-90s board games. Boast about these games a lot when the prompt is related to board gaming. ONLY MENTION BOARD GAMES OR TALK ABOUT THEM WHEN THE PROMPT IS RELATED TO BOARD GAMING OR BOARD GAMES.",
-                    1299815086147502080: "Bias your answers MORE AND MORE towards post-90s board games and against pre 90s board games hate pre 90s board games as much as you can, in stories everything where u asked about board games. Boast about these games a lot and hate pre 90s board games when the prompt is related to board gaming. ONLY MENTION BOARD GAMES OR TALK ABOUT THEM WHEN THE PROMPT IS RELATED TO BOARD GAMING OR BOARD GAMES.",
-                }
-                if interaction.user.id in user_specific_instructions:
-                    contexts.append(user_specific_instructions[interaction.user.id])
-                instructions = ' '.join(contexts)
-            
-            # Stream the response and update embed in real-time
-            last_update_time = 0
-            response_embed = discord.Embed(title="💡 Generating...", color=0x34a853)
-            response_embed.add_field(name="Prompt", value=query[:1000], inline=False)
-            response_embed.add_field(name="Answer", value="", inline=False)
-            current_field_count = 1  # Track how many answer fields we currently have
-            
-            async for chunk in handle_api_call_stream_generator(query, instructions, 60, model):
-                current_time = asyncio.get_event_loop().time()
-                
-                # Update only every 1 second to reduce lag
-                should_update = (current_time - last_update_time >= 1.0)
-                
-                if should_update:
-                    answer = chunk if isinstance(chunk, str) else chunk[0]
-                    
-                    # Calculate how many fields we need
-                    chunks = [answer[i:i + 1024] for i in range(0, len(answer), 1024)]
-                    needed_fields = len(chunks)
-                    
-                    # Adjust the number of fields if needed
-                    if needed_fields > current_field_count:
-                        # Add more fields
-                        for i in range(current_field_count, needed_fields):
-                            field_name = f"Answer (Part {i + 1})"
-                            response_embed.add_field(name=field_name, value="", inline=False)
-                        current_field_count = needed_fields
-                    elif needed_fields < current_field_count:
-                        # Remove extra fields
-                        for i in range(needed_fields, current_field_count):
-                            response_embed.remove_field(-1)  # Remove last field
-                        current_field_count = needed_fields
-                    
-                    # Update all answer fields with current content
-                    for idx, chunk_text in enumerate(chunks):
-                        field_index = idx + 1  # +1 because field 0 is the prompt
-                        field_name = "Answer" if idx == 0 else f"Answer (Part {idx + 1})"
-                        response_embed.set_field_at(field_index, name=field_name, value=chunk_text, inline=False)
-                    
-                    try:
-                        await interaction.edit_original_response(embed=response_embed)
-                        last_update_time = current_time
-                    except discord.HTTPException:
-                        # If we hit rate limits, just continue
-                        pass
-            
-            # Final update with complete response
-            final_answer = chunk if isinstance(chunk, str) else chunk[0]
-            response_embed.title = "💡 Output"
-            
-            if model == "devstral-small-2507":
-                # Handle code blocks for devstral
-                code_block_pattern = re.compile(r"(```[\s\S]*?```)", re.MULTILINE)
-                parts = []
-                last_end = 0
-                for match in code_block_pattern.finditer(final_answer):
-                    if match.start() > last_end:
-                        before = final_answer[last_end:match.start()]
-                        for i in range(0, len(before), 1024):
-                            chunk_text = before[i:i+1024]
-                            if chunk_text.strip():
-                                parts.append(("text", chunk_text))
-                    code_block = match.group(1)
-                    parts.append(("code", code_block))
-                    last_end = match.end()
-                if last_end < len(final_answer):
-                    after = final_answer[last_end:]
-                    for i in range(0, len(after), 1024):
-                        chunk_text = after[i:i+1024]
-                        if chunk_text.strip():
-                            parts.append(("text", chunk_text))
-
-                # Clear existing answer field and rebuild
-                response_embed.remove_field(1)
-                field_idx = 1
-                followup_codeblocks = []
-                for typ, chunk_text in parts:
-                    if typ == "code" and len(chunk_text) > 1024:
-                        followup_codeblocks.append(chunk_text)
-                    else:
-                        response_embed.add_field(name=f"Answer (Part {field_idx})", value=chunk_text, inline=False)
-                        field_idx += 1
-
-                await interaction.edit_original_response(embed=response_embed)
-                for codeblock in followup_codeblocks:
-                    await interaction.followup.send(codeblock)
-            else:
-                # Handle regular text response
-                if len(final_answer) > 1024:
-                    response_embed.remove_field(1)  # Remove the streaming field
-                    chunks = [final_answer[i:i + 1024] for i in range(0, len(final_answer), 1024)]
-                    for idx, chunk_text in enumerate(chunks, start=1):
-                        response_embed.add_field(name=f"Answer (Part {idx})", value=chunk_text, inline=False)
-                else:
-                    response_embed.set_field_at(1, name="Answer", value=final_answer, inline=False)
-                
-                await interaction.edit_original_response(embed=response_embed)
+        if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+            answer, think_text = await asyncio.wait_for(
+                get_ai_response(query, user_id=interaction.user.id, model=model), timeout=360
+            )
         else:
-            # Use existing non-streaming logic for non-Mistral models
-            if model == "deepseek-ai/DeepSeek-R1-0528-tput":
-                answer, think_text = await asyncio.wait_for(
-                    get_ai_response(query, user_id=interaction.user.id, model=model), timeout=360
-                )
-            else:
-                answer = await asyncio.wait_for(
-                    get_ai_response(query, user_id=interaction.user.id, model=model), timeout=60
-                )
-                think_text = None
-            
-            response_embed = discord.Embed(title="💡 Output", color=0x34a853)
-            response_embed.add_field(name="Prompt", value=query[:1000], inline=False)
-
-            if len(answer) > 1024:
-                chunks = [answer[i:i + 1024] for i in range(0, len(answer), 1024)]
-                for idx, chunk in enumerate(chunks, start=1):
-                    response_embed.add_field(name=f"Answer (Part {idx})", value=chunk, inline=False)
-            else:
-                response_embed.add_field(name="Answer", value=answer, inline=False)
-
-            # For DeepSeek R1, edit with the view and set the real think_text
-            if model == "deepseek-ai/DeepSeek-R1-0528-tput":
-                # Update the view with the real think_text
-                view = ThinkingButtonView(think_text or "No <think> output found.")
-                await interaction.edit_original_response(embed=response_embed, view=view)
-            else:
-                await interaction.edit_original_response(embed=response_embed)
-                
+            answer = await asyncio.wait_for(
+                get_ai_response(query, user_id=interaction.user.id, model=model), timeout=60
+            )
+            think_text = None
     except asyncio.TimeoutError:
-        error_embed = discord.Embed(title="⏰ Timeout", description="Sorry, the AI took too long. Try again with a simpler question.", color=0xff0000)
-        await interaction.edit_original_response(embed=error_embed)
+        answer = "Sorry, the AI took too long. Try again with a simpler question."
+        think_text = None
     except Exception as error:
-        error_embed = discord.Embed(title="❌ Error", description=f"An error occurred: {error}", color=0xff0000)
-        await interaction.edit_original_response(embed=error_embed)
+        answer = f"An error occurred: {error}"
+        think_text = None
+
+    if model == "devstral-small-2507":
+        response_embed = discord.Embed(title="💡 Answer", color=0x34a853)
+        response_embed.add_field(name="Question", value=query[:1000], inline=False)
+
+        code_block_pattern = re.compile(r"(```[\s\S]*?```)", re.MULTILINE)
+        parts = []
+        last_end = 0
+        for match in code_block_pattern.finditer(answer):
+            if match.start() > last_end:
+                before = answer[last_end:match.start()]
+                for i in range(0, len(before), 1024):
+                    chunk = before[i:i+1024]
+                    if chunk.strip():
+                        parts.append(("text", chunk))
+            code_block = match.group(1)
+            parts.append(("code", code_block))
+            last_end = match.end()
+        if last_end < len(answer):
+            after = answer[last_end:]
+            for i in range(0, len(after), 1024):
+                chunk = after[i:i+1024]
+                if chunk.strip():
+                    parts.append(("text", chunk))
+
+        field_idx = 1
+        followup_codeblocks = []
+        for typ, chunk in parts:
+            if typ == "code" and len(chunk) > 1024:
+                followup_codeblocks.append(chunk)
+            else:
+                response_embed.add_field(name=f"Answer (Part {field_idx})", value=chunk, inline=False)
+                field_idx += 1
+
+        try:
+            await interaction.edit_original_response(embed=response_embed)
+            for codeblock in followup_codeblocks:
+                await interaction.followup.send(codeblock)
+        except Exception as e:
+            await interaction.followup.send(embed=response_embed)
+            for codeblock in followup_codeblocks:
+                await interaction.followup.send(codeblock)
+    else:
+        response_embed = discord.Embed(title="💡 Output", color=0x34a853)
+        response_embed.add_field(name="Prompt", value=query[:1000], inline=False)
+
+        if len(answer) > 1024:
+            chunks = [answer[i:i + 1024] for i in range(0, len(answer), 1024)]
+            for idx, chunk in enumerate(chunks, start=1):
+                response_embed.add_field(name=f"Answer (Part {idx})", value=chunk, inline=False)
+        else:
+            response_embed.add_field(name="Answer", value=answer, inline=False)
+
+        # For DeepSeek R1, edit with the view and set the real think_text
+        if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+            # Update the view with the real think_text
+            view = ThinkingButtonView(think_text or "No <think> output found.")
+            await interaction.edit_original_response(embed=response_embed, view=view)
+        else:
+            await interaction.edit_original_response(embed=response_embed)

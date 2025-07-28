@@ -96,17 +96,15 @@ async def prompt_command(
             
             # Stream the response and update embed in real-time
             last_update_time = 0
-            update_counter = 0
             response_embed = discord.Embed(title="💡 Generating...", color=0x34a853)
             response_embed.add_field(name="Prompt", value=query[:1000], inline=False)
             response_embed.add_field(name="Answer", value="", inline=False)
             
             async for chunk in handle_api_call_stream_generator(query, instructions, 60, model):
                 current_time = asyncio.get_event_loop().time()
-                update_counter += 1
                 
-                # Update every 0.2 seconds OR every 3 chunks (whichever comes first) to be more responsive
-                should_update = (current_time - last_update_time >= 0.2) or (update_counter % 3 == 0)
+                # Update only every 1 second to reduce lag
+                should_update = (current_time - last_update_time >= 1.0)
                 
                 if should_update:
                     answer = chunk if isinstance(chunk, str) else chunk[0]
@@ -118,10 +116,8 @@ async def prompt_command(
                     try:
                         await interaction.edit_original_response(embed=response_embed)
                         last_update_time = current_time
-                    except discord.HTTPException as e:
-                        # If we hit rate limits, wait a bit longer for next update
-                        if "rate limited" in str(e).lower():
-                            last_update_time = current_time + 0.3  # Add extra delay
+                    except discord.HTTPException:
+                        # If we hit rate limits, just continue
                         pass
             
             # Final update with complete response

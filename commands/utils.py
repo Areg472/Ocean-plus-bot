@@ -127,8 +127,8 @@ async def handle_api_call_stream_generator(prompt: str, instructions: str = "", 
                             response_text += event.data.content
                             chunk_count += 1
                             
-                            # Yield more frequently for faster updates - every chunk or every few characters
-                            if chunk_count % 1 == 0 or len(event.data.content) > 10:
+                            # Yield less frequently - every 20 chunks to reduce lag
+                            if chunk_count % 20 == 0:
                                 if model == "deepseek-ai/DeepSeek-R1-0528-tput":
                                     yield (response_text, think_text)
                                 else:

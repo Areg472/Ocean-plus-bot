@@ -66,28 +66,8 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 else:
                     response_text = response
                     think_text = None
-            elif model == "devstral-small-2507":
-                if not instructions:
-                    instructions = devstral_instruction
-                def sync_stream():
-                    response = client.beta.conversations.start_stream(
-                        inputs=prompt,
-                        model=model,
-                        instructions=instructions,
-                    )
-                    response_text = ""
-                    for event in response:
-                        try:
-                            print(f"Received event: {event}")
-                            if event.event == "message.output.delta" and hasattr(event.data, "content"):
-                                response_text += event.data.content
-                        except Exception as e:
-                            print(f"Error while processing event: {str(e)}")
-                    return response_text
-
-                response_text = await asyncio.to_thread(sync_stream)
-                think_text = None
             else:
+                # For all Mistral models, use the beta conversations API
                 response = client.beta.conversations.start_stream(
                     inputs=prompt,
                     model=model,
@@ -115,6 +95,58 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
     except Exception as e:
         print(f"Error during AI API call: {str(e)}")
         return f"An error occurred while processing the request."
+
+async def handle_api_call_stream_generator(prompt: str, instructions: str = "", timeout: int = 45, model: str = "mistral-small-2506"):
+    """Generator version that yields streaming chunks for real-time updates"""
+    try:
+        async with request_semaphore:
+            start_time = time.time()
+
+            if model in ["Qwen/Qwen3-235B-A22B-Instruct-2507-tput", "deepseek-ai/DeepSeek-R1-0528-tput"]:
+                # Non-streaming models - just yield the final result
+                result = await handle_api_call_stream(prompt, instructions, timeout, model)
+                yield result
+            else:
+                # For all Mistral models, use the beta conversations API with streaming
+                def sync_stream():
+                    return client.beta.conversations.start_stream(
+                        inputs=prompt,
+                        model=model,
+                        instructions=instructions,
+                    )
+
+                response = await asyncio.to_thread(sync_stream)
+                response_text = ""
+                think_text = None
+                
+                for event in response:
+                    try:
+                        print(f"Received event: {event}")
+                        if event.event == "message.output.delta" and hasattr(event.data, "content"):
+                            response_text += event.data.content
+                            # Yield the current accumulated text for real-time updates
+                            if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+                                yield (response_text, think_text)
+                            else:
+                                yield response_text
+                    except Exception as e:
+                        print(f"Error while processing event: {str(e)}")
+
+                # Final yield with complete response
+                elapsed = time.time() - start_time
+                print(f"The API provider for AI responded in {elapsed:.2f}s")
+                
+                final_response = response_text.strip() if response_text else "No content received from the AI."
+                if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+                    yield (final_response, think_text)
+                else:
+                    yield final_response
+                    
+    except asyncio.TimeoutError:
+        yield "API response timed out. Please try again."
+    except Exception as e:
+        print(f"Error during AI API call: {str(e)}")
+        yield f"An error occurred while processing the request."
 
 
 async def get_ai_response(

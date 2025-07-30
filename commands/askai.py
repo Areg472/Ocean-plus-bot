@@ -64,7 +64,7 @@ class AskAIModal(discord.ui.Modal, title="Ask AI about this recording"):
             # Step 1: Transcribe the audio/video
             def sync_transcription():
                 return client.audio.transcriptions.complete(
-                    model="voxtral-mini-latest",
+                    model="voxtral-mini-2507",
                     file_url=self.attachment.url
                 )
             

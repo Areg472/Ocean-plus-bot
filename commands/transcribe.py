@@ -45,7 +45,7 @@ async def transcribe_message(interaction: discord.Interaction, message: discord.
         
         # Get the transcription using file URL
         transcription_response = client.audio.transcriptions.complete(
-            model="voxtral-mini-latest",
+            model="voxtral-mini-2507",
             file_url=voice_attachment.url
         )
         

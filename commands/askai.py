@@ -19,14 +19,20 @@ def setup(bot):
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.context_menu(name="Ask AI")
 async def askai_context(interaction: discord.Interaction, message: discord.Message):
-    # Check if message has voice/video attachments
-    valid_attachments = []
-    for attachment in message.attachments:
-        # Check for audio and video file extensions
-        if attachment.filename.lower().endswith(('.mp3', '.wav', '.ogg', '.m4a', '.flac', '.aac', '.mp4', '.avi', '.mov', '.mkv', '.webm')):
-            valid_attachments.append(attachment)
+    # Check if message has voice/video attachments using same logic as transcribe.py
+    voice_attachments = [
+        attachment for attachment in message.attachments 
+        if attachment.content_type and (
+            'audio' in attachment.content_type or 
+            'video' in attachment.content_type or
+            attachment.filename.endswith((
+                '.mp3', '.wav', '.ogg', '.m4a', '.webm', # audio
+                '.mp4', '.mov', '.mkv', '.avi', '.webm'  # video
+            ))
+        )
+    ]
     
-    if not valid_attachments:
+    if not voice_attachments:
         await interaction.response.send_message(
             "❌ This command only works on messages with voice or video recordings.", 
             ephemeral=True
@@ -34,7 +40,7 @@ async def askai_context(interaction: discord.Interaction, message: discord.Messa
         return
     
     # Create modal for user input
-    modal = AskAIModal(valid_attachments[0])  # Use first valid attachment
+    modal = AskAIModal(voice_attachments[0])  # Use first valid attachment
     await interaction.response.send_modal(modal)
 
 class AskAIModal(discord.ui.Modal, title="Ask AI about this recording"):
@@ -61,19 +67,13 @@ class AskAIModal(discord.ui.Modal, title="Ask AI about this recording"):
         await interaction.response.send_message(embed=thinking_embed)
         
         try:
-            # Step 1: Transcribe the audio/video
-            def sync_transcription():
-                return client.audio.transcriptions.complete(
-                    model="voxtral-mini-2507",
-                    file_url=self.attachment.url
-                )
-            
-            transcription_response = await asyncio.wait_for(
-                asyncio.to_thread(sync_transcription), 
-                timeout=120
+            # Step 1: Transcribe using same method as transcribe.py
+            transcription_response = client.audio.transcriptions.complete(
+                model="voxtral-mini-2507",
+                file_url=self.attachment.url
             )
             
-            # Extract transcription text
+            # Extract transcription text using same method as transcribe.py
             transcription_text = transcription_response.text if hasattr(transcription_response, 'text') else str(transcription_response)
             
             # Update embed to show transcription is done
@@ -90,13 +90,8 @@ class AskAIModal(discord.ui.Modal, title="Ask AI about this recording"):
             # Step 2: Send transcription + question to AI
             combined_prompt = f"Here is a transcription of an audio/video file:\n\n{transcription_text}\n\nQuestion: {self.question.value}"
             
-            answer = await asyncio.wait_for(
-                get_ai_response(combined_prompt, user_id=interaction.user.id, model="mistral-small-2506"),
-                timeout=60
-            )
+            answer = await get_ai_response(combined_prompt, user_id=interaction.user.id, model="mistral-small-2506")
             
-        except asyncio.TimeoutError:
-            answer = "Sorry, the AI took too long to process the recording. Try again with a shorter file."
         except Exception as error:
             print(f"Error in askai: {str(error)}")
             answer = f"An error occurred while processing the recording: {str(error)}"
@@ -117,6 +112,11 @@ class AskAIModal(discord.ui.Modal, title="Ask AI about this recording"):
         try:
             await interaction.edit_original_response(embed=response_embed)
         except Exception as edit_error:
+            print(f"Error editing response: {str(edit_error)}")
+            try:
+                await interaction.followup.send(embed=response_embed)
+            except Exception as followup_error:
+                print(f"Error sending followup: {str(followup_error)}")
             print(f"Error editing response: {str(edit_error)}")
             try:
                 await interaction.followup.send(embed=response_embed)

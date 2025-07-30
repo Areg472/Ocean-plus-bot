@@ -70,12 +70,10 @@ async def askai_context(interaction: discord.Interaction, message: discord.Messa
         print(f"[ASKAI] Transcription preview: {transcription_text[:100]}...")
         
         # Step 2: Send transcription to AI with a default question
-        combined_prompt = f"Here is a transcription of an audio/video file:\n\n{transcription_text}"
-        print(f"[ASKAI] Combined prompt length: {len(combined_prompt)}")
         print(f"[ASKAI] Calling get_ai_response...")
         
         answer = await asyncio.wait_for(
-            get_ai_response(combined_prompt, user_id=interaction.user.id, model="mistral-small-2506"), 
+            get_ai_response(transcription_text, user_id=interaction.user.id, model="mistral-small-2506"), 
             timeout=60
         )
         print(f"[ASKAI] AI response received, length: {len(answer)}")

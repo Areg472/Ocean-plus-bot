@@ -92,7 +92,7 @@ async def askai_context(interaction: discord.Interaction, message: discord.Messa
         answer = f"An error occurred while processing the recording: {str(error)}"
     
     # Create response embed using same format as prompt.py
-    response_embed = discord.Embed(title="AI Voice Prompt Answer", color=0x34a853)
+    response_embed = discord.Embed(title="💡 AI Voice Prompt Output", color=0x34a853)
     response_embed.add_field(
         name="Original Message", 
         value=f"[Jump to message]({message.jump_url})", 

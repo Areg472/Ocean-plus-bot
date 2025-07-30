@@ -74,48 +74,41 @@ async def askai_context(interaction: discord.Interaction, message: discord.Messa
         print(f"[ASKAI] Combined prompt length: {len(combined_prompt)}")
         print(f"[ASKAI] Calling get_ai_response...")
         
-        answer = await get_ai_response(combined_prompt, user_id=interaction.user.id, model="mistral-small-2506")
+        answer = await asyncio.wait_for(
+            get_ai_response(combined_prompt, user_id=interaction.user.id, model="mistral-small-2506"), 
+            timeout=60
+        )
         print(f"[ASKAI] AI response received, length: {len(answer)}")
         print(f"[ASKAI] AI response preview: {answer[:100]}...")
         
-        # Create response embed
-        embed = discord.Embed(
-            title="🎤 AI Analysis of Recording",
-            color=discord.Color.green()
-        )
-        embed.add_field(
-            name="Original Message", 
-            value=f"[Jump to message]({message.jump_url})", 
-            inline=False
-        )
-        embed.add_field(
-            name="File", 
-            value=voice_attachment.filename, 
-            inline=False
-        )
-        
-        # Handle long responses
-        if len(answer) > 1024:
-            print(f"[ASKAI] Answer is long ({len(answer)} chars), chunking...")
-            chunks = [answer[i:i + 1024] for i in range(0, len(answer), 1024)]
-            for idx, chunk in enumerate(chunks, start=1):
-                embed.add_field(name=f"Analysis (Part {idx})", value=chunk, inline=False)
-        else:
-            print(f"[ASKAI] Answer fits in one field ({len(answer)} chars)")
-            embed.add_field(name="Analysis", value=answer, inline=False)
-        
-        embed.set_footer(text="Analyzed by Mistral AI")
-        
-        print("[ASKAI] Sending followup with embed")
-        await interaction.followup.send(embed=embed)
-        print("[ASKAI] Successfully sent response")
-        
+    except asyncio.TimeoutError:
+        answer = "Sorry, the AI took too long. Try again with a shorter recording."
+        print("[ASKAI] Timeout occurred")
     except Exception as error:
         print(f"[ASKAI] Error occurred: {str(error)}")
         print(f"[ASKAI] Error type: {type(error)}")
         import traceback
         print(f"[ASKAI] Traceback: {traceback.format_exc()}")
-        await interaction.followup.send(
-            f"❌ An error occurred while processing the recording: {str(error)}", 
-            ephemeral=True
-        )
+        answer = f"An error occurred while processing the recording: {str(error)}"
+    
+    # Create response embed using same format as prompt.py
+    response_embed = discord.Embed(title="AI Voice Prompt Answer", color=0x34a853)
+    response_embed.add_field(
+        name="Original Message", 
+        value=f"[Jump to message]({message.jump_url})", 
+        inline=False
+    )
+    
+    # Handle long responses same as prompt.py
+    if len(answer) > 1024:
+        print(f"[ASKAI] Answer is long ({len(answer)} chars), chunking...")
+        chunks = [answer[i:i + 1024] for i in range(0, len(answer), 1024)]
+        for idx, chunk in enumerate(chunks, start=1):
+            response_embed.add_field(name=f"Answer (Part {idx})", value=chunk, inline=False)
+    else:
+        print(f"[ASKAI] Answer fits in one field ({len(answer)} chars)")
+        response_embed.add_field(name="Answer", value=answer, inline=False)
+    
+    print("[ASKAI] Sending followup with embed")
+    await interaction.followup.send(embed=response_embed)
+    print("[ASKAI] Successfully sent response")

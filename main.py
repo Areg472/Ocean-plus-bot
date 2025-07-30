@@ -18,7 +18,7 @@ bot = commands.Bot(command_prefix='$', intents=intents)
 tracked_messages = {}
 
 # Boardgames feature toggle
-boardgames_enabled = True
+boardgames_enabled = False
 boardgame_names = [
     "Azul", "Ticket To Ride", "Catan", "Scout!", "Heat Pedal To The Metal", "Lost Cities", "Wingspan", "Brass Birmingham", "Gloomhaven", 
     "Pandemic", "Carcassonne", "7 Wonders", "Terraforming Mars", "Patchwork", "Codenames", "Dominion"

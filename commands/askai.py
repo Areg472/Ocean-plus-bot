@@ -70,7 +70,7 @@ async def askai_context(interaction: discord.Interaction, message: discord.Messa
         print(f"[ASKAI] Transcription preview: {transcription_text[:100]}...")
         
         # Step 2: Send transcription to AI with a default question
-        combined_prompt = f"Here is a transcription of an audio/video file:\n\n{transcription_text}\n\nPlease summarize what was discussed in this recording and provide any key insights."
+        combined_prompt = f"Here is a transcription of an audio/video file:\n\n{transcription_text}"
         print(f"[ASKAI] Combined prompt length: {len(combined_prompt)}")
         print(f"[ASKAI] Calling get_ai_response...")
         

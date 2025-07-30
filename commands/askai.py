@@ -4,6 +4,7 @@ from discord import app_commands
 from discord.ext import commands
 from mistralai import Mistral
 import asyncio
+from commands.utils import get_ai_response
 
 # Initialize Mistral client
 api_key = os.environ.get("MISTRAL_API_KEY")
@@ -50,8 +51,8 @@ class AskAIModal(discord.ui.Modal, title="Ask AI about this recording"):
     
     async def on_submit(self, interaction: discord.Interaction):
         thinking_embed = discord.Embed(
-            title="🤔 Analyzing recording...",
-            description="Processing your audio/video with Voxtral AI...",
+            title="🤔 Transcribing recording...",
+            description="First transcribing the audio, then analyzing with AI...",
             color=0x4285f4
         )
         thinking_embed.add_field(name="File", value=self.attachment.filename, inline=False)
@@ -60,36 +61,44 @@ class AskAIModal(discord.ui.Modal, title="Ask AI about this recording"):
         await interaction.response.send_message(embed=thinking_embed)
         
         try:
-            # Process the audio/video with Mistral Voxtral
-            messages = [
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "input_audio",
-                            "input_audio": self.attachment.url,
-                        },
-                        {
-                            "type": "text",
-                            "text": self.question.value
-                        }
-                    ]
-                }
-            ]
-            
-            def sync_mistral_call():
-                return client.chat.complete(
-                    model="voxtral-mini-2507",
-                    messages=messages
+            # Step 1: Transcribe the audio/video
+            def sync_transcription():
+                return client.audio.transcriptions.complete(
+                    model="voxtral-mini-latest",
+                    file_url=self.attachment.url
                 )
             
-            # Make API call in thread to avoid blocking
-            chat_response = await asyncio.to_thread(sync_mistral_call)
-            answer = chat_response.choices[0].message.content
+            transcription_response = await asyncio.wait_for(
+                asyncio.to_thread(sync_transcription), 
+                timeout=120
+            )
+            
+            # Extract transcription text
+            transcription_text = transcription_response.text if hasattr(transcription_response, 'text') else str(transcription_response)
+            
+            # Update embed to show transcription is done
+            analysis_embed = discord.Embed(
+                title="🤔 Analyzing transcription...",
+                description="Transcription complete! Now analyzing with AI...",
+                color=0x4285f4
+            )
+            analysis_embed.add_field(name="File", value=self.attachment.filename, inline=False)
+            analysis_embed.add_field(name="Question", value=self.question.value[:1000], inline=False)
+            
+            await interaction.edit_original_response(embed=analysis_embed)
+            
+            # Step 2: Send transcription + question to AI
+            combined_prompt = f"Here is a transcription of an audio/video file:\n\n{transcription_text}\n\nQuestion: {self.question.value}"
+            
+            answer = await asyncio.wait_for(
+                get_ai_response(combined_prompt, user_id=interaction.user.id, model="mistral-small-2506"),
+                timeout=60
+            )
             
         except asyncio.TimeoutError:
             answer = "Sorry, the AI took too long to process the recording. Try again with a shorter file."
         except Exception as error:
+            print(f"Error in askai: {str(error)}")
             answer = f"An error occurred while processing the recording: {str(error)}"
         
         # Create response embed
@@ -105,4 +114,11 @@ class AskAIModal(discord.ui.Modal, title="Ask AI about this recording"):
         else:
             response_embed.add_field(name="Answer", value=answer, inline=False)
         
-        await interaction.edit_original_response(embed=response_embed)
+        try:
+            await interaction.edit_original_response(embed=response_embed)
+        except Exception as edit_error:
+            print(f"Error editing response: {str(edit_error)}")
+            try:
+                await interaction.followup.send(embed=response_embed)
+            except Exception as followup_error:
+                print(f"Error sending followup: {str(followup_error)}")

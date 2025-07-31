@@ -129,13 +129,23 @@ async def prompt_command(
     audio: discord.Attachment = None,
     image: discord.Attachment = None
 ):
+    def is_valid_image(attachment: discord.Attachment) -> bool:
+        if not attachment:
+            return False
+        valid_extensions = ('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.tiff')
+        if attachment.filename.lower().endswith(valid_extensions):
+            return True
+        if attachment.content_type and attachment.content_type.startswith('image/'):
+            return True
+        return False
+
     # Handle conflicts when both audio and image are provided
     if audio and image:
         # Check if files are valid
         if audio and (not audio.content_type or not audio.content_type.startswith('audio/')):
             await interaction.response.send_message("Please upload a valid audio file.", ephemeral=True)
             return
-        if image and (not image.content_type or not image.content_type.startswith('image/')):
+        if image and not is_valid_image(image):
             await interaction.response.send_message("Please upload a valid image file.", ephemeral=True)
             return
         
@@ -162,8 +172,8 @@ async def prompt_command(
         if model not in ["voxtral-mini-2507", "voxtral-small-2507"]:
             model = "voxtral-mini-2507"
     elif image:
-        # Check if it's an image file
-        if not image.content_type or not image.content_type.startswith('image/'):
+        # Improved image validation
+        if not is_valid_image(image):
             await interaction.response.send_message("Please upload a valid image file.", ephemeral=True)
             return
         

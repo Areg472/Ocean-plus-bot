@@ -5,6 +5,83 @@ import asyncio
 import re
 
 
+class MediaSelectionView(discord.ui.View):
+    def __init__(self, query: str, model: str, audio: discord.Attachment, image: discord.Attachment, interaction: discord.Interaction):
+        super().__init__(timeout=60)
+        self.query = query
+        self.model = model
+        self.audio = audio
+        self.image = image
+        self.original_interaction = interaction
+
+    @discord.ui.button(label="Use Audio", style=discord.ButtonStyle.primary, emoji="🎵")
+    async def use_audio(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        await self.process_prompt(interaction, use_audio=True)
+
+    @discord.ui.button(label="Use Image", style=discord.ButtonStyle.secondary, emoji="🖼️")
+    async def use_image(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        await self.process_prompt(interaction, use_audio=False)
+
+    async def process_prompt(self, interaction: discord.Interaction, use_audio: bool):
+        if use_audio:
+            model = "voxtral-mini-2507" if self.model not in ["voxtral-mini-2507", "voxtral-small-2507"] else self.model
+            model_name = "Voxtral Mini" if model == "voxtral-mini-2507" else "Voxtral Small"
+            media_file = self.audio
+        else:
+            model = "mistral-small-2506" if self.model not in ["mistral-small-2506", "mistral-medium-2505"] else self.model
+            model_name = "Mistral Small" if model == "mistral-small-2506" else "Mistral Medium"
+            media_file = self.image
+
+        thinking_embed = discord.Embed(
+            title="🤔 Thinking...",
+            description=f"Processing your prompt with {model_name}...",
+            color=0x4285f4
+        )
+        thinking_embed.add_field(name="Prompt", value=self.query[:1000], inline=False)
+        thinking_embed.add_field(name="Media File", value=f"📎 {media_file.filename} (using {model_name})", inline=False)
+
+        await interaction.edit_original_response(embed=thinking_embed, view=None)
+
+        try:
+            if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+                answer, think_text = await asyncio.wait_for(
+                    get_ai_response(self.query, user_id=self.original_interaction.user.id, model=model, 
+                                  audio_url=self.audio.url if use_audio else None,
+                                  image_url=self.image.url if not use_audio else None), timeout=360
+                )
+            else:
+                answer = await asyncio.wait_for(
+                    get_ai_response(self.query, user_id=self.original_interaction.user.id, model=model,
+                                  audio_url=self.audio.url if use_audio else None,
+                                  image_url=self.image.url if not use_audio else None), timeout=60
+                )
+                think_text = None
+        except asyncio.TimeoutError:
+            answer = "Sorry, the AI took too long. Try again with a simpler question."
+            think_text = None
+        except Exception as error:
+            answer = f"An error occurred: {error}"
+            think_text = None
+
+        response_embed = discord.Embed(title="💡 Output", color=0x34a853)
+        response_embed.add_field(name="Prompt", value=self.query[:1000], inline=False)
+        response_embed.add_field(name="Media File", value=f"[{media_file.filename}]({media_file.url})", inline=False)
+
+        if len(answer) > 1024:
+            chunks = [answer[i:i + 1024] for i in range(0, len(answer), 1024)]
+            for idx, chunk in enumerate(chunks, start=1):
+                response_embed.add_field(name=f"Answer (Part {idx})", value=chunk, inline=False)
+        else:
+            response_embed.add_field(name="Answer", value=answer, inline=False)
+
+        if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+            view = ThinkingButtonView(think_text or "No <think> output found.")
+            await interaction.edit_original_response(embed=response_embed, view=view)
+        else:
+            await interaction.edit_original_response(embed=response_embed)
+
 class ThinkingButtonView(discord.ui.View):
     def __init__(self, thinking_text: str):
         super().__init__(timeout=180)
@@ -41,7 +118,7 @@ MODEL_CHOICES = [
     query="The prompt you want to ask",
     model="Choose the AI model to use",
     audio="Upload an audio file (only for Voxtral models)",
-    ai_audio_rename="Let AI suggest a filename based on audio content"
+    image="Upload an image file (only for Mistral Small/Medium)"
 )
 @app_commands.choices(model=MODEL_CHOICES)
 @app_commands.checks.dynamic_cooldown(cooldown)
@@ -50,9 +127,31 @@ async def prompt_command(
     query: str,
     model: str = "mistral-small-2506",  # Default to Mistral Small
     audio: discord.Attachment = None,
-    ai_audio_rename: bool = False
+    image: discord.Attachment = None
 ):
-    # Handle model switching based on audio presence
+    # Handle conflicts when both audio and image are provided
+    if audio and image:
+        # Check if files are valid
+        if audio and (not audio.content_type or not audio.content_type.startswith('audio/')):
+            await interaction.response.send_message("Please upload a valid audio file.", ephemeral=True)
+            return
+        if image and (not image.content_type or not image.content_type.startswith('image/')):
+            await interaction.response.send_message("Please upload a valid image file.", ephemeral=True)
+            return
+        
+        conflict_embed = discord.Embed(
+            title="⚠️ Media Conflict",
+            description="You've uploaded both audio and image files. Please choose which one to use:",
+            color=0xff9900
+        )
+        conflict_embed.add_field(name="Audio File", value=f"🎵 {audio.filename}", inline=True)
+        conflict_embed.add_field(name="Image File", value=f"🖼️ {image.filename}", inline=True)
+        
+        view = MediaSelectionView(query, model, audio, image, interaction)
+        await interaction.response.send_message(embed=conflict_embed, view=view)
+        return
+
+    # Handle model switching based on media presence
     if audio:
         # Check if it's an audio file
         if not audio.content_type or not audio.content_type.startswith('audio/'):
@@ -62,6 +161,15 @@ async def prompt_command(
         # Switch to Voxtral Mini if not already a Voxtral model
         if model not in ["voxtral-mini-2507", "voxtral-small-2507"]:
             model = "voxtral-mini-2507"
+    elif image:
+        # Check if it's an image file
+        if not image.content_type or not image.content_type.startswith('image/'):
+            await interaction.response.send_message("Please upload a valid image file.", ephemeral=True)
+            return
+        
+        # Switch to Mistral Small if not already a compatible model
+        if model not in ["mistral-small-2506", "mistral-medium-2505"]:
+            model = "mistral-small-2506"
     else:
         # Switch to Mistral Small if Voxtral model selected but no audio
         if model in ["voxtral-mini-2507", "voxtral-small-2507"]:
@@ -92,6 +200,8 @@ async def prompt_command(
     thinking_embed.add_field(name="Prompt", value=query[:1000], inline=False)
     if audio:
         thinking_embed.add_field(name="Audio File", value=f"📎 {audio.filename} (using {model_name})", inline=False)
+    elif image:
+        thinking_embed.add_field(name="Image File", value=f"🖼️ {image.filename} (using {model_name})", inline=False)
 
     # For DeepSeek R1, show button but don't set thinking_output yet
     if model == "deepseek-ai/DeepSeek-R1-0528-tput":
@@ -104,11 +214,15 @@ async def prompt_command(
     try:
         if model == "deepseek-ai/DeepSeek-R1-0528-tput":
             answer, think_text = await asyncio.wait_for(
-                get_ai_response(query, user_id=interaction.user.id, model=model, audio_url=audio.url if audio else None, rename_audio=ai_audio_rename), timeout=360
+                get_ai_response(query, user_id=interaction.user.id, model=model, 
+                              audio_url=audio.url if audio else None,
+                              image_url=image.url if image else None), timeout=360
             )
         else:
             answer = await asyncio.wait_for(
-                get_ai_response(query, user_id=interaction.user.id, model=model, audio_url=audio.url if audio else None, rename_audio=ai_audio_rename), timeout=60
+                get_ai_response(query, user_id=interaction.user.id, model=model, 
+                              audio_url=audio.url if audio else None,
+                              image_url=image.url if image else None), timeout=60
             )
             think_text = None
     except asyncio.TimeoutError:
@@ -163,21 +277,11 @@ async def prompt_command(
         response_embed = discord.Embed(title="💡 Output", color=0x34a853)
         response_embed.add_field(name="Prompt", value=query[:1000], inline=False)
         
-        # Add audio file link for Voxtral models
-        if model in ["voxtral-mini-2507", "voxtral-small-2507"] and audio:
-            display_name = audio.filename
-            
-            # Extract suggested filename if AI rename was requested
-            if ai_audio_rename:
-                import re
-                filename_match = re.search(r'SUGGESTED_FILENAME:\s*(.+?)(?:\n|$)', answer)
-                if filename_match:
-                    suggested_name = filename_match.group(1).strip()
-                    display_name = f"{suggested_name} (AI suggested)"
-                    # Remove the suggestion from the answer
-                    answer = re.sub(r'SUGGESTED_FILENAME:\s*.+?(?:\n|$)', '', answer).strip()
-            
-            response_embed.add_field(name="Audio File", value=f"[{display_name}]({audio.url})", inline=False)
+        # Add media file link
+        if audio:
+            response_embed.add_field(name="Audio File", value=f"[{audio.filename}]({audio.url})", inline=False)
+        elif image:
+            response_embed.add_field(name="Image File", value=f"[{image.filename}]({image.url})", inline=False)
 
         if len(answer) > 1024:
             chunks = [answer[i:i + 1024] for i in range(0, len(answer), 1024)]

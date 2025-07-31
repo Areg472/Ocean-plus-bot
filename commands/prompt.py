@@ -14,7 +14,7 @@ class MediaSelectionView(discord.ui.View):
         self.image = image
         self.original_interaction = interaction
 
-    @discord.ui.button(label="Use Audio", style=discord.ButtonStyle.primary, emoji="🎵")
+    @discord.ui.button(label="Use Audio", style=discord.ButtonStyle.secondary, emoji="🎵")
     async def use_audio(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         await self.process_prompt(interaction, use_audio=True)
@@ -117,8 +117,8 @@ MODEL_CHOICES = [
 @app_commands.describe(
     query="The prompt you want to ask",
     model="Choose the AI model to use",
+    image="Upload an image file (only for Mistral Small/Medium)",
     audio="Upload an audio file (only for Voxtral models)",
-    image="Upload an image file (only for Mistral Small/Medium)"
 )
 @app_commands.choices(model=MODEL_CHOICES)
 @app_commands.checks.dynamic_cooldown(cooldown)

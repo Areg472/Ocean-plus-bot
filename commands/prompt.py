@@ -31,6 +31,7 @@ MODEL_CHOICES = [
     app_commands.Choice(name="Mistral Medium", value="mistral-medium-2505"),
     app_commands.Choice(name="DeepSeek R1", value="deepseek-ai/DeepSeek-R1-0528-tput"),
     app_commands.Choice(name="Voxtral Mini", value="voxtral-mini-2507"),
+    app_commands.Choice(name="Voxtral Small", value="voxtral-small-2507"),
 ]
 
 @app_commands.allowed_installs(guilds=True, users=True)
@@ -39,7 +40,7 @@ MODEL_CHOICES = [
 @app_commands.describe(
     query="The prompt you want to ask",
     model="Choose the AI model to use",
-    audio="Upload an audio file (only for Voxtral Mini model)",
+    audio="Upload an audio file (only for Voxtral models)",
     ai_audio_rename="Let AI suggest a filename based on audio content"
 )
 @app_commands.choices(model=MODEL_CHOICES)
@@ -51,15 +52,20 @@ async def prompt_command(
     audio: discord.Attachment = None,
     ai_audio_rename: bool = False
 ):
-    # Validate audio file and auto-switch to Voxtral
+    # Handle model switching based on audio presence
     if audio:
         # Check if it's an audio file
         if not audio.content_type or not audio.content_type.startswith('audio/'):
             await interaction.response.send_message("Please upload a valid audio file.", ephemeral=True)
             return
         
-        # Automatically switch to Voxtral Mini for audio files
-        model = "voxtral-mini-2507"
+        # Switch to Voxtral Mini if not already a Voxtral model
+        if model not in ["voxtral-mini-2507", "voxtral-small-2507"]:
+            model = "voxtral-mini-2507"
+    else:
+        # Switch to Mistral Small if Voxtral model selected but no audio
+        if model in ["voxtral-mini-2507", "voxtral-small-2507"]:
+            model = "mistral-small-2506"
 
     if model == "devstral-small-2507":
         model_name = "Devstral Small"
@@ -75,6 +81,8 @@ async def prompt_command(
         model_name = "DeepSeek R1"
     elif model == "voxtral-mini-2507":
         model_name = "Voxtral Mini"
+    elif model == "voxtral-small-2507":
+        model_name = "Voxtral Small"
 
     thinking_embed = discord.Embed(
         title="🤔 Thinking...",
@@ -83,7 +91,7 @@ async def prompt_command(
     )
     thinking_embed.add_field(name="Prompt", value=query[:1000], inline=False)
     if audio:
-        thinking_embed.add_field(name="Audio File", value=f"📎 {audio.filename} (using Voxtral Mini)", inline=False)
+        thinking_embed.add_field(name="Audio File", value=f"📎 {audio.filename} (using {model_name})", inline=False)
 
     # For DeepSeek R1, show button but don't set thinking_output yet
     if model == "deepseek-ai/DeepSeek-R1-0528-tput":
@@ -155,8 +163,8 @@ async def prompt_command(
         response_embed = discord.Embed(title="💡 Output", color=0x34a853)
         response_embed.add_field(name="Prompt", value=query[:1000], inline=False)
         
-        # Add audio file link for Voxtral Mini
-        if model == "voxtral-mini-2507" and audio:
+        # Add audio file link for Voxtral models
+        if model in ["voxtral-mini-2507", "voxtral-small-2507"] and audio:
             display_name = audio.filename
             
             # Extract suggested filename if AI rename was requested

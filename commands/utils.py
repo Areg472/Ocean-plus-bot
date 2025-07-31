@@ -66,8 +66,8 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 else:
                     response_text = response
                     think_text = None
-            elif model == "voxtral-mini-2507":
-                # Handle Voxtral Mini with audio support
+            elif model in ["voxtral-mini-2507", "voxtral-small-2507"]:
+                # Handle Voxtral models with audio support
                 def sync_voxtral():
                     messages = []
                     if audio_url:

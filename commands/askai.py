@@ -31,8 +31,7 @@ async def askai_context(interaction: discord.Interaction, message: discord.Messa
             'audio' in attachment.content_type or 
             'video' in attachment.content_type or
             attachment.filename.endswith((
-                '.mp3', '.wav', '.ogg', '.m4a', '.webm', # audio
-                '.mp4', '.mov', '.mkv', '.avi', '.webm'  # video
+                '.mp3', '.wav', '.ogg', '.m4a', '.webm'
             ))
         )
     ]

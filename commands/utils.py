@@ -35,7 +35,7 @@ def cooldown(interaction: Interaction) -> Optional[Cooldown]:
 def dynamic_cooldown() -> CooldownMapping:
     return CooldownMapping.from_cooldown(1, 3.0, Cooldown)
 
-async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: int = 45, model: str = "mistral-small-2506") -> Tuple[str, Optional[str]]:
+async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: int = 45, model: str = "mistral-small-2506", audio_url: Optional[str] = None) -> Tuple[str, Optional[str]]:
     try:
         async with request_semaphore:
             start_time = time.time()
@@ -66,6 +66,40 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 else:
                     response_text = response
                     think_text = None
+            elif model == "voxtral-mini-2507":
+                # Handle Voxtral Mini with audio support
+                def sync_voxtral():
+                    messages = []
+                    if audio_url:
+                        # Audio + text message
+                        messages.append({
+                            "role": "user",
+                            "content": [
+                                {
+                                    "type": "input_audio",
+                                    "input_audio": audio_url,
+                                },
+                                {
+                                    "type": "text",
+                                    "text": prompt
+                                }
+                            ]
+                        })
+                    else:
+                        # Text-only message
+                        messages.append({
+                            "role": "user",
+                            "content": prompt
+                        })
+                    
+                    response = client.chat.complete(
+                        model=model,
+                        messages=messages
+                    )
+                    return response.choices[0].message.content if response.choices else "No content received from Voxtral."
+                
+                response_text = await asyncio.to_thread(sync_voxtral)
+                think_text = None
             elif model == "devstral-small-2507":
                 if not instructions:
                     instructions = devstral_instruction
@@ -121,7 +155,8 @@ async def get_ai_response(
     question: str,
     timeout: int = 45,
     user_id: Optional[int] = None,
-    model: str = "mistral-medium-latest"
+    model: str = "mistral-medium-latest",
+    audio_url: Optional[str] = None
 ) -> Optional[str]:
 
     if model == "devstral-small-2507":
@@ -139,10 +174,10 @@ async def get_ai_response(
         instructions = ' '.join(contexts)
 
     if model == "deepseek-ai/DeepSeek-R1-0528-tput":
-        answer, think_text = await handle_api_call_stream(question, instructions, timeout, model)
+        answer, think_text = await handle_api_call_stream(question, instructions, timeout, model, audio_url)
         return answer, think_text
     else:
-        return await handle_api_call_stream(question, instructions, timeout, model)
+        return await handle_api_call_stream(question, instructions, timeout, model, audio_url)
 
 
 def set_global_context(context: str):

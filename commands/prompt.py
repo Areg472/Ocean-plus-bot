@@ -30,6 +30,7 @@ MODEL_CHOICES = [
     app_commands.Choice(name="Magistral Small", value="magistral-small-2507"),
     app_commands.Choice(name="Mistral Medium", value="mistral-medium-2505"),
     app_commands.Choice(name="DeepSeek R1", value="deepseek-ai/DeepSeek-R1-0528-tput"),
+    app_commands.Choice(name="Voxtral Mini", value="voxtral-mini-2507"),
 ]
 
 @app_commands.allowed_installs(guilds=True, users=True)
@@ -37,15 +38,27 @@ MODEL_CHOICES = [
 @app_commands.command(name="prompt", description="Ask me anything, powered by AI")
 @app_commands.describe(
     query="The prompt you want to ask",
-    model="Choose the AI model to use"
+    model="Choose the AI model to use",
+    audio="Upload an audio file (only for Voxtral Mini model)"
 )
 @app_commands.choices(model=MODEL_CHOICES)
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def prompt_command(
     interaction: discord.Interaction,
     query: str,
-    model: str = "mistral-small-2506"  # Default to Mistral Small
+    model: str = "mistral-small-2506",  # Default to Mistral Small
+    audio: discord.Attachment = None
 ):
+    # Validate audio file and auto-switch to Voxtral
+    if audio:
+        # Check if it's an audio file
+        if not audio.content_type or not audio.content_type.startswith('audio/'):
+            await interaction.response.send_message("Please upload a valid audio file.", ephemeral=True)
+            return
+        
+        # Automatically switch to Voxtral Mini for audio files
+        model = "voxtral-mini-2507"
+
     if model == "devstral-small-2507":
         model_name = "Devstral Small"
     elif model == "mistral-small-2506":
@@ -58,6 +71,8 @@ async def prompt_command(
         model_name = "Qwen 3"
     elif model == "deepseek-ai/DeepSeek-R1-0528-tput":
         model_name = "DeepSeek R1"
+    elif model == "voxtral-mini-2507":
+        model_name = "Voxtral Mini"
 
     thinking_embed = discord.Embed(
         title="🤔 Thinking...",
@@ -65,6 +80,8 @@ async def prompt_command(
         color=0x4285f4
     )
     thinking_embed.add_field(name="Prompt", value=query[:1000], inline=False)
+    if audio:
+        thinking_embed.add_field(name="Audio File", value=f"📎 {audio.filename} (using Voxtral Mini)", inline=False)
 
     # For DeepSeek R1, show button but don't set thinking_output yet
     if model == "deepseek-ai/DeepSeek-R1-0528-tput":
@@ -77,11 +94,11 @@ async def prompt_command(
     try:
         if model == "deepseek-ai/DeepSeek-R1-0528-tput":
             answer, think_text = await asyncio.wait_for(
-                get_ai_response(query, user_id=interaction.user.id, model=model), timeout=360
+                get_ai_response(query, user_id=interaction.user.id, model=model, audio_url=audio.url if audio else None), timeout=360
             )
         else:
             answer = await asyncio.wait_for(
-                get_ai_response(query, user_id=interaction.user.id, model=model), timeout=60
+                get_ai_response(query, user_id=interaction.user.id, model=model, audio_url=audio.url if audio else None), timeout=60
             )
             think_text = None
     except asyncio.TimeoutError:

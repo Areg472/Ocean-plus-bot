@@ -40,7 +40,6 @@ MODEL_CHOICES = [
     query="The prompt you want to ask",
     model="Choose the AI model to use",
     audio="Upload an audio file (only for Voxtral Mini model)",
-    audio_rename="Custom display name for the audio file",
     ai_audio_rename="Let AI suggest a filename based on audio content"
 )
 @app_commands.choices(model=MODEL_CHOICES)
@@ -50,7 +49,6 @@ async def prompt_command(
     query: str,
     model: str = "mistral-small-2506",  # Default to Mistral Small
     audio: discord.Attachment = None,
-    audio_rename: str = None,
     ai_audio_rename: bool = False
 ):
     # Validate audio file and auto-switch to Voxtral
@@ -85,8 +83,7 @@ async def prompt_command(
     )
     thinking_embed.add_field(name="Prompt", value=query[:1000], inline=False)
     if audio:
-        display_name = audio_rename if audio_rename else audio.filename
-        thinking_embed.add_field(name="Audio File", value=f"📎 {display_name} (using Voxtral Mini)", inline=False)
+        thinking_embed.add_field(name="Audio File", value=f"📎 {audio.filename} (using Voxtral Mini)", inline=False)
 
     # For DeepSeek R1, show button but don't set thinking_output yet
     if model == "deepseek-ai/DeepSeek-R1-0528-tput":
@@ -160,10 +157,10 @@ async def prompt_command(
         
         # Add audio file link for Voxtral Mini
         if model == "voxtral-mini-2507" and audio:
-            display_name = audio_rename if audio_rename else audio.filename
+            display_name = audio.filename
             
             # Extract suggested filename if AI rename was requested
-            if ai_audio_rename and not audio_rename:
+            if ai_audio_rename:
                 import re
                 filename_match = re.search(r'SUGGESTED_FILENAME:\s*(.+?)(?:\n|$)', answer)
                 if filename_match:

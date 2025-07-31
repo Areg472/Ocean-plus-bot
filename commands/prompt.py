@@ -152,6 +152,10 @@ async def prompt_command(
     else:
         response_embed = discord.Embed(title="💡 Output", color=0x34a853)
         response_embed.add_field(name="Prompt", value=query[:1000], inline=False)
+        
+        # Add audio file link for Voxtral Mini
+        if model == "voxtral-mini-2507" and audio:
+            response_embed.add_field(name="Audio File", value=f"[{audio.filename}]({audio.url})", inline=False)
 
         if len(answer) > 1024:
             chunks = [answer[i:i + 1024] for i in range(0, len(answer), 1024)]

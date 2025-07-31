@@ -40,7 +40,8 @@ MODEL_CHOICES = [
     query="The prompt you want to ask",
     model="Choose the AI model to use",
     audio="Upload an audio file (only for Voxtral Mini model)",
-    rename="Let Voxtral rename the audio file based on its content"
+    audio_rename="Custom display name for the audio file",
+    ai_audio_rename="Let AI suggest a filename based on audio content"
 )
 @app_commands.choices(model=MODEL_CHOICES)
 @app_commands.checks.dynamic_cooldown(cooldown)
@@ -49,7 +50,8 @@ async def prompt_command(
     query: str,
     model: str = "mistral-small-2506",  # Default to Mistral Small
     audio: discord.Attachment = None,
-    rename: bool = False
+    audio_rename: str = None,
+    ai_audio_rename: bool = False
 ):
     # Validate audio file and auto-switch to Voxtral
     if audio:
@@ -83,7 +85,7 @@ async def prompt_command(
     )
     thinking_embed.add_field(name="Prompt", value=query[:1000], inline=False)
     if audio:
-        display_name = rename if rename else audio.filename
+        display_name = audio_rename if audio_rename else audio.filename
         thinking_embed.add_field(name="Audio File", value=f"📎 {display_name} (using Voxtral Mini)", inline=False)
 
     # For DeepSeek R1, show button but don't set thinking_output yet
@@ -97,11 +99,11 @@ async def prompt_command(
     try:
         if model == "deepseek-ai/DeepSeek-R1-0528-tput":
             answer, think_text = await asyncio.wait_for(
-                get_ai_response(query, user_id=interaction.user.id, model=model, audio_url=audio.url if audio else None, rename_audio=rename), timeout=360
+                get_ai_response(query, user_id=interaction.user.id, model=model, audio_url=audio.url if audio else None, rename_audio=ai_audio_rename), timeout=360
             )
         else:
             answer = await asyncio.wait_for(
-                get_ai_response(query, user_id=interaction.user.id, model=model, audio_url=audio.url if audio else None, rename_audio=rename), timeout=60
+                get_ai_response(query, user_id=interaction.user.id, model=model, audio_url=audio.url if audio else None, rename_audio=ai_audio_rename), timeout=60
             )
             think_text = None
     except asyncio.TimeoutError:
@@ -158,15 +160,15 @@ async def prompt_command(
         
         # Add audio file link for Voxtral Mini
         if model == "voxtral-mini-2507" and audio:
-            display_name = audio.filename
+            display_name = audio_rename if audio_rename else audio.filename
             
-            # Extract suggested filename if rename was requested
-            if rename:
+            # Extract suggested filename if AI rename was requested
+            if ai_audio_rename and not audio_rename:
                 import re
                 filename_match = re.search(r'SUGGESTED_FILENAME:\s*(.+?)(?:\n|$)', answer)
                 if filename_match:
                     suggested_name = filename_match.group(1).strip()
-                    display_name = f"{suggested_name} (suggested)"
+                    display_name = f"{suggested_name} (AI suggested)"
                     # Remove the suggestion from the answer
                     answer = re.sub(r'SUGGESTED_FILENAME:\s*.+?(?:\n|$)', '', answer).strip()
             

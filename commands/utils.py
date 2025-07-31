@@ -35,7 +35,7 @@ def cooldown(interaction: Interaction) -> Optional[Cooldown]:
 def dynamic_cooldown() -> CooldownMapping:
     return CooldownMapping.from_cooldown(1, 3.0, Cooldown)
 
-async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: int = 45, model: str = "mistral-small-2506", audio_url: Optional[str] = None) -> Tuple[str, Optional[str]]:
+async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: int = 45, model: str = "mistral-small-2506", audio_url: Optional[str] = None, rename_audio: bool = False) -> Tuple[str, Optional[str]]:
     try:
         async with request_semaphore:
             start_time = time.time()
@@ -71,6 +71,11 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 def sync_voxtral():
                     messages = []
                     if audio_url:
+                        # Modify prompt if rename is requested
+                        actual_prompt = prompt
+                        if rename_audio:
+                            actual_prompt = f"{prompt}\n\nAdditionally, based on the audio content, suggest a descriptive filename for this audio file. Format your response as: 'SUGGESTED_FILENAME: [your suggested name]' at the end of your response."
+                        
                         # Audio + text message
                         messages.append({
                             "role": "user",
@@ -81,7 +86,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                                 },
                                 {
                                     "type": "text",
-                                    "text": prompt
+                                    "text": actual_prompt
                                 }
                             ]
                         })
@@ -156,7 +161,8 @@ async def get_ai_response(
     timeout: int = 45,
     user_id: Optional[int] = None,
     model: str = "mistral-medium-latest",
-    audio_url: Optional[str] = None
+    audio_url: Optional[str] = None,
+    rename_audio: bool = False
 ) -> Optional[str]:
 
     if model == "devstral-small-2507":
@@ -174,10 +180,10 @@ async def get_ai_response(
         instructions = ' '.join(contexts)
 
     if model == "deepseek-ai/DeepSeek-R1-0528-tput":
-        answer, think_text = await handle_api_call_stream(question, instructions, timeout, model, audio_url)
+        answer, think_text = await handle_api_call_stream(question, instructions, timeout, model, audio_url, rename_audio)
         return answer, think_text
     else:
-        return await handle_api_call_stream(question, instructions, timeout, model, audio_url)
+        return await handle_api_call_stream(question, instructions, timeout, model, audio_url, rename_audio)
 
 
 def set_global_context(context: str):

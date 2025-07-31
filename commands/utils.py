@@ -76,6 +76,10 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                         if rename_audio:
                             actual_prompt = f"{prompt}\n\nAdditionally, based on the audio content, suggest a descriptive filename for this audio file. Format your response as: 'SUGGESTED_FILENAME: [your suggested name]' at the end of your response."
                         
+                        # Add instructions to the prompt if provided
+                        if instructions:
+                            actual_prompt = f"Instructions: {instructions}\n\n{actual_prompt}"
+                        
                         # Audio + text message
                         messages.append({
                             "role": "user",
@@ -91,11 +95,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                             ]
                         })
                     else:
-                        # Text-only message
-                        messages.append({
-                            "role": "user",
-                            "content": prompt
-                        })
+                        return "Voxtral models require an audio file."
                     
                     response = client.chat.complete(
                         model=model,

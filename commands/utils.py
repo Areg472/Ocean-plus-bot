@@ -186,7 +186,7 @@ async def get_ai_response(
     question: str,
     timeout: int = 45,
     user_id: Optional[int] = None,
-    model: str = "mistral-medium-latest",
+    model: str = "mistral-small-2506",
     audio_url: Optional[str] = None,
     image_url: Optional[str] = None
 ) -> Optional[str]:

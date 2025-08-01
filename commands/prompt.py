@@ -134,10 +134,10 @@ async def prompt_command(
     interaction: discord.Interaction,
     query: str,
     model: str = "mistral-small-2506",  # Default to Mistral Small
-    audio: discord.Attachment = None,
     image: discord.Attachment = None,
     image2: discord.Attachment = None,
-    image3: discord.Attachment = None
+    image3: discord.Attachment = None,
+    audio: discord.Attachment = None,
 ):
     def is_valid_image(attachment: discord.Attachment) -> bool:
         if not attachment:

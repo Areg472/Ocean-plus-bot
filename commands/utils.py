@@ -35,7 +35,7 @@ def cooldown(interaction: Interaction) -> Optional[Cooldown]:
 def dynamic_cooldown() -> CooldownMapping:
     return CooldownMapping.from_cooldown(1, 3.0, Cooldown)
 
-async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: int = 45, model: str = "mistral-small-2506", audio_url: Optional[str] = None, image_url: Optional[str] = None) -> Tuple[str, Optional[str]]:
+async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: int = 45, model: str = "mistral-small-2506", audio_url: Optional[str] = None, image_url: Optional[str] = None, image_urls: Optional[list] = None) -> Tuple[str, Optional[str]]:
     try:
         async with request_semaphore:
             start_time = time.time()
@@ -122,7 +122,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
 
                 response_text = await asyncio.to_thread(sync_stream)
                 think_text = None
-            elif model in ["mistral-small-2506", "mistral-medium-2505"] and image_url:
+            elif model in ["mistral-small-2506", "mistral-medium-2505"] and (image_url or image_urls):
                 # Handle image processing for Mistral models
                 def sync_image():
                     # Add instructions to the prompt if provided
@@ -130,19 +130,16 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                     if instructions:
                         actual_prompt = f"Instructions: {instructions}\n\n{actual_prompt}"
                     
-                    messages = [{
-                        "role": "user",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": actual_prompt
-                            },
-                            {
-                                "type": "image_url",
-                                "image_url": image_url
-                            }
-                        ]
-                    }]
+                    content = [{"type": "text", "text": actual_prompt}]
+                    
+                    # Add all image URLs to the content
+                    if image_urls:
+                        for img_url in image_urls:
+                            content.append({"type": "image_url", "image_url": img_url})
+                    elif image_url:
+                        content.append({"type": "image_url", "image_url": image_url})
+                    
+                    messages = [{"role": "user", "content": content}]
                     
                     response = client.chat.complete(
                         model=model,
@@ -188,7 +185,8 @@ async def get_ai_response(
     user_id: Optional[int] = None,
     model: str = "mistral-small-2506",
     audio_url: Optional[str] = None,
-    image_url: Optional[str] = None
+    image_url: Optional[str] = None,
+    image_urls: Optional[list] = None
 ) -> Optional[str]:
 
     if model == "devstral-small-2507":
@@ -206,10 +204,10 @@ async def get_ai_response(
         instructions = ' '.join(contexts)
 
     if model == "deepseek-ai/DeepSeek-R1-0528-tput":
-        answer, think_text = await handle_api_call_stream(question, instructions, timeout, model, audio_url, image_url)
+        answer, think_text = await handle_api_call_stream(question, instructions, timeout, model, audio_url, image_url, image_urls)
         return answer, think_text
     else:
-        return await handle_api_call_stream(question, instructions, timeout, model, audio_url, image_url)
+        return await handle_api_call_stream(question, instructions, timeout, model, audio_url, image_url, image_urls)
 
 
 def set_global_context(context: str):

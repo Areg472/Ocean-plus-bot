@@ -123,7 +123,9 @@ MODEL_CHOICES = [
 @app_commands.describe(
     query="The prompt you want to ask",
     model="Choose the AI model to use",
-    image="Upload up to 3 image files (only for Mistral Small/Medium)",
+    image="Upload first image file (only for Mistral Small/Medium)",
+    image2="Upload second image file (only for Mistral Small/Medium)",
+    image3="Upload third image file (only for Mistral Small/Medium)",
     audio="Upload an audio file (only for Voxtral models)",
 )
 @app_commands.choices(model=MODEL_CHOICES)
@@ -133,7 +135,9 @@ async def prompt_command(
     query: str,
     model: str = "mistral-small-2506",  # Default to Mistral Small
     audio: discord.Attachment = None,
-    image: discord.Attachment = None
+    image: discord.Attachment = None,
+    image2: discord.Attachment = None,
+    image3: discord.Attachment = None
 ):
     def is_valid_image(attachment: discord.Attachment) -> bool:
         if not attachment:
@@ -145,18 +149,11 @@ async def prompt_command(
             return True
         return False
 
-    # Collect all image attachments from the message
+    # Collect all image attachments
     images = []
-    if image:
-        images.append(image)
-    
-    # Check for additional images in the interaction message attachments
-    if hasattr(interaction, 'message') and interaction.message and interaction.message.attachments:
-        for att in interaction.message.attachments:
-            if is_valid_image(att) and att != image:
-                images.append(att)
-                if len(images) >= 3:  # Limit to 3 images
-                    break
+    for img in [image, image2, image3]:
+        if img:
+            images.append(img)
 
     # Validate images
     for img in images:

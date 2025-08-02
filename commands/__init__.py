@@ -113,5 +113,3 @@ def setup_commands(bot):
     from commands.askai import setup
     setup(bot)
     
-    """from commands.generate_code import setup
-    setup(bot)"""

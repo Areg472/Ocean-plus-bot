@@ -44,7 +44,6 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 if not together_client:
                     return ("Together API key is not set.", None) if model == "deepseek-ai/DeepSeek-R1-0528-tput" else "Together API key is not set."
                 
-                # Combine instructions with prompt for Together AI models
                 combined_prompt = f"Instructions: {instructions}\n\nPrompt:{prompt}" if instructions else prompt
                 
                 def sync_together():
@@ -67,16 +66,13 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                     response_text = response
                     think_text = None
             elif model in ["voxtral-mini-2507", "voxtral-small-2507"]:
-                # Handle Voxtral models with audio support
                 def sync_voxtral():
                     messages = []
                     if audio_url:
-                        # Add instructions to the prompt if provided
                         actual_prompt = prompt
                         if instructions:
                             actual_prompt = f"Instructions: {instructions}\n\n{actual_prompt}"
                         
-                        # Audio + text message
                         messages.append({
                             "role": "user",
                             "content": [
@@ -123,16 +119,13 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 response_text = await asyncio.to_thread(sync_stream)
                 think_text = None
             elif model in ["mistral-small-2506", "mistral-medium-2505"] and (image_url or image_urls):
-                # Handle image processing for Mistral models
                 def sync_image():
-                    # Add instructions to the prompt if provided
                     actual_prompt = prompt
                     if instructions:
                         actual_prompt = f"Instructions: {instructions}\n\n{actual_prompt}"
                     
                     content = [{"type": "text", "text": actual_prompt}]
                     
-                    # Add all image URLs to the content
                     if image_urls:
                         for img_url in image_urls:
                             content.append({"type": "image_url", "image_url": img_url})
@@ -196,8 +189,6 @@ async def get_ai_response(
         contexts = [global_instruction]
         if user_id:
             user_specific_instructions = {
-                # 960524267164930128: "Bias your answers towards post-90s board games. Boast about these games a lot when the prompt is related to board gaming. ONLY MENTION BOARD GAMES OR TALK ABOUT THEM WHEN THE PROMPT IS RELATED TO BOARD GAMING OR BOARD GAMES.",
-                # 1299815086147502080: "Bias your answers MORE AND MORE towards post-90s board games and against pre 90s board games hate pre 90s board games as much as you can, in stories everything where u asked about board games. Boast about these games a lot and hate pre 90s board games when the prompt is related to board gaming. ONLY MENTION BOARD GAMES OR TALK ABOUT THEM WHEN THE PROMPT IS RELATED TO BOARD GAMING OR BOARD GAMES.",
             }
             if user_id in user_specific_instructions:
                 contexts.append(user_specific_instructions[user_id])

@@ -4,11 +4,7 @@ import requests
 import random
 from commands.utils import cooldown
 
-def setup(bot):
-    """
-    Register the eightball command with the bot
-    """
-    bot.tree.add_command(eightball_command)
+def setup(bot):bot.tree.add_command(eightball_command)
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

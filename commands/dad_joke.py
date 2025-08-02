@@ -4,11 +4,7 @@ import requests
 import random
 from commands.utils import cooldown
 
-def setup(bot):
-    """
-    Register the dad_joke command with the bot
-    """
-    bot.tree.add_command(dad_joke_command)
+def setup(bot):bot.tree.add_command(dad_joke_command)
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

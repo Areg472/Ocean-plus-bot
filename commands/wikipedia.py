@@ -4,9 +4,6 @@ import wikipediaapi
 from commands.utils import cooldown
 
 def setup(bot):
-    """
-    Register the wikipedia command with the bot
-    """
     bot.tree.add_command(wiki_search_command)
 
 @app_commands.allowed_installs(guilds=True, users=True)

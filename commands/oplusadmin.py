@@ -2,11 +2,7 @@ import discord
 from discord import app_commands
 from commands.utils import cooldown
 
-def setup(bot):
-    """
-    Register the oplusadmin command with the bot
-    """
-    bot.tree.add_command(oplusadmin_command)
+def setup(bot):bot.tree.add_command(oplusadmin_command)
 
 @app_commands.command(name="oplusadmin", description="Make someone an O+ admin!")
 @app_commands.checks.dynamic_cooldown(cooldown)

@@ -5,9 +5,6 @@ import random
 from commands.utils import cooldown
 
 def setup(bot):
-    """
-    Register the cat command with the bot
-    """
     bot.tree.add_command(cat_command)
 
 @app_commands.command(name="cat", description="Get an UwUwU cat picture!")

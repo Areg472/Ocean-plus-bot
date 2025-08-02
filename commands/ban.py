@@ -4,9 +4,6 @@ from typing import Optional
 from commands.utils import cooldown
 
 def setup(bot):
-    """
-    Register the ban command with the bot
-    """
     bot.tree.add_command(ban_command)
 
 @app_commands.command(name="ban", description="Ban someone!")

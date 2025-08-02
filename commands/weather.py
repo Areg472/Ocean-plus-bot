@@ -5,9 +5,6 @@ from typing import Optional
 from commands.utils import cooldown
 
 def setup(bot):
-    """
-    Register the weather command with the bot
-    """
     bot.tree.add_command(weather_command)
 
 @app_commands.allowed_installs(guilds=True, users=True)

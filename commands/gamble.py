@@ -4,11 +4,7 @@ import random
 import time
 from commands.utils import cooldown
 
-def setup(bot):
-    """
-    Register the gamble command with the bot
-    """
-    bot.tree.add_command(gamble_command)
+def setup(bot):bot.tree.add_command(gamble_command)
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

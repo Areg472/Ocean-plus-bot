@@ -4,9 +4,6 @@ import requests
 from commands.utils import cooldown
 
 def setup(bot):
-    """
-    Register the text_to_morse command with the bot
-    """
     bot.tree.add_command(text_to_morse_command)
 
 @app_commands.allowed_installs(guilds=True, users=True)

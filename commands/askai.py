@@ -6,7 +6,6 @@ from mistralai import Mistral
 import asyncio
 from commands.utils import get_ai_response
 
-# Initialize Mistral client
 api_key = os.environ.get("MISTRAL_API_KEY")
 if not api_key:
     raise ValueError("Mistral API key is not set in the environment variables.")
@@ -24,7 +23,6 @@ async def askai_context(interaction: discord.Interaction, message: discord.Messa
     print(f"[ASKAI] Context menu triggered by user {interaction.user.id}")
     print(f"[ASKAI] Message has {len(message.attachments)} attachments")
     
-    # Check if message has voice/video attachments using same logic as transcribe.py
     voice_attachments = [
         attachment for attachment in message.attachments 
         if attachment.content_type and (
@@ -46,7 +44,6 @@ async def askai_context(interaction: discord.Interaction, message: discord.Messa
         )
         return
     
-    # Use defer like transcribe.py does
     print("[ASKAI] Deferring response")
     await interaction.response.defer()
     
@@ -56,19 +53,16 @@ async def askai_context(interaction: discord.Interaction, message: discord.Messa
         print(f"[ASKAI] File URL: {voice_attachment.url}")
         
         print("[ASKAI] Starting transcription...")
-        # Step 1: Transcribe using same method as transcribe.py
         transcription_response = client.audio.transcriptions.complete(
             model="voxtral-mini-2507",
             file_url=voice_attachment.url
         )
         print(f"[ASKAI] Transcription response received: {type(transcription_response)}")
         
-        # Extract transcription text using same method as transcribe.py
         transcription_text = transcription_response.text if hasattr(transcription_response, 'text') else str(transcription_response)
         print(f"[ASKAI] Transcription text length: {len(transcription_text)}")
         print(f"[ASKAI] Transcription preview: {transcription_text[:100]}...")
         
-        # Step 2: Send transcription to AI with a default question
         print(f"[ASKAI] Calling get_ai_response...")
         
         answer = await asyncio.wait_for(
@@ -88,7 +82,6 @@ async def askai_context(interaction: discord.Interaction, message: discord.Messa
         print(f"[ASKAI] Traceback: {traceback.format_exc()}")
         answer = f"An error occurred while processing the recording: {str(error)}"
     
-    # Create response embed using same format as prompt.py
     response_embed = discord.Embed(title="💡 AI Voice Prompt Output", color=0x34a853)
     response_embed.add_field(
         name="Original Message", 
@@ -96,7 +89,6 @@ async def askai_context(interaction: discord.Interaction, message: discord.Messa
         inline=False
     )
     
-    # Handle long responses same as prompt.py
     if len(answer) > 1024:
         print(f"[ASKAI] Answer is long ({len(answer)} chars), chunking...")
         chunks = [answer[i:i + 1024] for i in range(0, len(answer), 1024)]

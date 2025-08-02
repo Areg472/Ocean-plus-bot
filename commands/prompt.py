@@ -133,7 +133,7 @@ MODEL_CHOICES = [
 async def prompt_command(
     interaction: discord.Interaction,
     query: str,
-    model: str = "mistral-small-2506",  # Default to Mistral Small
+    model: str = "mistral-small-2506",
     image: discord.Attachment = None,
     image2: discord.Attachment = None,
     image3: discord.Attachment = None,
@@ -149,21 +149,17 @@ async def prompt_command(
             return True
         return False
 
-    # Collect all image attachments
     images = []
     for img in [image, image2, image3]:
         if img:
             images.append(img)
 
-    # Validate images
     for img in images:
         if not is_valid_image(img):
             await interaction.response.send_message("Please upload valid image files only.", ephemeral=True)
             return
 
-    # Handle conflicts when both audio and images are provided
     if audio and images:
-        # Check if audio file is valid
         if audio and (not audio.content_type or not audio.content_type.startswith('audio/')):
             await interaction.response.send_message("Please upload a valid audio file.", ephemeral=True)
             return
@@ -181,22 +177,18 @@ async def prompt_command(
         await interaction.response.send_message(embed=conflict_embed, view=view)
         return
 
-    # Handle model switching based on media presence
+    
     if audio:
-        # Check if it's an audio file
         if not audio.content_type or not audio.content_type.startswith('audio/'):
             await interaction.response.send_message("Please upload a valid audio file.", ephemeral=True)
             return
         
-        # Switch to Voxtral Mini if not already a Voxtral model
         if model not in ["voxtral-mini-2507", "voxtral-small-2507"]:
             model = "voxtral-mini-2507"
     elif images:
-        # Switch to Mistral Small if not already a compatible model
         if model not in ["mistral-small-2506", "mistral-medium-2505"]:
             model = "mistral-small-2506"
     else:
-        # Switch to Mistral Small if Voxtral model selected but no audio
         if model in ["voxtral-mini-2507", "voxtral-small-2507"]:
             model = "mistral-small-2506"
 
@@ -229,9 +221,7 @@ async def prompt_command(
         image_names = [img.filename for img in images]
         thinking_embed.add_field(name="Image Files", value=f"🖼️ {', '.join(image_names)} (using {model_name})", inline=False)
 
-    # For DeepSeek R1, show button but don't set thinking_output yet
     if model == "deepseek-ai/DeepSeek-R1-0528-tput":
-        # Attach the view with a placeholder text
         view = ThinkingButtonView("Waiting for DeepSeek to think...(reclick the button once the output is emitted to see what DeepSeek thought.)")
         await interaction.response.send_message(embed=thinking_embed, view=view)
     else:
@@ -303,7 +293,6 @@ async def prompt_command(
         response_embed = discord.Embed(title="💡 Output", color=0x34a853)
         response_embed.add_field(name="Prompt", value=query[:1000], inline=False)
         
-        # Add media file links
         if audio:
             response_embed.add_field(name="Audio File", value=f"[{audio.filename}]({audio.url})", inline=False)
         elif images:
@@ -317,9 +306,7 @@ async def prompt_command(
         else:
             response_embed.add_field(name="Answer", value=answer, inline=False)
 
-        # For DeepSeek R1, edit with the view and set the real think_text
         if model == "deepseek-ai/DeepSeek-R1-0528-tput":
-            # Update the view with the real think_text
             view = ThinkingButtonView(think_text or "No <think> output found.")
             await interaction.edit_original_response(embed=response_embed, view=view)
         else:

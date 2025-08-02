@@ -14,8 +14,8 @@ async def transcribe_message(interaction: discord.Interaction, message: discord.
             'audio' in attachment.content_type or 
             'video' in attachment.content_type or
             attachment.filename.endswith((
-                '.mp3', '.wav', '.ogg', '.m4a', '.webm', # audio
-                '.mp4', '.mov', '.mkv', '.avi', '.webm'  # video
+                '.mp3', '.wav', '.ogg', '.m4a', '.webm',
+                '.mp4', '.mov', '.mkv', '.avi', '.webm'
             ))
         )
     ]
@@ -40,10 +40,8 @@ async def transcribe_message(interaction: discord.Interaction, message: discord.
             )
             return
         
-        # Initialize the Mistral client
         client = Mistral(api_key=api_key)
         
-        # Get the transcription using file URL
         transcription_response = client.audio.transcriptions.complete(
             model="voxtral-mini-2507",
             file_url=voice_attachment.url

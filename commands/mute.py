@@ -4,11 +4,7 @@ import datetime
 from typing import Optional
 from commands.utils import cooldown
 
-def setup(bot):
-    """
-    Register the mute command with the bot
-    """
-    bot.tree.add_command(mute_command)
+def setup(bot):bot.tree.add_command(mute_command)
 
 @app_commands.command(name="mute", description="Mute someone!")
 @app_commands.checks.dynamic_cooldown(cooldown)

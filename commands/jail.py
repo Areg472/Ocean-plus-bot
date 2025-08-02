@@ -3,11 +3,7 @@ from discord import app_commands
 import requests
 from commands.utils import cooldown
 
-def setup(bot):
-    """
-    Register the jail command with the bot
-    """
-    bot.tree.add_command(jail_command)
+def setup(bot):bot.tree.add_command(jail_command)
 
 @app_commands.allowed_installs(guilds=True, users=True)
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

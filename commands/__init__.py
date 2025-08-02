@@ -25,7 +25,6 @@ from commands.oplusadmin import *
 from commands.boardgame import *
 from commands.gamble import *
 from commands.transcribe import *
-from commands.generate_code import *
 from commands.askai import *
 
 def setup_commands(bot):

@@ -32,6 +32,8 @@ def perplexity_search(query: str):
                 "content": query
             }
         ],
+        "enable_search_classifier": True,
+        "stream": False,
         "search_domain_filter": ["boardgamegeek.com"],
     }
     response = requests.post(url, headers=headers, json=payload)

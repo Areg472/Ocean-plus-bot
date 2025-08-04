@@ -5,6 +5,7 @@ from discord import app_commands
 from typing import Optional
 import re
 import socket
+from urllib.parse import urlparse
 
 global_instruction = (
     "Provide a detailed and structured response under 2150 characters. "
@@ -81,7 +82,7 @@ def setup(bot):
 @app_commands.describe(
     query="Your search query",
     context_size="Search context size",
-    search_domain_filter="Comma-separated allowlist of domains (e.g. wikipedia.org, wsj.com)"
+    search_domain_filter="Comma-separated allowlist of domains/URLs (e.g. wikipedia.org, wsj.com, https://en.m.wikipedia.org/wiki/United_States)"
 )
 @app_commands.choices(context_size=[
     app_commands.Choice(name="Low (faster, cheaper)", value="low"),
@@ -106,12 +107,12 @@ async def perplexity_command(
     if search_domain_filter:
         domain_list = [d.strip() for d in search_domain_filter.split(",") if d.strip()]
         if not domain_list:
-            await interaction.response.send_message("Error: No valid domains provided.", ephemeral=True)
+            await interaction.response.send_message("Error: No valid domains or URLs provided.", ephemeral=True)
             return
-        invalid_domains = [d for d in domain_list if not is_valid_domain(d)]
+        invalid_domains = [d for d in domain_list if not is_valid_domain_or_url(d)]
         if invalid_domains:
             await interaction.response.send_message(
-                f"Error: Invalid or non-existent domains: {', '.join(invalid_domains)}", ephemeral=True
+                f"Error: Invalid or non-existent domains/URLs: {', '.join(invalid_domains)}", ephemeral=True
             )
             return
     result, filtered_citations = perplexity_search(query, context_size, domain_list)
@@ -137,7 +138,17 @@ async def perplexity_command(
     print(f"[Perplexity] Sending embed with {len(result) if result else 0} characters.")
     await interaction.edit_original_response(embed=output_embed, view=view)
 
-def is_valid_domain(domain: str) -> bool:
+def is_valid_domain_or_url(item: str) -> bool:
+    domain = item
+    if item.startswith("http://") or item.startswith("https://"):
+        try:
+            parsed = urlparse(item)
+            domain = parsed.netloc
+            if not domain:
+                return False
+        except Exception:
+            return False
+    domain = domain.split(":")[0]
     if not re.match(r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.[A-Za-z]{2,}$", domain):
         return False
     try:

@@ -149,7 +149,6 @@ def is_valid_domain_or_url(item: str) -> bool:
         except Exception:
             return False
     domain = domain.split(":")[0]
-    # Change max length from 253 to 1000
     if not re.match(r"^(?!-)[A-Za-z0-9-\.]{1,1000}\.[A-Za-z]{2,}$", domain):
         return False
     try:

@@ -78,7 +78,7 @@ def setup(bot):
 @app_commands.command(name="websearch", description="Search the web using Perplexity AI")
 @app_commands.describe(
     query="Your search query",
-    context_size="Search context size: low (faster, cheaper), medium (more accurate, more expensive) or high (most accurate, extremely expensive)"
+    context_size="Search context size"
 )
 @app_commands.choices(context_size=[
     app_commands.Choice(name="Low (faster, cheaper)", value="low"),

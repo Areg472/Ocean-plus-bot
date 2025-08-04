@@ -10,8 +10,10 @@ global_instruction = (
 )
 
 def perplexity_search(query: str):
+    print(f"[Perplexity] Query: {query}")
     api_key = os.getenv("PERPLEXITY_API_KEY")
     if not api_key:
+        print("[Perplexity] Error: API key not set")
         return "PERPLEXITY_API_KEY environment variable not set."
     url = "https://api.perplexity.ai/chat/completions"
     headers = {
@@ -33,12 +35,16 @@ def perplexity_search(query: str):
         "search_domain_filter": ["boardgamegeek.com"],
     }
     response = requests.post(url, headers=headers, json=payload)
+    print(f"[Perplexity] API status: {response.status_code}")
     if response.status_code != 200:
+        print(f"[Perplexity] API error: {response.text}")
         return f"Error: {response.status_code} - {response.text}"
     data = response.json()
     try:
         result = data["choices"][0]["message"]["content"]
-    except Exception:
+        print(f"[Perplexity] Result: {result[:200]}...")  # Print first 200 chars
+    except Exception as e:
+        print(f"[Perplexity] Exception: {e}")
         result = "No valid response from Perplexity."
     return result
 
@@ -50,6 +56,7 @@ def setup(bot):
 @app_commands.command(name="websearch", description="Search the web using Perplexity AI")
 @app_commands.describe(query="Your search query")
 async def perplexity_command(interaction: discord.Interaction, query: str):
+    print(f"[Perplexity] Received interaction from {interaction.user} with query: {query}")
     thinking_embed = discord.Embed(
         title="🌐 Searching Perplexity...",
         description="Your query is being processed.",
@@ -64,10 +71,15 @@ async def perplexity_command(interaction: discord.Interaction, query: str):
         color=0x34a853
     )
     output_embed.add_field(name="Query", value=query[:1000], inline=False)
-    if result and len(result) > 1024:
+    if result:
         chunks = [result[i:i + 1024] for i in range(0, len(result), 1024)]
         for idx, chunk in enumerate(chunks, start=1):
-            output_embed.add_field(name=f"Answer (Part {idx})", value=chunk, inline=False)
+            output_embed.add_field(
+                name=f"Answer (Part {idx})" if len(chunks) > 1 else "Answer",
+                value=chunk,
+                inline=False
+            )
     else:
-        output_embed.add_field(name="Answer", value=result if result else "No response from Perplexity.", inline=False)
+        output_embed.add_field(name="Answer", value="No response from Perplexity.", inline=False)
+    print(f"[Perplexity] Sending embed with {len(result) if result else 0} characters.")
     await interaction.edit_original_response(embed=output_embed)

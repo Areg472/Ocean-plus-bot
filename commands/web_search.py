@@ -30,14 +30,16 @@ def perplexity_search(query: str):
                 "content": query
             }
         ],
-        "stream": True,
         "search_domain_filter": ["boardgamegeek.com"],
     }
-    response = requests.post(url, headers=headers, json=payload, stream=True)
-    result = ""
-    for line in response.iter_lines():
-        if line:
-            result += line.decode('utf-8') + "\n"
+    response = requests.post(url, headers=headers, json=payload)
+    if response.status_code != 200:
+        return f"Error: {response.status_code} - {response.text}"
+    data = response.json()
+    try:
+        result = data["choices"][0]["message"]["content"]
+    except Exception:
+        result = "No valid response from Perplexity."
     return result
 
 def setup(bot):

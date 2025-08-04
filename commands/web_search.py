@@ -149,7 +149,7 @@ def is_valid_domain_or_url(item: str) -> bool:
         except Exception:
             return False
     domain = domain.split(":")[0]
-    if not re.match(r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.[A-Za-z]{2,}$", domain):
+    if not re.match(r"^(?!-)[A-Za-z0-9-\.]{1,253}\.[A-Za-z]{2,}$", domain):
         return False
     try:
         socket.gethostbyname(domain)

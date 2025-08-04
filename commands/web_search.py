@@ -42,6 +42,7 @@ def perplexity_search(query: str):
         return f"Error: {response.status_code} - {response.text}"
     data = response.json()
     try:
+        print(data)
         result = data["choices"][0]["message"]["content"]
         print(f"[Perplexity] Result: {result[:200]}...")  # Print first 200 chars
     except Exception as e:

@@ -83,7 +83,6 @@ def setup(bot):
 @app_commands.choices(context_size=[
     app_commands.Choice(name="Low (faster, cheaper)", value="low"),
     app_commands.Choice(name="Medium (more accurate, more expensive)", value="medium"),
-    app_commands.Choice(name="High (most accurate, extremely expensive)", value="high"),
 ])
 async def perplexity_command(
     interaction: discord.Interaction,
@@ -105,7 +104,6 @@ async def perplexity_command(
         color=0x34a853
     )
     output_embed.add_field(name="Query", value=query[:1000], inline=False)
-    output_embed.add_field(name="Context Size", value=context_size, inline=False)
     if result:
         chunks = [result[i:i + 1024] for i in range(0, len(result), 1024)]
         for idx, chunk in enumerate(chunks, start=1):

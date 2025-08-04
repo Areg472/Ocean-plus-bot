@@ -4,13 +4,14 @@ import discord
 from discord import app_commands
 from typing import Optional
 import re
+import socket
 
 global_instruction = (
     "Provide a detailed and structured response under 2150 characters. "
     "Be concise when possible. Do not use headings (####, ###, ##, #) or bold text (**text**) for structure or emphasis."
 )
 
-def perplexity_search(query: str, context_size: str = "low"):
+def perplexity_search(query: str, context_size: str = "low", search_domain_filter: Optional[list] = None):
     print(f"[Perplexity] Query: {query}")
     api_key = os.getenv("PERPLEXITY_API_KEY")
     if not api_key:
@@ -36,6 +37,7 @@ def perplexity_search(query: str, context_size: str = "low"):
         "enable_search_classifier": True,
         "stream": False,
         "search_context_size": context_size,
+        **({"search_domain_filter": search_domain_filter} if search_domain_filter else {}),
     }
     response = requests.post(url, headers=headers, json=payload)
     print(f"[Perplexity] API status: {response.status_code}")
@@ -78,7 +80,8 @@ def setup(bot):
 @app_commands.command(name="websearch", description="Search the web using Perplexity AI")
 @app_commands.describe(
     query="Your search query",
-    context_size="Search context size"
+    context_size="Search context size",
+    search_domain_filter="Comma-separated allowlist of domains (e.g. wikipedia.org, wsj.com)"
 )
 @app_commands.choices(context_size=[
     app_commands.Choice(name="Low (faster, cheaper)", value="low"),
@@ -87,9 +90,10 @@ def setup(bot):
 async def perplexity_command(
     interaction: discord.Interaction,
     query: str,
-    context_size: str = "low"
+    context_size: str = "low",
+    search_domain_filter: Optional[str] = None
 ):
-    print(f"[Perplexity] Received interaction from {interaction.user} with query: {query}, context_size: {context_size}")
+    print(f"[Perplexity] Received interaction from {interaction.user} with query: {query}, context_size: {context_size}, search_domain_filter: {search_domain_filter}")
     thinking_embed = discord.Embed(
         title="🌐 Searching Perplexity...",
         description="Your query is being processed.",
@@ -98,7 +102,19 @@ async def perplexity_command(
     thinking_embed.add_field(name="Query", value=query[:1000], inline=False)
     await interaction.response.send_message(embed=thinking_embed)
 
-    result, filtered_citations = perplexity_search(query, context_size)
+    domain_list = None
+    if search_domain_filter:
+        domain_list = [d.strip() for d in search_domain_filter.split(",") if d.strip()]
+        if not domain_list:
+            await interaction.response.send_message("Error: No valid domains provided.", ephemeral=True)
+            return
+        invalid_domains = [d for d in domain_list if not is_valid_domain(d)]
+        if invalid_domains:
+            await interaction.response.send_message(
+                f"Error: Invalid or non-existent domains: {', '.join(invalid_domains)}", ephemeral=True
+            )
+            return
+    result, filtered_citations = perplexity_search(query, context_size, domain_list)
     output_embed = discord.Embed(
         title="🔎 Perplexity AI Result",
         color=0x34a853
@@ -120,3 +136,12 @@ async def perplexity_command(
         view = CitationButtonView(filtered_citations)
     print(f"[Perplexity] Sending embed with {len(result) if result else 0} characters.")
     await interaction.edit_original_response(embed=output_embed, view=view)
+
+def is_valid_domain(domain: str) -> bool:
+    if not re.match(r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.[A-Za-z]{2,}$", domain):
+        return False
+    try:
+        socket.gethostbyname(domain)
+        return True
+    except Exception:
+        return False

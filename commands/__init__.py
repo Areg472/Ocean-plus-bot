@@ -26,6 +26,7 @@ from commands.boardgame import *
 from commands.gamble import *
 from commands.transcribe import *
 from commands.askai import *
+from commands.web_search import *
 
 def setup_commands(bot):
     from commands.hi import setup
@@ -112,3 +113,5 @@ def setup_commands(bot):
     from commands.askai import setup
     setup(bot)
     
+    from commands.web_search import setup
+    setup(bot)

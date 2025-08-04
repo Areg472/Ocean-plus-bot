@@ -18,11 +18,17 @@ def perplexity_search(query: str):
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
-    prompt = f"Instructions: {global_instruction}\n\nPrompt: {query}"
     payload = {
         "model": "sonar",
         "messages": [
-            {"role": "user", "content": prompt}
+            {
+                "role": "system",
+                "content": global_instruction
+            },
+            {
+                "role": "user",
+                "content": query
+            }
         ],
         "stream": True,
         "search_domain_filter": "boardgamegeek.com",

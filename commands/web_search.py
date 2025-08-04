@@ -59,16 +59,16 @@ def perplexity_search(query: str, context_size: str = "low"):
             idx = int(m)
             if 1 <= idx <= len(citations):
                 used_citation_indices.add(idx)
-        filtered_citations = [citations[i-1] for i in sorted(used_citation_indices)]
+        filtered_citations = [(i, citations[i-1]) for i in sorted(used_citation_indices)]
     else:
         filtered_citations = None
     return result, filtered_citations
 
 class CitationButtonView(discord.ui.View):
-    def __init__(self, citations: list):
+    def __init__(self, filtered_citations: list):
         super().__init__(timeout=120)
-        for idx, url in enumerate(citations, start=1):
-            self.add_item(discord.ui.Button(label=f"Citation {idx}", url=url, style=discord.ButtonStyle.link))
+        for citation_number, url in filtered_citations:
+            self.add_item(discord.ui.Button(label=f"Citation {citation_number}", url=url, style=discord.ButtonStyle.link))
 
 def setup(bot):
     bot.tree.add_command(perplexity_command)
@@ -78,11 +78,12 @@ def setup(bot):
 @app_commands.command(name="websearch", description="Search the web using Perplexity AI")
 @app_commands.describe(
     query="Your search query",
-    context_size="Search context size: low (faster, cheaper) or medium (more accurate, more expensive)"
+    context_size="Search context size: low (faster, cheaper), medium (more accurate, more expensive) or high (most accurate, extremely expensive)"
 )
 @app_commands.choices(context_size=[
     app_commands.Choice(name="Low (faster, cheaper)", value="low"),
     app_commands.Choice(name="Medium (more accurate, more expensive)", value="medium"),
+    app_commands.Choice(name="High (most accurate, extremely expensive)", value="high"),
 ])
 async def perplexity_command(
     interaction: discord.Interaction,
@@ -96,10 +97,9 @@ async def perplexity_command(
         color=0x4285f4
     )
     thinking_embed.add_field(name="Query", value=query[:1000], inline=False)
-    thinking_embed.add_field(name="Context Size", value=context_size, inline=False)
     await interaction.response.send_message(embed=thinking_embed)
 
-    result, citations = perplexity_search(query, context_size)
+    result, filtered_citations = perplexity_search(query, context_size)
     output_embed = discord.Embed(
         title="🔎 Perplexity AI Result",
         color=0x34a853
@@ -118,7 +118,7 @@ async def perplexity_command(
         output_embed.add_field(name="Answer", value="No response from Perplexity.", inline=False)
 
     view = None
-    if citations and isinstance(citations, list) and len(citations) > 0:
-        view = CitationButtonView(citations)
+    if filtered_citations and isinstance(filtered_citations, list) and len(filtered_citations) > 0:
+        view = CitationButtonView(filtered_citations)
     print(f"[Perplexity] Sending embed with {len(result) if result else 0} characters.")
     await interaction.edit_original_response(embed=output_embed, view=view)

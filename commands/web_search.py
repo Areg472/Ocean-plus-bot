@@ -4,6 +4,11 @@ import discord
 from discord import app_commands
 from typing import Optional
 
+global_instruction = (
+    "Provide a detailed and structured response under 2150 characters. "
+    "Be concise when possible. Do not use headings (####, ###, ##, #) or bold text (**text**) for structure or emphasis."
+)
+
 def perplexity_search(query: str):
     api_key = os.getenv("PERPLEXITY_API_KEY")
     if not api_key:
@@ -13,10 +18,11 @@ def perplexity_search(query: str):
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
+    prompt = f"Instructions: {global_instruction}\n\nPrompt: {query}"
     payload = {
         "model": "sonar",
         "messages": [
-            {"role": "user", "content": query}
+            {"role": "user", "content": prompt}
         ],
         "stream": True,
         "search_domain_filter": "boardgamegeek.com",

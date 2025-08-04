@@ -34,7 +34,6 @@ def perplexity_search(query: str):
         ],
         "enable_search_classifier": True,
         "stream": False,
-        "search_domain_filter": ["boardgamegeek.com"],
     }
     response = requests.post(url, headers=headers, json=payload)
     print(f"[Perplexity] API status: {response.status_code}")

@@ -11,6 +11,10 @@ def setup(bot):bot.tree.add_command(jail_command)
 @app_commands.describe(person="The person you want to go to jail!")
 @app_commands.checks.dynamic_cooldown(cooldown)
 async def jail_command(interaction: discord.Interaction, person: discord.User):
-    avatar_url = person.avatar.url if person.avatar else person.default_avatar.url
+    if person.avatar:
+        avatar_url = person.avatar.url
+    else:
+        default_avatar_index = int(person.discriminator) % 5 if hasattr(person, "discriminator") else person.default_avatar.value
+        avatar_url = f"https://cdn.discordapp.com/embed/avatars/{default_avatar_index}.png"
     response = requests.get(f"https://api.popcat.xyz/v2/jail?image={avatar_url}")
     await interaction.response.send_message(response.url)

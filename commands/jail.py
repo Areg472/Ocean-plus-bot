@@ -15,6 +15,7 @@ async def jail_command(interaction: discord.Interaction, person: discord.User):
     if person.avatar:
         avatar_url = person.avatar.url
     else:
+        print(person.default_avatar)
         avatar_url = person.default_avatar.url
     encoded_url = urllib.parse.quote(avatar_url, safe='')
     api_url = f"https://api.popcat.xyz/v2/jail?image={encoded_url}"

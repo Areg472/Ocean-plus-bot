@@ -15,7 +15,10 @@ async def jail_command(interaction: discord.Interaction, person: discord.User):
     if person.avatar:
         avatar_url = person.avatar.url
     else:
-        default_avatar_index = int(person.discriminator) % 5 if hasattr(person, "discriminator") else person.default_avatar.value
+        if hasattr(person, "discriminator") and person.discriminator != "0":
+            default_avatar_index = int(person.discriminator) % 5
+        else:
+            default_avatar_index = (person.id >> 22) % 5
         avatar_url = f"https://cdn.discordapp.com/embed/avatars/{default_avatar_index}.png"
     encoded_url = urllib.parse.quote(avatar_url, safe='')
     api_url = f"https://api.popcat.xyz/v2/jail?image={encoded_url}"

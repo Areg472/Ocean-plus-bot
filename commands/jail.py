@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 import requests
 from commands.utils import cooldown
+import urllib.parse
 
 def setup(bot):bot.tree.add_command(jail_command)
 
@@ -16,5 +17,7 @@ async def jail_command(interaction: discord.Interaction, person: discord.User):
     else:
         default_avatar_index = int(person.discriminator) % 5 if hasattr(person, "discriminator") else person.default_avatar.value
         avatar_url = f"https://cdn.discordapp.com/embed/avatars/{default_avatar_index}.png"
-    response = requests.get(f"https://api.popcat.xyz/v2/jail?image={avatar_url}")
+    encoded_url = urllib.parse.quote(avatar_url, safe='')
+    api_url = f"https://api.popcat.xyz/v2/jail?image={encoded_url}"
+    response = requests.get(api_url)
     await interaction.response.send_message(response.url)

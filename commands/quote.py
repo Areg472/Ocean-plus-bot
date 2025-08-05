@@ -6,10 +6,10 @@ from commands.utils import cooldown
 
 def get_quote():
     try:
-        response = requests.get('http://api.quotable.io/random')
+        response = requests.get('https://zenquotes.io/api/random')
         response.raise_for_status()
         json_data = response.json()
-        return f'"{json_data["content"]}" - {json_data["author"]}'
+        return f'"{json_data[0]["q"]}" - {json_data[0]["a"]}'
     except requests.exceptions.RequestException as e:
         print(f"Error fetching quote: {e}")
         return "Could not fetch a quote at this time."
@@ -25,6 +25,6 @@ async def quote_command(interaction: discord.Interaction):
     quote_text = get_quote()
     hmm = random.randint(1, 20)
     if hmm == 1:
-        await interaction.response.send_message('"BRR SKIBIDI DOB DOB DOB OH YES YES YES." - not Areg')
+        await interaction.response.send_message('"._." - not Areg')
     else:
         await interaction.response.send_message(quote_text)

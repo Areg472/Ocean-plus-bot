@@ -22,7 +22,7 @@ async def eightball_command(interaction: discord.Interaction, question: str):
     elif the_guesser == 3:
         answer = "Maybe, but I'm sober."
     elif the_guesser == 4:
-        answer = "AMOGUS"
+        answer = "?"
     elif the_guesser == 5:
         answer = "I don't know, ask Areg."
     elif the_guesser == 6:
@@ -40,7 +40,7 @@ async def eightball_command(interaction: discord.Interaction, question: str):
     elif the_guesser == 12:
         answer = "I am UwU, OwO"
     elif the_guesser == 13:
-        answer = "Skibidi toilet"
+        answer = "._."
     else:
         answer = json_data['message']['answer']
     the_response = discord.Embed(title="8ball", colour=discord.Colour.dark_blue()).add_field(

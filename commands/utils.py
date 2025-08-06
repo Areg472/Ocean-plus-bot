@@ -40,7 +40,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
         async with request_semaphore:
             start_time = time.time()
 
-            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "openai/gpt-oss-120b"]:
+            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "openai/gpt-oss-120b"]:
                 if not together_client:
                     return ("Together API key is not set.", None) if model == "deepseek-ai/DeepSeek-R1-0528-tput" else "Together API key is not set."
                 
@@ -50,7 +50,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                         messages=[{"role": "system", "content": instructions},{"role": "user", "content": prompt}]
                     )
                     content = response.choices[0].message.content if response.choices else "No content received from Together AI."
-                    if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+                    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput"]:
                         import re
                         think_match = re.search(r"<think>(.*?)</think>", content, flags=re.DOTALL)
                         think_text = think_match.group(1).strip() if think_match else None

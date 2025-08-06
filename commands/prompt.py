@@ -46,7 +46,7 @@ class MediaSelectionView(discord.ui.View):
         await interaction.edit_original_response(embed=thinking_embed, view=None)
 
         try:
-            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507"]:
+            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-"]:
                 answer, think_text = await asyncio.wait_for(
                     get_ai_response(self.query, user_id=self.original_interaction.user.id, model=model, 
                                   audio_url=self.audio.url if use_audio else None,
@@ -95,11 +95,49 @@ class ThinkingButtonView(discord.ui.View):
 
     @discord.ui.button(label="Show Thinking Output", style=discord.ButtonStyle.secondary)
     async def show_thinking(self, interaction: discord.Interaction, button: discord.ui.Button):
-        chunks = [self.thinking_text[i:i+1024] for i in range(0, len(self.thinking_text), 1024)]
-        embed = discord.Embed(title="Thinking Output", color=0x4285f4)
-        for idx, chunk in enumerate(chunks, start=1):
-            embed.add_field(name=f"Output Part {idx}", value=chunk, inline=False)
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        # Discord embed limit is 6000 characters total
+        # Account for title, field names, and formatting overhead (roughly 200 chars)
+        max_content_per_embed = 5800
+        
+        # If content is small enough for one embed
+        if len(self.thinking_text) <= max_content_per_embed:
+            chunks = [self.thinking_text[i:i+1024] for i in range(0, len(self.thinking_text), 1024)]
+            embed = discord.Embed(title="Thinking Output", color=0x4285f4)
+            
+            max_fields = min(len(chunks), 25)
+            for idx in range(max_fields):
+                chunk = chunks[idx]
+                field_name = f"Output Part {idx + 1}" if max_fields > 1 else "Output"
+                embed.add_field(name=field_name, value=chunk, inline=False)
+            
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+        else:
+            # Split into multiple embeds for very large content
+            await interaction.response.send_message("Thinking output is very large. Sending in multiple messages...", ephemeral=True)
+            
+            # Split the text into chunks that fit in embeds
+            text_chunks = []
+            start = 0
+            while start < len(self.thinking_text):
+                end = min(start + max_content_per_embed, len(self.thinking_text))
+                text_chunks.append(self.thinking_text[start:end])
+                start = end
+            
+            # Send each chunk as a separate embed
+            for i, text_chunk in enumerate(text_chunks):
+                chunks = [text_chunk[j:j+1024] for j in range(0, len(text_chunk), 1024)]
+                embed = discord.Embed(
+                    title=f"Thinking Output (Part {i + 1}/{len(text_chunks)})", 
+                    color=0x4285f4
+                )
+                
+                max_fields = min(len(chunks), 25)
+                for idx in range(max_fields):
+                    chunk = chunks[idx]
+                    field_name = f"Section {idx + 1}" if max_fields > 1 else "Output"
+                    embed.add_field(name=field_name, value=chunk, inline=False)
+                
+                await interaction.followup.send(embed=embed, ephemeral=True)
 
 
 def setup(bot):

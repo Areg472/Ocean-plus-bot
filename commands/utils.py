@@ -109,7 +109,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                     )
                     print(response)
                     
-                    if model == "magistral-small-2507" and response.choices:
+                    if model in ["magistral-small-2507", "magistral-medium-2507"] and response.choices:
                         content = response.choices[0].message.content
                         if isinstance(content, list):
                             think_text = None

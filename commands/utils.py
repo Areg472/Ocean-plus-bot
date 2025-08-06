@@ -67,7 +67,6 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 def sync_voxtral():
                     messages = []
                     if audio_url:
-                        actual_prompt = prompt
                         messages.append(
                             {
                                 "role": "system",
@@ -82,7 +81,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                                 },
                                 {
                                     "type": "text",
-                                    "text": actual_prompt
+                                    "text": prompt,
                                 }
                             ]
                         })

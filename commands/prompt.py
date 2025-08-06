@@ -46,7 +46,7 @@ class MediaSelectionView(discord.ui.View):
         await interaction.edit_original_response(embed=thinking_embed, view=None)
 
         try:
-            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-"]:
+            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507"]:
                 answer, think_text = await asyncio.wait_for(
                     get_ai_response(self.query, user_id=self.original_interaction.user.id, model=model, 
                                   audio_url=self.audio.url if use_audio else None,

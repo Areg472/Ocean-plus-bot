@@ -169,7 +169,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
             elapsed = time.time() - start_time
             print(f"The API provider for AI responded in {elapsed:.2f}s")
 
-            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507"]:
+            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507"]:
                 return response_text.strip() if response_text else "No content received from the AI.", think_text
             else:
                 return response_text.strip() if response_text else "No content received from the AI.", None
@@ -190,7 +190,7 @@ async def get_ai_response(
     image_urls: Optional[list] = None
 ) -> Optional[str]:
 
-    if model in ["devstral-small-2507", "magistral-small-2507"]:
+    if model in ["devstral-small-2507", "magistral-small-2507", "magistral-medium-2507"]:
         contexts = [devstral_instruction]
         instructions = devstral_instruction
     else:
@@ -204,10 +204,10 @@ async def get_ai_response(
 
     result = await handle_api_call_stream(question, instructions, timeout, model, audio_url, image_url, image_urls)
     
-    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507"]:
-        return result  # Already a tuple (answer, think_text)
+    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507"]:
+        return result  
     else:
-        return result[0] if isinstance(result, tuple) else result  # Single response string
+        return result[0] if isinstance(result, tuple) else result 
 
 
 def set_global_context(context: str):

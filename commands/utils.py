@@ -94,25 +94,41 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 
                 response_text = await asyncio.to_thread(sync_voxtral)
                 think_text = None
-            elif model == "devstral-small-2507":
+            elif model in ["devstral-small-2507", "magistral-small-2507"]:
                 if not instructions:
                     instructions = devstral_instruction
                 def sync_stream():
                     messages = [
-                    {"role": "system", "content": instructions},
-                    {"role": "user", "content": prompt}
-                ]  
+                        {"role": "system", "content": instructions},
+                        {"role": "user", "content": prompt}
+                    ]  
 
-                response = client.chat.complete(
-                    messages=messages,
-                    model=model,
-                )
-                print(response)
-                response_text = response.choices[0].message.content if response.choices else "No content received from Mistral."
-                think_text = None
+                    response = client.chat.complete(
+                        messages=messages,
+                        model=model,
+                    )
+                    print(response)
+                    
+                    if model == "magistral-small-2507" and response.choices:
+                        content = response.choices[0].message.content
+                        if isinstance(content, list):
+                            think_text = None
+                            response_text = ""
+                            
+                            for chunk in content:
+                                if hasattr(chunk, 'type') and chunk.type == 'thinking':
+                                    if hasattr(chunk, 'thinking') and chunk.thinking:
+                                        think_text = chunk.thinking[0].text if chunk.thinking else None
+                                elif hasattr(chunk, 'type') and chunk.type == 'text':
+                                    response_text = chunk.text
+                            
+                            return response_text, think_text
+                        else:
+                            return content if content else "No content received from Magistral.", None
+                    else:
+                        return response.choices[0].message.content if response.choices else "No content received from Mistral.", None
 
-                response_text = await asyncio.to_thread(sync_stream)
-                think_text = None
+                response_text, think_text = await asyncio.to_thread(sync_stream)
             elif model in ["mistral-small-2506", "mistral-medium-2505"] and (image_url or image_urls):
                 def sync_image():
                     content = [{"type": "text", "text": prompt}]
@@ -153,15 +169,15 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
             elapsed = time.time() - start_time
             print(f"The API provider for AI responded in {elapsed:.2f}s")
 
-            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput"]:
+            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507"]:
                 return response_text.strip() if response_text else "No content received from the AI.", think_text
             else:
-                return response_text.strip() if response_text else "No content received from the AI."
+                return response_text.strip() if response_text else "No content received from the AI.", None
     except asyncio.TimeoutError:
-        return "API response timed out. Please try again."
+        return "API response timed out. Please try again.", None
     except Exception as e:
         print(f"Error during AI API call: {str(e)}")
-        return f"An error occurred while processing the request."
+        return f"An error occurred while processing the request.", None
 
 
 async def get_ai_response(
@@ -174,7 +190,7 @@ async def get_ai_response(
     image_urls: Optional[list] = None
 ) -> Optional[str]:
 
-    if model == "devstral-small-2507":
+    if model in ["devstral-small-2507", "magistral-small-2507"]:
         contexts = [devstral_instruction]
         instructions = devstral_instruction
     else:
@@ -186,11 +202,12 @@ async def get_ai_response(
                 contexts.append(user_specific_instructions[user_id])
         instructions = ' '.join(contexts)
 
-    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput"]:
-        answer, think_text = await handle_api_call_stream(question, instructions, timeout, model, audio_url, image_url, image_urls)
-        return answer, think_text
+    result = await handle_api_call_stream(question, instructions, timeout, model, audio_url, image_url, image_urls)
+    
+    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507"]:
+        return result  # Already a tuple (answer, think_text)
     else:
-        return await handle_api_call_stream(question, instructions, timeout, model, audio_url, image_url, image_urls)
+        return result[0] if isinstance(result, tuple) else result  # Single response string
 
 
 def set_global_context(context: str):

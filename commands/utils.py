@@ -54,9 +54,12 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                         think_text = think_match.group(1).strip() if think_match else None
                         content = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL)
                         return content, think_text
+                    elif model == "openai/gpt-oss-120b":
+                        think_text = response.choices[0].message.reasoning if response.choices and hasattr(response.choices[0].message, 'reasoning') else None
+                        return content, think_text
                     return content
                 response = await asyncio.to_thread(sync_together)
-                if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput"]:
+                if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "openai/gpt-oss-120b"]:
                     response_text, think_text = response
                 else:
                     response_text = response
@@ -169,7 +172,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
             elapsed = time.time() - start_time
             print(f"The API provider for AI responded in {elapsed:.2f}s")
 
-            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507"]:
+            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b"]:
                 return response_text.strip() if response_text else "No content received from the AI.", think_text
             else:
                 return response_text.strip() if response_text else "No content received from the AI.", None

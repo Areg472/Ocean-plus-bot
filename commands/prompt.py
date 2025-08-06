@@ -112,10 +112,10 @@ MODEL_CHOICES = [
     app_commands.Choice(name="Devstral Small", value="devstral-small-2507"),
     app_commands.Choice(name="Voxtral Small", value="voxtral-small-2507"),
     app_commands.Choice(name="GPT OSS", value="openai/gpt-oss-120b"),
-    app_commands.Choice(name="Qwen 3 235B", value="Qwen/Qwen3-235B-A22B-fp8-tput"),
-    app_commands.Choice(name="Magistral Small", value="magistral-small-2507"),
+    app_commands.Choice(name="Qwen 3 (Thinking)", value="Qwen/Qwen3-235B-A22B-fp8-tput"),
+    app_commands.Choice(name="Magistral Small (Thinking)", value="magistral-small-2507"),
     app_commands.Choice(name="Mistral Medium", value="mistral-medium-2505"),
-    app_commands.Choice(name="DeepSeek R1", value="deepseek-ai/DeepSeek-R1-0528-tput"),
+    app_commands.Choice(name="DeepSeek R1 (Thinking)", value="deepseek-ai/DeepSeek-R1-0528-tput"),
 ]
 
 @app_commands.allowed_installs(guilds=True, users=True)

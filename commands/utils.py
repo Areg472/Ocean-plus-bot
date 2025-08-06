@@ -157,7 +157,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
             elapsed = time.time() - start_time
             print(f"The API provider for AI responded in {elapsed:.2f}s")
 
-            if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput"]:
                 return response_text.strip() if response_text else "No content received from the AI.", think_text
             else:
                 return response_text.strip() if response_text else "No content received from the AI."

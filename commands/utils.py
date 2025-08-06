@@ -41,9 +41,6 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
             start_time = time.time()
 
             if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "openai/gpt-oss-120b"]:
-                if not together_client:
-                    return ("Together API key is not set.", None) if model == "deepseek-ai/DeepSeek-R1-0528-tput" else "Together API key is not set."
-                
                 def sync_together():
                     response = together_client.chat.completions.create(
                         model=model,

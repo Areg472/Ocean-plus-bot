@@ -40,7 +40,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
         async with request_semaphore:
             start_time = time.time()
 
-            if model in ["Qwen/Qwen3-235B-A22B-fp8-tput", "deepseek-ai/DeepSeek-R1-0528-tput", "openai/gpt-oss-120b"]:
+            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "openai/gpt-oss-120b"]:
                 if not together_client:
                     return ("Together API key is not set.", None) if model == "deepseek-ai/DeepSeek-R1-0528-tput" else "Together API key is not set."
                 
@@ -58,7 +58,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                         return content, think_text
                     return content
                 response = await asyncio.to_thread(sync_together)
-                if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+                if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput"]:
                     response_text, think_text = response
                 else:
                     response_text = response

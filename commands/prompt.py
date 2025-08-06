@@ -224,14 +224,14 @@ async def prompt_command(
         image_names = [img.filename for img in images]
         thinking_embed.add_field(name="Image Files", value=f"🖼️ {', '.join(image_names)} (using {model_name})", inline=False)
 
-    if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput"]:
         view = ThinkingButtonView("Waiting for DeepSeek to think...(reclick the button once the output is emitted to see what DeepSeek thought.)")
         await interaction.response.send_message(embed=thinking_embed, view=view)
     else:
         await interaction.response.send_message(embed=thinking_embed)
 
     try:
-        if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput"]:
             answer, think_text = await asyncio.wait_for(
                 get_ai_response(query, user_id=interaction.user.id, model=model, 
                               audio_url=audio.url if audio else None,

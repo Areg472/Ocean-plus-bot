@@ -265,7 +265,7 @@ async def prompt_command(
         image_names = [img.filename for img in images]
         thinking_embed.add_field(name="Image Files", value=f"🖼️ {', '.join(image_names)} (using {model_name})", inline=False)
 
-    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput"]:
+    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507"]:
         view = ThinkingButtonView(f"Waiting for {model_name} to think...(reclick the button once the output is emitted to see what {model_name} thought.)")
         await interaction.response.send_message(embed=thinking_embed, view=view)
     else:

@@ -46,6 +46,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                         model=model,
                         messages=[{"role": "system", "content": instructions},{"role": "user", "content": prompt}]
                     )
+                    print(response);
                     content = response.choices[0].message.content if response.choices else "No content received from Together AI."
                     if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput"]:
                         import re

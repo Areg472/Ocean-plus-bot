@@ -119,11 +119,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 think_text = None
             elif model in ["mistral-small-2506", "mistral-medium-2505"] and (image_url or image_urls):
                 def sync_image():
-                    actual_prompt = prompt
-                    if instructions:
-                        actual_prompt = f"Instructions: {instructions}\n\n{actual_prompt}"
-                    
-                    content = [{"type": "text", "text": actual_prompt}]
+                    content = [{"type": "text", "text": prompt}]
                     
                     if image_urls:
                         for img_url in image_urls:
@@ -131,7 +127,10 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                     elif image_url:
                         content.append({"type": "image_url", "image_url": image_url})
                     
-                    messages = [{"role": "user", "content": content}]
+                    messages = [
+                        {"role": "system", "content": instructions},
+                        {"role": "user", "content": content}
+                        ]
                     
                     response = client.chat.complete(
                         model=model,

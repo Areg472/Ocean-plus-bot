@@ -139,20 +139,17 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 response_text = await asyncio.to_thread(sync_image)
                 think_text = None
             else:
-                response = client.beta.conversations.start_stream(
-                    inputs=prompt,
+                messages = [
+                    {"role": "system", "content": instructions},
+                    {"role": "user", "content": prompt}
+                ]  
+
+                response = client.chat.complete(
+                    messages=messages,
                     model=model,
-                    instructions=instructions,
                 )
                 print(response)
-                response_text = ""
-                for event in response:
-                    try:
-                        print(f"Received event: {event}")
-                        if event.event == "message.output.delta" and hasattr(event.data, "content"):
-                            response_text += event.data.content
-                    except Exception as e:
-                        print(f"Error while processing event: {str(e)}")
+                response_text = response.choices[0].message.content if response.choices else "No content received from Mistral."
                 think_text = None
 
             elapsed = time.time() - start_time

@@ -207,7 +207,7 @@ async def get_ai_response(
 
     result = await handle_api_call_stream(question, instructions, timeout, model, audio_url, image_url, image_urls)
     
-    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507"]:
+    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b"]:
         return result  
     else:
         return result[0] if isinstance(result, tuple) else result 

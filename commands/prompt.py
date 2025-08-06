@@ -150,7 +150,7 @@ MODEL_CHOICES = [
     app_commands.Choice(name="Mistral Small", value="mistral-small-2506"),
     app_commands.Choice(name="Devstral Small", value="devstral-small-2507"),
     app_commands.Choice(name="Voxtral Small", value="voxtral-small-2507"),
-    app_commands.Choice(name="GPT OSS", value="openai/gpt-oss-120b"),
+    app_commands.Choice(name="GPT OSS (Thinking)", value="openai/gpt-oss-120b"),
     app_commands.Choice(name="Qwen 3 (Thinking)", value="Qwen/Qwen3-235B-A22B-fp8-tput"),
     app_commands.Choice(name="Magistral Small (Thinking)", value="magistral-small-2507"),
     app_commands.Choice(name="Mistral Medium", value="mistral-medium-2505"),

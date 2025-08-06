@@ -190,7 +190,7 @@ async def get_ai_response(
                 contexts.append(user_specific_instructions[user_id])
         instructions = ' '.join(contexts)
 
-    if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput"]:
         answer, think_text = await handle_api_call_stream(question, instructions, timeout, model, audio_url, image_url, image_urls)
         return answer, think_text
     else:

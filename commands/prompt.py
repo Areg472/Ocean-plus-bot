@@ -225,7 +225,7 @@ async def prompt_command(
         thinking_embed.add_field(name="Image Files", value=f"🖼️ {', '.join(image_names)} (using {model_name})", inline=False)
 
     if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput"]:
-        view = ThinkingButtonView("Waiting for DeepSeek to think...(reclick the button once the output is emitted to see what DeepSeek thought.)")
+        view = ThinkingButtonView(f"Waiting for {model_name} to think...(reclick the button once the output is emitted to see what {model_name} thought.)")
         await interaction.response.send_message(embed=thinking_embed, view=view)
     else:
         await interaction.response.send_message(embed=thinking_embed)
@@ -309,7 +309,7 @@ async def prompt_command(
         else:
             response_embed.add_field(name="Answer", value=answer, inline=False)
 
-        if model == "deepseek-ai/DeepSeek-R1-0528-tput":
+        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput"]:
             view = ThinkingButtonView(think_text or "No <think> output found.")
             await interaction.edit_original_response(embed=response_embed, view=view)
         else:

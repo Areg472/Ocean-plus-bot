@@ -144,7 +144,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                     model=model,
                     instructions=instructions,
                 )
-                print(response);
+                print(response)
                 response_text = ""
                 for event in response:
                     try:

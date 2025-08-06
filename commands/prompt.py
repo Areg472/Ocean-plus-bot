@@ -46,7 +46,7 @@ class MediaSelectionView(discord.ui.View):
         await interaction.edit_original_response(embed=thinking_embed, view=None)
 
         try:
-            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507"]:
+            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-"]:
                 answer, think_text = await asyncio.wait_for(
                     get_ai_response(self.query, user_id=self.original_interaction.user.id, model=model, 
                                   audio_url=self.audio.url if use_audio else None,
@@ -82,7 +82,7 @@ class MediaSelectionView(discord.ui.View):
         else:
             response_embed.add_field(name="Answer", value=answer, inline=False)
 
-        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507"]:
+        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507"]:
             view = ThinkingButtonView(think_text or "No <think> output found.")
             await interaction.edit_original_response(embed=response_embed, view=view)
         else:
@@ -116,6 +116,7 @@ MODEL_CHOICES = [
     app_commands.Choice(name="Magistral Small (Thinking)", value="magistral-small-2507"),
     app_commands.Choice(name="Mistral Medium", value="mistral-medium-2505"),
     app_commands.Choice(name="DeepSeek R1 (Thinking)", value="deepseek-ai/DeepSeek-R1-0528-tput"),
+    app_commands.Choice(name="Magistral Medium (Thinking)", value="magistral-medium-2507"),
 ]
 
 @app_commands.allowed_installs(guilds=True, users=True)
@@ -205,6 +206,8 @@ async def prompt_command(
         model_name = "GPT OSS"
     elif model == "Qwen/Qwen3-235B-A22B-fp8-tput":
         model_name = "Qwen 3"
+    elif model == "magistral-medium-2507":
+        model_name = "Magistral Medium"
     elif model == "deepseek-ai/DeepSeek-R1-0528-tput":
         model_name = "DeepSeek R1"
     elif model == "voxtral-mini-2507":
@@ -231,7 +234,7 @@ async def prompt_command(
         await interaction.response.send_message(embed=thinking_embed)
 
     try:
-        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507"]:
+        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507"]:
             answer, think_text = await asyncio.wait_for(
                 get_ai_response(query, user_id=interaction.user.id, model=model, 
                               audio_url=audio.url if audio else None,
@@ -275,14 +278,23 @@ async def prompt_command(
                 if chunk.strip():
                     parts.append(("text", chunk))
 
+        text_parts = [part for part in parts if part[0] == "text"]
         field_idx = 1
         followup_codeblocks = []
         for typ, chunk in parts:
             if typ == "code" and len(chunk) > 1024:
                 followup_codeblocks.append(chunk)
             else:
-                response_embed.add_field(name=f"Answer (Part {field_idx})", value=chunk, inline=False)
-                field_idx += 1
+                if typ == "text":
+                    if len(text_parts) == 1:
+                        field_name = "Answer"
+                    else:
+                        field_name = f"Answer (Part {field_idx})"
+                    field_idx += 1
+                else:
+                    field_name = f"Answer (Part {field_idx})"
+                    field_idx += 1
+                response_embed.add_field(name=field_name, value=chunk, inline=False)
 
         try:
             await interaction.edit_original_response(embed=response_embed)
@@ -309,7 +321,7 @@ async def prompt_command(
         else:
             response_embed.add_field(name="Answer", value=answer, inline=False)
 
-        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507"]:
+        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507"]:
             view = ThinkingButtonView(think_text or "No <think> output found.")
             await interaction.edit_original_response(embed=response_embed, view=view)
         else:

@@ -94,7 +94,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 
                 response_text = await asyncio.to_thread(sync_voxtral)
                 think_text = None
-            elif model in ["devstral-small-2507", "magistral-small-2507"]:
+            elif model in ["devstral-small-2507", "magistral-small-2507", "magistral-medium-2507"]:
                 if not instructions:
                     instructions = devstral_instruction
                 def sync_stream():

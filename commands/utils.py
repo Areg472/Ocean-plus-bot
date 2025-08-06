@@ -44,12 +44,10 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 if not together_client:
                     return ("Together API key is not set.", None) if model == "deepseek-ai/DeepSeek-R1-0528-tput" else "Together API key is not set."
                 
-                combined_prompt = f"Instructions: {instructions}\n\nPrompt:{prompt}" if instructions else prompt
-                
                 def sync_together():
                     response = together_client.chat.completions.create(
                         model=model,
-                        messages=[{"role": "user", "content": combined_prompt}]
+                        messages=[{"role": "system", "content": instructions},{"role": "user", "content": prompt}]
                     )
                     content = response.choices[0].message.content if response.choices else "No content received from Together AI."
                     if model == "deepseek-ai/DeepSeek-R1-0528-tput":
@@ -70,13 +68,15 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                     messages = []
                     if audio_url:
                         actual_prompt = prompt
-                        if instructions:
-                            actual_prompt = f"Instructions: {instructions}\n\n{actual_prompt}"
-                        
-                        messages.append({
-                            "role": "user",
-                            "content": [
-                                {
+                        messages.append(
+                            {
+                                "role": "system",
+                                "content": instructions,
+                            },
+                            {
+                                "role": "user",
+                                "content": [
+                                    {
                                     "type": "input_audio",
                                     "input_audio": audio_url,
                                 },

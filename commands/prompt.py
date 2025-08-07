@@ -362,7 +362,7 @@ async def prompt_command(
             response_embed.add_field(name="Answer", value=answer, inline=False)
 
         if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini"]:
-            view = ThinkingButtonView(think_text or "No <think> output found.")
+            view = ThinkingButtonView(think_text or "No thinking output available.")
             await interaction.edit_original_response(embed=response_embed, view=view)
         else:
             await interaction.edit_original_response(embed=response_embed)

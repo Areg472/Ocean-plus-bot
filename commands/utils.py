@@ -163,7 +163,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                     input=prompt,
                     instructions=instructions
                 )
-
+                print(response)
                 response_text = response.output_text
                 think_text = None
             else:

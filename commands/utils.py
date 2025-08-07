@@ -164,7 +164,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                     instructions=instructions
                 )
                 print(response)
-                response_text = response.text
+                response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT-5-nano."
                 think_text = None
             else:
                 messages = [

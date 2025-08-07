@@ -46,7 +46,7 @@ class MediaSelectionView(discord.ui.View):
         await interaction.edit_original_response(embed=thinking_embed, view=None)
 
         try:
-            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507"]:
+            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini"]:
                 answer, think_text = await asyncio.wait_for(
                     get_ai_response(self.query, user_id=self.original_interaction.user.id, model=model, 
                                   audio_url=self.audio.url if use_audio else None,
@@ -82,7 +82,7 @@ class MediaSelectionView(discord.ui.View):
         else:
             response_embed.add_field(name="Answer", value=answer, inline=False)
 
-        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507"]:
+        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini"]:
             view = ThinkingButtonView(think_text or "No <think> output found.")
             await interaction.edit_original_response(embed=response_embed, view=view)
         else:
@@ -96,11 +96,9 @@ class ThinkingButtonView(discord.ui.View):
 
     @discord.ui.button(label="Show Thinking Output", style=discord.ButtonStyle.secondary)
     async def show_thinking(self, interaction: discord.Interaction, button: discord.ui.Button):
-        # Discord embed limit is 6000 characters total
-        # Account for title, field names, and formatting overhead (roughly 200 chars)
         max_content_per_embed = 5800
         
-        # If content is small enough for one embed
+        
         if len(self.thinking_text) <= max_content_per_embed:
             chunks = [self.thinking_text[i:i+1024] for i in range(0, len(self.thinking_text), 1024)]
             embed = discord.Embed(title="Thinking Output", color=0x4285f4)
@@ -113,10 +111,9 @@ class ThinkingButtonView(discord.ui.View):
             
             await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
-            # Split into multiple embeds for very large content
             await interaction.response.send_message("Thinking output is very large. Sending in multiple messages...", ephemeral=True)
             
-            # Split the text into chunks that fit in embeds
+            
             text_chunks = []
             start = 0
             while start < len(self.thinking_text):
@@ -124,7 +121,6 @@ class ThinkingButtonView(discord.ui.View):
                 text_chunks.append(self.thinking_text[start:end])
                 start = end
             
-            # Send each chunk as a separate embed
             for i, text_chunk in enumerate(text_chunks):
                 chunks = [text_chunk[j:j+1024] for j in range(0, len(text_chunk), 1024)]
                 embed = discord.Embed(
@@ -271,14 +267,14 @@ async def prompt_command(
         image_names = [img.filename for img in images]
         thinking_embed.add_field(name="Image Files", value=f"🖼️ {', '.join(image_names)} (using {model_name})", inline=False)
 
-    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b"]:
+    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini"]:
         view = ThinkingButtonView(f"Waiting for {model_name} to think...(reclick the button once the output is emitted to see what {model_name} thought.)")
         await interaction.response.send_message(embed=thinking_embed, view=view)
     else:
         await interaction.response.send_message(embed=thinking_embed)
 
     try:
-        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b"]:
+        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini"]:
             answer, think_text = await asyncio.wait_for(
                 get_ai_response(query, user_id=interaction.user.id, model=model, 
                               audio_url=audio.url if audio else None,
@@ -365,7 +361,7 @@ async def prompt_command(
         else:
             response_embed.add_field(name="Answer", value=answer, inline=False)
 
-        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b"]:
+        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini"]:
             view = ThinkingButtonView(think_text or "No <think> output found.")
             await interaction.edit_original_response(embed=response_embed, view=view)
         else:

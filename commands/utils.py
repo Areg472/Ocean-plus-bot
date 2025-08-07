@@ -182,7 +182,10 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
             
                 print(response)
                 response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT-5-mini."
+                
                 think_text = None
+                if response.output and len(response.output) > 0 and hasattr(response.output[0], 'summary') and response.output[0].summary:
+                    think_text = response.output[0].summary[0].text if response.output[0].summary else None
             else:
                 messages = [
                     {"role": "system", "content": instructions},
@@ -200,7 +203,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
             elapsed = time.time() - start_time
             print(f"The API provider for AI responded in {elapsed:.2f}s")
 
-            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b"]:
+            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini"]:
                 return response_text.strip() if response_text else "No content received from the AI.", think_text
             else:
                 return response_text.strip() if response_text else "No content received from the AI.", None
@@ -235,7 +238,7 @@ async def get_ai_response(
 
     result = await handle_api_call_stream(question, instructions, timeout, model, audio_url, image_url, image_urls)
     
-    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b"]:
+    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini"]:
         return result  
     else:
         return result[0] if isinstance(result, tuple) else result 

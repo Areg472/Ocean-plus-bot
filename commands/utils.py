@@ -158,7 +158,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 response_text = await asyncio.to_thread(sync_image)
                 think_text = None
             elif model in ["gpt-5-nano"]:
-                response = client.responses.create(
+                response = openAI_client.responses.create(
                     model=model,
                     input=prompt,
                     instructions=instructions

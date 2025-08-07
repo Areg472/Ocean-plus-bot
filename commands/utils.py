@@ -8,12 +8,14 @@ from discord.ext.commands import CooldownMapping
 from mistralai import Mistral
 from discord.app_commands import Cooldown
 from together import Together
+from openai import OpenAI
 
 api_key = os.environ.get("MISTRAL_API_KEY")
 if not api_key:
     raise ValueError("Mistral API key is not set in the environment variables.")
-client = Mistral(api_key=api_key)
 
+client = Mistral(api_key=api_key)
+openAI_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 together_api_key = os.environ.get("TOGETHER_API_KEY")
 together_client = None
 if together_api_key:
@@ -154,6 +156,15 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                     return response.choices[0].message.content if response.choices else "No content received from Mistral."
                 
                 response_text = await asyncio.to_thread(sync_image)
+                think_text = None
+            elif model in ["gpt-5-nano"]:
+                response = client.responses.create(
+                    model=model,
+                    input=prompt,
+                    instructions=instructions
+                )
+
+                response_text = response.output_text
                 think_text = None
             else:
                 messages = [

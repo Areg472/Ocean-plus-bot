@@ -149,6 +149,7 @@ MODEL_CHOICES = [
     app_commands.Choice(name="Voxtral Mini", value="voxtral-mini-2507"),
     app_commands.Choice(name="Mistral Small", value="mistral-small-2506"),
     app_commands.Choice(name="Devstral Small", value="devstral-small-2507"),
+    app_commands.Choice(name="GPT 5 Nano", value="gpt-5-nano"),
     app_commands.Choice(name="Voxtral Small", value="voxtral-small-2507"),
     app_commands.Choice(name="GPT OSS (Thinking)", value="openai/gpt-oss-120b"),
     app_commands.Choice(name="Qwen 3 (Thinking)", value="Qwen/Qwen3-235B-A22B-fp8-tput"),
@@ -252,6 +253,8 @@ async def prompt_command(
         model_name = "Voxtral Mini"
     elif model == "voxtral-small-2507":
         model_name = "Voxtral Small"
+    elif model == "gpt-5-nano":
+        model_name = "GPT 5 Nano"
 
     thinking_embed = discord.Embed(
         title="🤔 Thinking...",

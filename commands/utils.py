@@ -157,14 +157,31 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 
                 response_text = await asyncio.to_thread(sync_image)
                 think_text = None
-            elif model in ["gpt-5-nano"]:
-                response = openAI_client.responses.create(
-                    model=model,
-                    input=prompt,
-                    instructions=instructions
-                )
+            elif model in ["gpt-5-nano", "gpt-5-mini"]:
+                if model in ["gpt-5-mini"]:
+                    response = openAI_client.responses.create(
+                        model=model,
+                        input=prompt,
+                        instructions=instructions,
+                        service_tier="flex",
+                        reasoning={
+                            "effort": "medium",
+                            "summary": "auto"
+                        }
+                    )
+                else:
+                    response = openAI_client.responses.create(
+                        model=model,
+                        input=prompt,
+                        instructions=instructions,
+                        reasoning={
+                            "effort": "medium",
+                            "summary": "auto"
+                        }
+                    )
+            
                 print(response)
-                response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT-5-nano."
+                response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT-5-mini."
                 think_text = None
             else:
                 messages = [

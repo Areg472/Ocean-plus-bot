@@ -164,7 +164,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                     instructions=instructions
                 )
                 print(response)
-                response_text = response.content[0].text
+                response_text = response.text
                 think_text = None
             else:
                 messages = [

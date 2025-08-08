@@ -152,6 +152,7 @@ MODEL_CHOICES = [
     app_commands.Choice(name="Magistral Small (Thinking)", value="magistral-small-2507"),
     app_commands.Choice(name="Mistral Medium", value="mistral-medium-2505"),
     app_commands.Choice(name="DeepSeek R1 (Thinking)", value="deepseek-ai/DeepSeek-R1-0528-tput"),
+    app_commands.Choice(name="GPT 5 (Thinking)", value="gpt-5"),
     app_commands.Choice(name="Magistral Medium (Thinking)", value="magistral-medium-2507"),
 ]
 
@@ -251,6 +252,8 @@ async def prompt_command(
         model_name = "GPT 5 Mini"
     elif model == "gpt-5-nano":
         model_name = "GPT 5 Nano"
+    elif model == "gpt-5":
+        model_name = "GPT 5"
 
     thinking_embed = discord.Embed(
         title="🤔 Thinking...",

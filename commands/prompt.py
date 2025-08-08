@@ -322,19 +322,20 @@ async def prompt_command(
         field_idx = 1
         followup_codeblocks = []
         for typ, chunk in parts:
-            if typ == "code" and len(chunk) > 1024:
-                followup_codeblocks.append(chunk)
-            else:
-                if typ == "text":
-                    if len(text_parts) == 1:
-                        field_name = "Answer"
-                    else:
-                        field_name = f"Answer (Part {field_idx})"
+            if typ == "code":
+                if len(chunk) > 1024:
+                    followup_codeblocks.append(chunk)
+                else:
+                    field_name = f"Code Block {field_idx}"
+                    response_embed.add_field(name=field_name, value=chunk, inline=False)
                     field_idx += 1
+            elif typ == "text":
+                if len(text_parts) == 1:
+                    field_name = "Answer"
                 else:
                     field_name = f"Answer (Part {field_idx})"
-                    field_idx += 1
                 response_embed.add_field(name=field_name, value=chunk, inline=False)
+                field_idx += 1
 
         try:
             await interaction.edit_original_response(embed=response_embed)

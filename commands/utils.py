@@ -133,17 +133,19 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 def sync_image():
                     if model.startswith("gpt-5"):
                         # Use GPT-5 format for images
-                        input_data = [{"type": "input_text", "text": prompt}]
+                        content = [{"type": "input_text", "text": prompt}]
                         
                         if image_urls:
-                            input_data.extend({"type": "image_url", "image_url": url} for url in image_urls)
+                            content.extend({"type": "input_image", "image_url": url} for url in image_urls)
                         elif image_url:
-                            input_data.append({"type": "image_url", "image_url": image_url})
+                            content.append({"type": "input_image", "image_url": image_url})
                         
                         response = openAI_client.responses.create(
                             model=model,
-                            input=input_data,
-                            instructions=instructions,
+                            input=[{
+                                "role": "user",
+                                "content": content
+                            }],
                             service_tier="flex",
                             reasoning={
                                 "effort": "medium",
@@ -186,17 +188,19 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                     think_text = None
             elif model in ["gpt-5-nano", "gpt-5-mini", "gpt-5"]:
                 def sync_gpt5():
-                    input_data = [{"type": "input_text", "text": prompt}]
+                    content = [{"type": "input_text", "text": prompt}]
                     
                     if image_url:
-                        input_data.append({"type": "image_url", "image_url": image_url})
+                        content.append({"type": "input_image", "image_url": image_url})
                     if image_urls:
-                        input_data.extend({"type": "image_url", "image_url": url} for url in image_urls)
+                        content.extend({"type": "input_image", "image_url": url} for url in image_urls)
                     
                     response = openAI_client.responses.create(
                         model=model,
-                        input=input_data,
-                        instructions=instructions,
+                        input=[{
+                            "role": "user",
+                            "content": content
+                        }],
                         service_tier="flex",
                         reasoning={
                             "effort": "medium",

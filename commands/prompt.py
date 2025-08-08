@@ -337,14 +337,18 @@ async def prompt_command(
                 response_embed.add_field(name=field_name, value=chunk, inline=False)
                 field_idx += 1
 
+        # Only send followup code blocks that were NOT included in the embed
         try:
             await interaction.edit_original_response(embed=response_embed)
-            for codeblock in followup_codeblocks:
-                await interaction.followup.send(codeblock)
+            # Only send followup code blocks if any exist
+            if followup_codeblocks:
+                for codeblock in followup_codeblocks:
+                    await interaction.followup.send(codeblock)
         except Exception as e:
             await interaction.followup.send(embed=response_embed)
-            for codeblock in followup_codeblocks:
-                await interaction.followup.send(codeblock)
+            if followup_codeblocks:
+                for codeblock in followup_codeblocks:
+                    await interaction.followup.send(codeblock)
     else:
         response_embed = discord.Embed(title="💡 Output", color=0x34a853)
         response_embed.add_field(name="Prompt", value=query[:1000], inline=False)

@@ -46,8 +46,7 @@ class MediaSelectionView(discord.ui.View):
         await interaction.edit_original_response(embed=thinking_embed)  # Remove view here
 
         try:
-            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5"
-                         ]:
+            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5"]:
                 answer, think_text = await asyncio.wait_for(
                     get_ai_response(self.query, user_id=self.original_interaction.user.id, model=model, 
                                   audio_url=self.audio.url if use_audio else None,
@@ -83,8 +82,9 @@ class MediaSelectionView(discord.ui.View):
         else:
             response_embed.add_field(name="Answer", value=answer, inline=False)
 
-        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5"]:
-            view = ThinkingButtonView(think_text or "No <think> output found.")
+        # Only show the button if think_text is present
+        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5"] and think_text:
+            view = ThinkingButtonView(think_text)
             await interaction.edit_original_response(embed=response_embed, view=view)
         else:
             await interaction.edit_original_response(embed=response_embed)
@@ -311,7 +311,8 @@ async def prompt_command(
     else:
         response_embed.add_field(name="Answer", value=answer, inline=False)
 
-    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5"]:
+    # Only show the button if think_text is present
+    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5"] and think_text:
         view = ThinkingButtonView(think_text or "No thinking output available.")
         await interaction.edit_original_response(embed=response_embed, view=view)
     else:

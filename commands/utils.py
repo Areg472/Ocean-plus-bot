@@ -174,10 +174,10 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                             "summary": "auto"
                         }
                     )
-            
+
                 print(response)
                 response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT-5-mini."
-                
+
                 think_text = None
                 if response.output and len(response.output) > 0 and hasattr(response.output[0], 'summary') and response.output[0].summary:
                     think_text = response.output[0].summary[0].text if response.output[0].summary else None
@@ -233,8 +233,8 @@ async def get_ai_response(
 
     result = await handle_api_call_stream(question, instructions, timeout, model, audio_url, image_url, image_urls)
     
-    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini"]:
-        return result  
+    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5"]:
+        return result
     else:
         return result[0] if isinstance(result, tuple) else result 
 

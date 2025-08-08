@@ -30,8 +30,17 @@ class MediaSelectionView(discord.ui.View):
             model_name = "Voxtral Mini" if model == "voxtral-mini-2507" else "Voxtral Small"
             media_description = f"📎 {self.audio.filename}"
         else:
-            model = "mistral-small-2506" if self.model not in ["mistral-small-2506", "mistral-medium-2505"] else self.model
-            model_name = "Mistral Small" if model == "mistral-small-2506" else "Mistral Medium"
+            model = "mistral-small-2506" if self.model not in ["mistral-small-2506", "mistral-medium-2505", "gpt-5-nano", "gpt-5-mini", "gpt-5"] else self.model
+            if model == "mistral-small-2506":
+                model_name = "Mistral Small"
+            elif model == "mistral-medium-2505":
+                model_name = "Mistral Medium"
+            elif model == "gpt-5-nano":
+                model_name = "GPT 5 Nano"
+            elif model == "gpt-5-mini":
+                model_name = "GPT 5 Mini"
+            elif model == "gpt-5":
+                model_name = "GPT 5"
             image_names = [img.filename for img in self.images]
             media_description = f"🖼️ {', '.join(image_names)}"
 
@@ -225,7 +234,7 @@ async def prompt_command(
         if model not in ["voxtral-mini-2507", "voxtral-small-2507"]:
             model = "voxtral-mini-2507"
     elif images:
-        if model not in ["mistral-small-2506", "mistral-medium-2505"]:
+        if model not in ["mistral-small-2506", "mistral-medium-2505", "gpt-5-nano", "gpt-5-mini", "gpt-5"]:
             model = "mistral-small-2506"
     else:
         if model in ["voxtral-mini-2507", "voxtral-small-2507"]:

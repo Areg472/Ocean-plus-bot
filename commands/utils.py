@@ -129,46 +129,88 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                         return response.choices[0].message.content if response.choices else "No content received from Mistral.", None
 
                 response_text, think_text = await asyncio.to_thread(sync_stream)
-            elif model in ["mistral-small-2506", "mistral-medium-2505"] and (image_url or image_urls):
+            elif model in ["mistral-small-2506", "mistral-medium-2505", "gpt-5-nano", "gpt-5-mini", "gpt-5"] and (image_url or image_urls):
                 def sync_image():
-                    content = [{"type": "text", "text": prompt}]
-                    
-                    if image_urls:
-                        for img_url in image_urls:
-                            content.append({"type": "image_url", "image_url": img_url})
-                    elif image_url:
-                        content.append({"type": "image_url", "image_url": image_url})
-                    
-                    messages = [
-                        {"role": "system", "content": instructions},
-                        {"role": "user", "content": content}
+                    if model.startswith("gpt-5"):
+                        # Use GPT-5 format for images
+                        input_data = [{"type": "input_text", "text": prompt}]
+                        
+                        if image_urls:
+                            input_data.extend({"type": "image_url", "image_url": url} for url in image_urls)
+                        elif image_url:
+                            input_data.append({"type": "image_url", "image_url": image_url})
+                        
+                        response = openAI_client.responses.create(
+                            model=model,
+                            input=input_data,
+                            instructions=instructions,
+                            service_tier="flex",
+                            reasoning={
+                                "effort": "medium",
+                                "summary": "auto"
+                            }
+                        )
+                        return response
+                    else:
+                        # Use Mistral format for images
+                        content = [{"type": "text", "text": prompt}]
+                        
+                        if image_urls:
+                            for img_url in image_urls:
+                                content.append({"type": "image_url", "image_url": img_url})
+                        elif image_url:
+                            content.append({"type": "image_url", "image_url": image_url})
+                        
+                        messages = [
+                            {"role": "system", "content": instructions},
+                            {"role": "user", "content": content}
                         ]
-                    
-                    response = client.chat.complete(
-                        model=model,
-                        messages=messages
-                    )
-                    return response.choices[0].message.content if response.choices else "No content received from Mistral."
+                        
+                        response = client.chat.complete(
+                            model=model,
+                            messages=messages
+                        )
+                        return response
                 
-                response_text = await asyncio.to_thread(sync_image)
-                think_text = None
+                response = await asyncio.to_thread(sync_image)
+                
+                if model.startswith("gpt-5"):
+                    print(response)
+                    response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT-5."
+                    think_text = None
+                    if response.output and len(response.output) > 0 and hasattr(response.output[0], 'summary') and response.output[0].summary:
+                        think_text = response.output[0].summary[0].text if response.output[0].summary else None
+                    return response_text, think_text
+                else:
+                    response_text = response.choices[0].message.content if response.choices else "No content received from Mistral."
+                    think_text = None
             elif model in ["gpt-5-nano", "gpt-5-mini", "gpt-5"]:
-                response = openAI_client.responses.create(
-                    model=model,
-                    input=prompt,
-                    instructions=instructions,
-                    service_tier="flex",
-                    reasoning={
-                        "effort": "medium",
-                        "summary": "auto"
-                    }
-                )
+                def sync_gpt5():
+                    input_data = [{"type": "input_text", "text": prompt}]
+                    
+                    if image_url:
+                        input_data.append({"type": "image_url", "image_url": image_url})
+                    if image_urls:
+                        input_data.extend({"type": "image_url", "image_url": url} for url in image_urls)
+                    
+                    response = openAI_client.responses.create(
+                        model=model,
+                        input=input_data,
+                        instructions=instructions,
+                        service_tier="flex",
+                        reasoning={
+                            "effort": "medium",
+                            "summary": "auto"
+                        }
+                    )
+                    return response
 
+                response = await asyncio.to_thread(sync_gpt5)
                 print(response)
-                response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT-5-mini."
+                response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT-5."
 
                 think_text = None
-                # Fix: Extract think_text from summary if present
+                # Extract think_text from summary if present
                 if response.output and len(response.output) > 0 and hasattr(response.output[0], 'summary') and response.output[0].summary:
                     think_text = response.output[0].summary[0].text if response.output[0].summary else None
                 return response_text, think_text
@@ -189,7 +231,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
             elapsed = time.time() - start_time
             print(f"The API provider for AI responded in {elapsed:.2f}s")
 
-            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini"]:
+            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5"]:
                 return response_text.strip() if response_text else "No content received from the AI.", think_text
             else:
                 return response_text.strip() if response_text else "No content received from the AI.", None

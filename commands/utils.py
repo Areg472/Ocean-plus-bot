@@ -25,9 +25,6 @@ global_instruction = (
     "Provide a detailed and structured response under 2150 characters. "
     "Be concise when possible. Do not use headings (####, ###, ##, #) or bold text (**text**) for structure or emphasis."
 )
-devstral_instruction = (
-    "Do not use headings (####, ###, ##, #) or bold text (**text**) for structure or emphasis."
-)
 
 request_semaphore = asyncio.Semaphore(5)
 
@@ -99,9 +96,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 
                 response_text = await asyncio.to_thread(sync_voxtral)
                 think_text = None
-            elif model in ["devstral-small-2507", "magistral-small-2507", "magistral-medium-2507"]:
-                if not instructions:
-                    instructions = devstral_instruction
+            elif model in ["magistral-small-2507", "magistral-medium-2507"]:
                 def sync_stream():
                     messages = [
                         {"role": "system", "content": instructions},
@@ -224,9 +219,9 @@ async def get_ai_response(
     image_urls: Optional[list] = None
 ) -> Optional[str]:
 
-    if model in ["devstral-small-2507", "magistral-small-2507", "magistral-medium-2507"]:
-        contexts = [devstral_instruction]
-        instructions = devstral_instruction
+    if model in ["magistral-small-2507", "magistral-medium-2507"]:
+        contexts = [global_instruction]
+        instructions = global_instruction
     else:
         contexts = [global_instruction]
         if user_id:

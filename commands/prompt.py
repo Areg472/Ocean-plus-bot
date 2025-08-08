@@ -144,7 +144,6 @@ def setup(bot):
 MODEL_CHOICES = [
     app_commands.Choice(name="Voxtral Mini", value="voxtral-mini-2507"),
     app_commands.Choice(name="Mistral Small", value="mistral-small-2506"),
-    app_commands.Choice(name="Devstral Small", value="devstral-small-2507"),
     app_commands.Choice(name="GPT 5 Nano (Thinking)", value="gpt-5-nano"),
     app_commands.Choice(name="Voxtral Small", value="voxtral-small-2507"),
     app_commands.Choice(name="GPT OSS (Thinking)", value="openai/gpt-oss-120b"),
@@ -230,9 +229,7 @@ async def prompt_command(
         if model in ["voxtral-mini-2507", "voxtral-small-2507"]:
             model = "mistral-small-2506"
 
-    if model == "devstral-small-2507":
-        model_name = "Devstral Small"
-    elif model == "mistral-small-2506":
+    if model == "mistral-small-2506":
         model_name = "Mistral Small"
     elif model == "magistral-small-2507":
         model_name = "Magistral Small"
@@ -294,80 +291,25 @@ async def prompt_command(
         answer = f"An error occurred: {error}"
         think_text = None
 
-    if model == "devstral-small-2507":
-        response_embed = discord.Embed(title="💡 Answer", color=0x34a853)
-        response_embed.add_field(name="Question", value=query[:1000], inline=False)
+    response_embed = discord.Embed(title="💡 Output", color=0x34a853)
+    response_embed.add_field(name="Prompt", value=query[:1000], inline=False)
 
-        code_block_pattern = re.compile(r"(```[\s\S]*?```)", re.MULTILINE)
-        parts = []
-        last_end = 0
-        for match in code_block_pattern.finditer(answer):
-            if match.start() > last_end:
-                before = answer[last_end:match.start()]
-                for i in range(0, len(before), 1024):
-                    chunk = before[i:i+1024]
-                    if chunk.strip():
-                        parts.append(("text", chunk))
-            code_block = match.group(1)
-            parts.append(("code", code_block))
-            last_end = match.end()
-        if last_end < len(answer):
-            after = answer[last_end:]
-            for i in range(0, len(after), 1024):
-                chunk = after[i:i+1024]
-                if chunk.strip():
-                    parts.append(("text", chunk))
+    if audio:
+        response_embed.add_field(name="Audio File", value=f"[{audio.filename}]({audio.url})", inline=False)
+    elif images:
+        image_links = [f"[{img.filename}]({img.url})" for img in images]
+        response_embed.add_field(name="Image Files", value="\n".join(image_links), inline=False)
 
-        text_parts = [part for part in parts if part[0] == "text"]
-        field_idx = 1
-        followup_codeblocks = []
-        for typ, chunk in parts:
-            if typ == "code":
-                if len(chunk) > 1024:
-                    followup_codeblocks.append(chunk)
-                else:
-                    field_name = f"Code Block {field_idx}"
-                    response_embed.add_field(name=field_name, value=chunk, inline=False)
-                    field_idx += 1
-            elif typ == "text":
-                if len(text_parts) == 1:
-                    field_name = "Answer"
-                else:
-                    field_name = f"Answer (Part {field_idx})"
-                response_embed.add_field(name=field_name, value=chunk, inline=False)
-                field_idx += 1
-
-        # Only send followup code blocks that were NOT included in the embed
-        try:
-            await interaction.edit_original_response(embed=response_embed)
-            # Only send followup code blocks if any exist
-            if followup_codeblocks:
-                for codeblock in followup_codeblocks:
-                    await interaction.followup.send(codeblock)
-        except Exception as e:
-            await interaction.followup.send(embed=response_embed)
-            if followup_codeblocks:
-                for codeblock in followup_codeblocks:
-                    await interaction.followup.send(codeblock)
+    if len(answer) > 1024:
+        chunks = [answer[i:i + 1024] for i in range(0, len(answer), 1024)]
+        for idx, chunk in enumerate(chunks, start=1):
+            response_embed.add_field(name=f"Answer (Part {idx})", value=chunk, inline=False)
     else:
-        response_embed = discord.Embed(title="💡 Output", color=0x34a853)
-        response_embed.add_field(name="Prompt", value=query[:1000], inline=False)
-        
-        if audio:
-            response_embed.add_field(name="Audio File", value=f"[{audio.filename}]({audio.url})", inline=False)
-        elif images:
-            image_links = [f"[{img.filename}]({img.url})" for img in images]
-            response_embed.add_field(name="Image Files", value="\n".join(image_links), inline=False)
+        response_embed.add_field(name="Answer", value=answer, inline=False)
 
-        if len(answer) > 1024:
-            chunks = [answer[i:i + 1024] for i in range(0, len(answer), 1024)]
-            for idx, chunk in enumerate(chunks, start=1):
-                response_embed.add_field(name=f"Answer (Part {idx})", value=chunk, inline=False)
-        else:
-            response_embed.add_field(name="Answer", value=answer, inline=False)
+    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini"]:
+        view = ThinkingButtonView(think_text or "No thinking output available.")
+        await interaction.edit_original_response(embed=response_embed, view=view)
+    else:
+        await interaction.edit_original_response(embed=response_embed)
 
-        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini"]:
-            view = ThinkingButtonView(think_text or "No thinking output available.")
-            await interaction.edit_original_response(embed=response_embed, view=view)
-        else:
-            await interaction.edit_original_response(embed=response_embed)

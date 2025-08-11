@@ -132,7 +132,6 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
             elif model in ["mistral-small-2506", "mistral-medium-2505", "gpt-5-nano", "gpt-5-mini", "gpt-5"] and (image_url or image_urls):
                 def sync_image():
                     if model.startswith("gpt-5"):
-                        # Use GPT-5 format for images
                         content = [{"type": "input_text", "text": prompt}]
                         
                         if image_urls:
@@ -154,7 +153,6 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                         )
                         return response
                     else:
-                        # Use Mistral format for images
                         content = [{"type": "text", "text": prompt}]
                         
                         if image_urls:
@@ -214,7 +212,6 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT-5."
 
                 think_text = None
-                # Extract think_text from summary if present
                 if response.output and len(response.output) > 0 and hasattr(response.output[0], 'summary') and response.output[0].summary:
                     think_text = response.output[0].summary[0].text if response.output[0].summary else None
                 return response_text, think_text

@@ -19,9 +19,6 @@ from commands.pet import *
 from commands.jail import *
 from commands.joke_overhead import *
 from commands.github import *
-from commands.mute import *
-from commands.ban import *
-from commands.oplusadmin import *
 from commands.boardgame import *
 from commands.gamble import *
 from commands.transcribe import *
@@ -90,15 +87,6 @@ def setup_commands(bot):
     setup(bot)
     
     from commands.github import setup
-    setup(bot)
-    
-    from commands.mute import setup
-    setup(bot)
-    
-    from commands.ban import setup
-    setup(bot)
-    
-    from commands.oplusadmin import setup
     setup(bot)
     
     from commands.boardgame import setup

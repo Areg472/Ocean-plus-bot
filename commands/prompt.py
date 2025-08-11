@@ -52,7 +52,7 @@ class MediaSelectionView(discord.ui.View):
         thinking_embed.add_field(name="Prompt", value=self.query[:1000], inline=False)
         thinking_embed.add_field(name="Media Files", value=f"{media_description} (using {model_name})", inline=False)
 
-        await interaction.edit_original_response(embed=thinking_embed)  # Remove view here
+        await interaction.edit_original_response(embed=thinking_embed)
 
         try:
             if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5"]:
@@ -91,7 +91,6 @@ class MediaSelectionView(discord.ui.View):
         else:
             response_embed.add_field(name="Answer", value=answer, inline=False)
 
-        # Only show the button if think_text is present
         if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5"] and think_text:
             view = ThinkingButtonView(think_text)
             await interaction.edit_original_response(embed=response_embed, view=view)
@@ -279,7 +278,7 @@ async def prompt_command(
 
     if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5"]:
         view = ThinkingButtonView("Waiting for {} to think... (reclick the button once the output is emitted to see what {} thought.)".format(model_name, model_name))
-        await interaction.response.send_message(embed=thinking_embed)  # Remove view here
+        await interaction.response.send_message(embed=thinking_embed)
     else:
         await interaction.response.send_message(embed=thinking_embed)
 
@@ -320,9 +319,10 @@ async def prompt_command(
     else:
         response_embed.add_field(name="Answer", value=answer, inline=False)
 
-    # Only show the button if think_text is present
     if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5"] and think_text:
         view = ThinkingButtonView(think_text or "No thinking output available.")
         await interaction.edit_original_response(embed=response_embed, view=view)
+    else:
+        await interaction.edit_original_response(embed=response_embed)
     else:
         await interaction.edit_original_response(embed=response_embed)

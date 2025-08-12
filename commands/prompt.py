@@ -30,10 +30,10 @@ class MediaSelectionView(discord.ui.View):
             model_name = "Voxtral Mini" if model == "voxtral-mini-2507" else "Voxtral Small"
             media_description = f"📎 {self.audio.filename}"
         else:
-            model = "mistral-small-2506" if self.model not in ["mistral-small-2506", "mistral-medium-2505", "gpt-5-nano", "gpt-5-mini", "gpt-5"] else self.model
+            model = "mistral-small-2506" if self.model not in ["mistral-small-2506", "mistral-medium-2508", "gpt-5-nano", "gpt-5-mini", "gpt-5"] else self.model
             if model == "mistral-small-2506":
                 model_name = "Mistral Small"
-            elif model == "mistral-medium-2505":
+            elif model == "mistral-medium-2508":
                 model_name = "Mistral Medium"
             elif model == "gpt-5-nano":
                 model_name = "GPT 5 Nano"
@@ -159,7 +159,7 @@ MODEL_CHOICES = [
     app_commands.Choice(name="Qwen 3 (Thinking)", value="Qwen/Qwen3-235B-A22B-fp8-tput"),
     app_commands.Choice(name="GPT 5 Mini (Thinking)", value="gpt-5-mini"),
     app_commands.Choice(name="Magistral Small (Thinking)", value="magistral-small-2507"),
-    app_commands.Choice(name="Mistral Medium", value="mistral-medium-2505"),
+    app_commands.Choice(name="Mistral Medium", value="mistral-medium-2508"),
     app_commands.Choice(name="DeepSeek R1 (Thinking)", value="deepseek-ai/DeepSeek-R1-0528-tput"),
     app_commands.Choice(name="GPT 5 (Thinking)", value="gpt-5"),
     app_commands.Choice(name="Magistral Medium (Thinking)", value="magistral-medium-2507"),
@@ -233,7 +233,7 @@ async def prompt_command(
         if model not in ["voxtral-mini-2507", "voxtral-small-2507"]:
             model = "voxtral-mini-2507"
     elif images:
-        if model not in ["mistral-small-2506", "mistral-medium-2505", "gpt-5-nano", "gpt-5-mini", "gpt-5"]:
+        if model not in ["mistral-small-2506", "mistral-medium-2508", "gpt-5-nano", "gpt-5-mini", "gpt-5"]:
             model = "mistral-small-2506"
     else:
         if model in ["voxtral-mini-2507", "voxtral-small-2507"]:
@@ -243,7 +243,7 @@ async def prompt_command(
         model_name = "Mistral Small"
     elif model == "magistral-small-2507":
         model_name = "Magistral Small"
-    elif model == "mistral-medium-2505":
+    elif model == "mistral-medium-2508":
         model_name = "Mistral Medium"
     elif model == "openai/gpt-oss-120b":
         model_name = "GPT OSS"

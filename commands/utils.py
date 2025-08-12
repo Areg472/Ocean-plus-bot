@@ -129,7 +129,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                         return response.choices[0].message.content if response.choices else "No content received from Mistral.", None
 
                 response_text, think_text = await asyncio.to_thread(sync_stream)
-            elif model in ["mistral-small-2506", "mistral-medium-2505", "gpt-5-nano", "gpt-5-mini", "gpt-5"] and (image_url or image_urls):
+            elif model in ["mistral-small-2506", "mistral-medium-2508", "gpt-5-nano", "gpt-5-mini", "gpt-5"] and (image_url or image_urls):
                 def sync_image():
                     if model.startswith("gpt-5"):
                         content = [{"type": "input_text", "text": prompt}]

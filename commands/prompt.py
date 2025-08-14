@@ -306,7 +306,7 @@ async def prompt_command(
     elif model == "o4-mini":
         model_name = "o4 Mini"
     elif model == "gpt-5-chat-latest":
-        model_name = "GPT 5 Chat Latest"
+        model_name = "ChatGPT 5"
 
     thinking_embed = discord.Embed(
         title="🤔 Thinking...",

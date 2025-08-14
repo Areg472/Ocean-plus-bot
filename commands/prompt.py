@@ -202,9 +202,9 @@ MODEL_CHOICES = [
 @app_commands.describe(
     query="The prompt you want to ask",
     model="Choose the AI model to use",
-    image="Upload first image file (for Mistral Small/Medium and GPT models)",
-    image2="Upload second image file (for Mistral Small/Medium and GPT models)",
-    image3="Upload third image file (for Mistral Small/Medium and GPT models)",
+    image="Upload first image file (for Mistral Small/Medium, o4 Mini, and GPT models)",
+    image2="Upload second image file (for Mistral Small/Medium, o4 Mini, and GPT models)",
+    image3="Upload third image file (for Mistral Small/Medium, o4 Mini, and GPT models)",
     audio="Upload an audio file (only for Voxtral models)",
 )
 @app_commands.choices(model=MODEL_CHOICES)

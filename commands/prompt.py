@@ -174,18 +174,18 @@ MODEL_CHOICES = [
     app_commands.Choice(name="Mistral Small", value="mistral-small-2506"),
     app_commands.Choice(name="GPT 5 Nano (Thinking)", value="gpt-5-nano"),
     app_commands.Choice(name="Voxtral Small", value="voxtral-small-2507"),
+    app_commands.Choice(name="GPT 4.1 Nano", value="gpt-4.1-nano"),
     app_commands.Choice(name="GPT OSS (Thinking)", value="openai/gpt-oss-120b"),
     app_commands.Choice(name="Qwen 3 (Thinking)", value="Qwen/Qwen3-235B-A22B-fp8-tput"),
     app_commands.Choice(name="GPT 5 Mini (Thinking)", value="gpt-5-mini"),
     app_commands.Choice(name="Magistral Small (Thinking)", value="magistral-small-2507"),
+    app_commands.Choice(name="GPT 4.1 Mini", value="gpt-4.1-mini"),
     app_commands.Choice(name="Mistral Medium", value="mistral-medium-2508"),
     app_commands.Choice(name="DeepSeek R1 (Thinking)", value="deepseek-ai/DeepSeek-R1-0528-tput"),
+    app_commands.Choice(name="o4 Mini", value="o4-mini"),
     app_commands.Choice(name="GPT 5 (Thinking)", value="gpt-5"),
     app_commands.Choice(name="Magistral Medium (Thinking)", value="magistral-medium-2507"),
     app_commands.Choice(name="GPT 4.1", value="gpt-4.1"),
-    app_commands.Choice(name="GPT 4.1 Mini", value="gpt-4.1-mini"),
-    app_commands.Choice(name="GPT 4.1 Nano", value="gpt-4.1-nano"),
-    app_commands.Choice(name="o4 Mini", value="o4-mini"),
 ]
 
 @app_commands.allowed_installs(guilds=True, users=True)

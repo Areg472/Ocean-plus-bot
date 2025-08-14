@@ -201,7 +201,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                         think_text = response.output[0].summary[0].text if response.output[0].summary else None
                     return response_text, think_text
                 elif model.startswith("gpt-4.1"):
-                    response_text = response.choices[0].message.content if response.choices else "No content received from GPT-4.1."
+                    response_text = response.choices[0].message.content if response.choices else "No content received from GPT."
                     think_text = None
                     return response_text, think_text
                 else:
@@ -252,7 +252,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                         think_text = response.output[0].summary[0].text if response.output[0].summary else None
                     return response_text, think_text
                 else:
-                    response_text = response.choices[0].message.content if response.choices else "No content received from GPT-4.1."
+                    response_text = response.choices[0].message.content if response.choices else "No content received from GPT."
                     think_text = None
                     return response_text, think_text
             else:

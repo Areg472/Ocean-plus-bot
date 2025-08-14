@@ -194,9 +194,9 @@ MODEL_CHOICES = [
 @app_commands.describe(
     query="The prompt you want to ask",
     model="Choose the AI model to use",
-    image="Upload first image file (for Mistral Small/Medium and GPT-5 models)",
-    image2="Upload second image file (for Mistral Small/Medium and GPT-5 models)",
-    image3="Upload third image file (for Mistral Small/Medium and GPT-5 models)",
+    image="Upload first image file (for Mistral Small/Medium and GPT models)",
+    image2="Upload second image file (for Mistral Small/Medium and GPT models)",
+    image3="Upload third image file (for Mistral Small/Medium and GPT models)",
     audio="Upload an audio file (only for Voxtral models)",
 )
 @app_commands.choices(model=MODEL_CHOICES)
@@ -307,22 +307,7 @@ async def prompt_command(
         image_names = [img.filename for img in images]
         thinking_embed.add_field(name="Image Files", value=f"🖼️ {', '.join(image_names)} (using {model_name})", inline=False)
 
-    if model in ["deepseek-ai/DeepSeek-R1-0528-tput",
-                 "Qwen/Qwen3-235B-A22B-fp8-tput",
-                 "magistral-small-2507",
-                 "magistral-medium-2507",
-                 "openai/gpt-oss-120b",
-                 "gpt-5-nano",
-                 "gpt-5-mini",
-                 "gpt-5",
-                 "o4-mini"]:
-        view = ThinkingButtonView(
-            "Waiting for {} to think... (reclick the button once the output is emitted to see what {} thought.)"
-            .format(model_name, model_name)
-        )
-        await interaction.response.send_message(embed=thinking_embed, view=view)
-    else:
-        await interaction.response.send_message(embed=thinking_embed)
+    await interaction.response.send_message(embed=thinking_embed)
 
     try:
         if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:

@@ -129,78 +129,132 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                         return response.choices[0].message.content if response.choices else "No content received from Mistral.", None
 
                 response_text, think_text = await asyncio.to_thread(sync_stream)
-            elif model in ["mistral-small-2506", "mistral-medium-2508",
-                           "gpt-5-nano", "gpt-5-mini", "gpt-5",
-                           "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano", "4o-mini"] \
-                 and (image_url or image_urls):
+            elif model in ["mistral-small-2506", "mistral-medium-2508", "gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano", "4o-mini"] and (image_url or image_urls):
                 def sync_image():
-                    # reasoning-capable: GPT-5 family + 4o-mini
-                    if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "4o-mini"]:
+                    if model.startswith("gpt-5") or model == "4o-mini":
                         content = [{"type": "input_text", "text": prompt}]
+                        
                         if image_urls:
-                            content += [{"type": "input_image", "image_url": url} for url in image_urls]
+                            content.extend({"type": "input_image", "image_url": url} for url in image_urls)
                         elif image_url:
                             content.append({"type": "input_image", "image_url": image_url})
-                        resp = openAI_client.responses.create(
+                        
+                        response = openAI_client.responses.create(
                             model=model,
-                            input=[{"role": "user", "content": content}],
+                            input=[{
+                                "role": "user",
+                                "content": content
+                            }],
                             service_tier="flex",
-                            reasoning={"effort": "medium", "summary": "auto"}
+                            reasoning={
+                                "effort": "medium",
+                                "summary": "auto"
+                            } if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "4o-mini"] else None
                         )
-                        # extract answer and reasoning summary
-                        text = resp.output[1].content[0].text if resp.output and len(resp.output) > 1 else ""
-                        summary = resp.output[0].summary[0].text if resp.output and resp.output[0].summary else None
-                        return text, summary
-                    # GPT-4.1 variants: plain chat
+                        return response
                     elif model.startswith("gpt-4.1"):
-                        user_msg = prompt
-                        imgs = image_urls or ([image_url] if image_url else [])
-                        if imgs:
-                            user_msg += "\n\nImages:\n" + "\n".join(imgs)
-                        resp = openAI_client.chat.completions.create(
+                        content = [{"type": "text", "text": prompt}]
+                        
+                        if image_urls:
+                            for img_url in image_urls:
+                                content.append({"type": "image_url", "image_url": {"url": img_url}})
+                        elif image_url:
+                            content.append({"type": "image_url", "image_url": {"url": image_url}})
+                        
+                        messages = [
+                            {"role": "system", "content": instructions},
+                            {"role": "user", "content": content}
+                        ]
+                        
+                        response = openAI_client.chat.completions.create(
                             model=model,
-                            messages=[{"role": "system", "content": instructions},
-                                      {"role": "user",   "content": user_msg}]
+                            messages=messages
                         )
-                        return resp.choices[0].message.content, None
-                    # fallback Mistral
-                    content = [{"type": "text", "text": prompt}]
-                    if image_urls:
-                        content += [{"type": "image_url", "image_url": url} for url in image_urls]
-                    elif image_url:
-                        content.append({"type": "image_url", "image_url": image_url})
-                    resp = client.chat.complete(model=model,
-                                               messages=[{"role": "system", "content": instructions},
-                                                         {"role": "user",   "content": content}])
-                    return resp.choices[0].message.content, None
-
-                response_text, think_text = await asyncio.to_thread(sync_image)
-
-            elif model in ["gpt-5-nano", "gpt-5-mini", "gpt-5",
-                           "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano", "4o-mini"]:
-                def sync_gpt():
-                    # reasoning-capable: GPT-5 family + 4o-mini
-                    if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "4o-mini"]:
-                        content = [{"type": "input_text", "text": prompt}]
-                        resp = openAI_client.responses.create(
-                            model=model,
-                            input=[{"role": "user", "content": content}],
-                            service_tier="flex",
-                            reasoning={"effort": "medium", "summary": "auto"}
-                        )
-                        text = resp.output[1].content[0].text if resp.output and len(resp.output) > 1 else ""
-                        summary = resp.output[0].summary[0].text if resp.output and resp.output[0].summary else None
-                        return text, summary
-                    # GPT-4.1 variants: plain chat
+                        return response
                     else:
-                        resp = openAI_client.chat.completions.create(
+                        content = [{"type": "text", "text": prompt}]
+                        
+                        if image_urls:
+                            for img_url in image_urls:
+                                content.append({"type": "image_url", "image_url": img_url})
+                        elif image_url:
+                            content.append({"type": "image_url", "image_url": image_url})
+                        
+                        messages = [
+                            {"role": "system", "content": instructions},
+                            {"role": "user", "content": content}
+                        ]
+                        
+                        response = client.chat.complete(
                             model=model,
-                            messages=[{"role": "system", "content": instructions},
-                                      {"role": "user",   "content": prompt}]
+                            messages=messages
                         )
-                        return resp.choices[0].message.content, None
+                        return response
+                
+                response = await asyncio.to_thread(sync_image)
+                
+                if model.startswith("gpt-5") or model == "4o-mini":
+                    print(response)
+                    response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT."
+                    think_text = None
+                    if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "4o-mini"] and response.output and len(response.output) > 0 and hasattr(response.output[0], 'summary') and response.output[0].summary:
+                        think_text = response.output[0].summary[0].text if response.output[0].summary else None
+                    return response_text, think_text
+                elif model.startswith("gpt-4.1"):
+                    response_text = response.choices[0].message.content if response.choices else "No content received from GPT-4.1."
+                    think_text = None
+                    return response_text, think_text
+                else:
+                    response_text = response.choices[0].message.content if response.choices else "No content received from Mistral."
+                    think_text = None
+            elif model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano", "4o-mini"]:
+                def sync_gpt():
+                    if model.startswith("gpt-5") or model == "4o-mini":
+                        content = [{"type": "input_text", "text": prompt}]
+                        
+                        if image_url:
+                            content.append({"type": "input_image", "image_url": image_url})
+                        if image_urls:
+                            content.extend({"type": "input_image", "image_url": url} for url in image_urls)
+                        
+                        response = openAI_client.responses.create(
+                            model=model,
+                            input=[{
+                                "role": "user",
+                                "content": content
+                            }],
+                            service_tier="flex",
+                            reasoning={
+                                "effort": "medium",
+                                "summary": "auto"
+                            } if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "4o-mini"] else None
+                        )
+                        return response
+                    else:
+                        messages = [
+                            {"role": "system", "content": instructions},
+                            {"role": "user", "content": prompt}
+                        ]
+                        
+                        response = openAI_client.chat.completions.create(
+                            model=model,
+                            messages=messages
+                        )
+                        return response
 
-                response_text, think_text = await asyncio.to_thread(sync_gpt)
+                response = await asyncio.to_thread(sync_gpt)
+                print(response)
+                
+                if model.startswith("gpt-5") or model == "4o-mini":
+                    response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT."
+                    think_text = None
+                    if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "4o-mini"] and response.output and len(response.output) > 0 and hasattr(response.output[0], 'summary') and response.output[0].summary:
+                        think_text = response.output[0].summary[0].text if response.output[0].summary else None
+                    return response_text, think_text
+                else:
+                    response_text = response.choices[0].message.content if response.choices else "No content received from GPT-4.1."
+                    think_text = None
+                    return response_text, think_text
             else:
                 messages = [
                     {"role": "system", "content": instructions},

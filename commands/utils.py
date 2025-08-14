@@ -149,7 +149,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                                 "role": "user",
                                 "content": content
                             }],
-                            service_tier="flex",
+                            service_tier="flex" if model != "gpt-5-chat-latest" else None,
                             reasoning={
                                 "effort": "medium",
                                 "summary": "auto"
@@ -230,7 +230,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                                 "role": "user",
                                 "content": content
                             }],
-                            service_tier="flex",
+                            service_tier="flex" if model != "gpt-5-chat-latest" else None,
                             reasoning={
                                 "effort": "medium",
                                 "summary": "auto"

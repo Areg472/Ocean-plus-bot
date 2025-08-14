@@ -189,7 +189,7 @@ MODEL_CHOICES = [
     app_commands.Choice(name="GPT 4.1 Mini", value="gpt-4.1-mini"),
     app_commands.Choice(name="Mistral Medium", value="mistral-medium-2508"),
     app_commands.Choice(name="DeepSeek R1 (Thinking)", value="deepseek-ai/DeepSeek-R1-0528-tput"),
-    app_commands.Choice(name="o4 Mini", value="o4-mini"),
+    app_commands.Choice(name="o4 Mini (Thinking)", value="o4-mini"),
     app_commands.Choice(name="GPT 5 (Thinking)", value="gpt-5"),
     app_commands.Choice(name="Magistral Medium (Thinking)", value="magistral-medium-2507"),
     app_commands.Choice(name="GPT 4.1", value="gpt-4.1"),

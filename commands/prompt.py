@@ -30,7 +30,12 @@ class MediaSelectionView(discord.ui.View):
             model_name = "Voxtral Mini" if model == "voxtral-mini-2507" else "Voxtral Small"
             media_description = f"📎 {self.audio.filename}"
         else:
-            model = "mistral-small-2506" if self.model not in ["mistral-small-2506", "mistral-medium-2508", "gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano", "o4-mini"] else self.model
+            model = "mistral-small-2506" if self.model not in [
+                "mistral-small-2506","mistral-medium-2508","gpt-5-nano",
+                "gpt-5-mini","gpt-5","gpt-4.1","gpt-4.1-mini","gpt-4.1-nano",
+                "o4-mini","gpt-5-chat-latest"
+            ] else self.model
+
             if model == "mistral-small-2506":
                 model_name = "Mistral Small"
             elif model == "mistral-medium-2508":
@@ -48,7 +53,9 @@ class MediaSelectionView(discord.ui.View):
             elif model == "gpt-4.1-nano":
                 model_name = "GPT 4.1 Nano"
             elif model == "o4-mini":
-                model_name = "GPT 4o Mini"
+                model_name = "o4 Mini"
+            elif model == "gpt-5-chat-latest":
+                model_name = "ChatGPT 5"
             image_names = [img.filename for img in self.images]
             media_description = f"🖼️ {', '.join(image_names)}"
 
@@ -186,6 +193,7 @@ MODEL_CHOICES = [
     app_commands.Choice(name="GPT 5 (Thinking)", value="gpt-5"),
     app_commands.Choice(name="Magistral Medium (Thinking)", value="magistral-medium-2507"),
     app_commands.Choice(name="GPT 4.1", value="gpt-4.1"),
+    app_commands.Choice(name="ChatGPT 5", value="gpt-5-chat-latest"),
 ]
 
 @app_commands.allowed_installs(guilds=True, users=True)
@@ -256,7 +264,10 @@ async def prompt_command(
         if model not in ["voxtral-mini-2507", "voxtral-small-2507"]:
             model = "voxtral-mini-2507"
     elif images:
-        if model not in ["mistral-small-2506", "mistral-medium-2508", "gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano", "o4-mini"]:
+        if model not in ["mistral-small-2506","mistral-medium-2508",
+                         "gpt-5-nano","gpt-5-mini","gpt-5","gpt-4.1",
+                         "gpt-4.1-mini","gpt-4.1-nano","o4-mini",
+                         "gpt-5-chat-latest"]:
             model = "mistral-small-2506"
     else:
         if model in ["voxtral-mini-2507", "voxtral-small-2507"]:
@@ -294,6 +305,8 @@ async def prompt_command(
         model_name = "GPT 4.1 Nano"
     elif model == "o4-mini":
         model_name = "o4 Mini"
+    elif model == "gpt-5-chat-latest":
+        model_name = "GPT 5 Chat Latest"
 
     thinking_embed = discord.Embed(
         title="🤔 Thinking...",

@@ -129,7 +129,11 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                         return response.choices[0].message.content if response.choices else "No content received from Mistral.", None
 
                 response_text, think_text = await asyncio.to_thread(sync_stream)
-            elif model in ["mistral-small-2506", "mistral-medium-2508", "gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano", "o4-mini"] and (image_url or image_urls):
+            elif model in [
+                "mistral-small-2506","mistral-medium-2508","gpt-5-nano",
+                "gpt-5-mini","gpt-5","gpt-4.1","gpt-4.1-mini","gpt-4.1-nano",
+                "o4-mini","gpt-5-chat-latest"
+            ] and (image_url or image_urls):
                 def sync_image():
                     if model.startswith("gpt-5") or model == "o4-mini":
                         content = [{"type": "input_text", "text": prompt}]
@@ -207,7 +211,10 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 else:
                     response_text = response.choices[0].message.content if response.choices else "No content received from Mistral."
                     think_text = None
-            elif model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano", "o4-mini"]:
+            elif model in [
+                "gpt-5-nano","gpt-5-mini","gpt-5","gpt-4.1","gpt-4.1-mini",
+                "gpt-4.1-nano","o4-mini","gpt-5-chat-latest"
+            ]:
                 def sync_gpt():
                     if model.startswith("gpt-5") or model == "o4-mini":
                         content = [{"type": "input_text", "text": prompt}]

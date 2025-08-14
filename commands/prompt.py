@@ -174,7 +174,7 @@ MODEL_CHOICES = [
     app_commands.Choice(name="GPT 4.1", value="gpt-4.1"),
     app_commands.Choice(name="GPT 4.1 Mini", value="gpt-4.1-mini"),
     app_commands.Choice(name="GPT 4.1 Nano", value="gpt-4.1-nano"),
-    app_commands.Choice(name="GPT 4o Mini", value="4o-mini"),
+    app_commands.Choice(name="o4 Mini", value="o4-mini"),
 ]
 
 @app_commands.allowed_installs(guilds=True, users=True)
@@ -281,8 +281,8 @@ async def prompt_command(
         model_name = "GPT 4.1 Mini"
     elif model == "gpt-4.1-nano":
         model_name = "GPT 4.1 Nano"
-    elif model == "4o-mini":
-        model_name = "GPT 4o Mini"
+    elif model == "o4-mini":
+        model_name = "o4 Mini"
 
     thinking_embed = discord.Embed(
         title="🤔 Thinking...",

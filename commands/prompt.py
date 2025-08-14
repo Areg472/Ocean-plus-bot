@@ -60,7 +60,18 @@ class MediaSelectionView(discord.ui.View):
         thinking_embed.add_field(name="Prompt", value=self.query[:1000], inline=False)
         thinking_embed.add_field(name="Media Files", value=f"{media_description} (using {model_name})", inline=False)
 
-        await interaction.edit_original_response(embed=thinking_embed)
+        thinking_models = [
+            "deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput",
+            "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b",
+            "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"
+        ]
+        if model in thinking_models:
+            view = ThinkingButtonView(
+                f"Waiting for {model_name} to think… (reclick to see what {model_name} thought.)"
+            )
+            await interaction.edit_original_response(embed=thinking_embed, view=view)
+        else:
+            await interaction.edit_original_response(embed=thinking_embed)
 
         try:
             if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
@@ -296,9 +307,20 @@ async def prompt_command(
         image_names = [img.filename for img in images]
         thinking_embed.add_field(name="Image Files", value=f"🖼️ {', '.join(image_names)} (using {model_name})", inline=False)
 
-    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
-        view = ThinkingButtonView("Waiting for {} to think... (reclick the button once the output is emitted to see what {} thought.)".format(model_name, model_name))
-        await interaction.response.send_message(embed=thinking_embed)
+    if model in ["deepseek-ai/DeepSeek-R1-0528-tput",
+                 "Qwen/Qwen3-235B-A22B-fp8-tput",
+                 "magistral-small-2507",
+                 "magistral-medium-2507",
+                 "openai/gpt-oss-120b",
+                 "gpt-5-nano",
+                 "gpt-5-mini",
+                 "gpt-5",
+                 "o4-mini"]:
+        view = ThinkingButtonView(
+            "Waiting for {} to think... (reclick the button once the output is emitted to see what {} thought.)"
+            .format(model_name, model_name)
+        )
+        await interaction.response.send_message(embed=thinking_embed, view=view)
     else:
         await interaction.response.send_message(embed=thinking_embed)
 

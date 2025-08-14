@@ -129,9 +129,9 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                         return response.choices[0].message.content if response.choices else "No content received from Mistral.", None
 
                 response_text, think_text = await asyncio.to_thread(sync_stream)
-            elif model in ["mistral-small-2506", "mistral-medium-2508", "gpt-5-nano", "gpt-5-mini", "gpt-5"] and (image_url or image_urls):
+            elif model in ["mistral-small-2506", "mistral-medium-2508", "gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano", "gpt-o4-mini"] and (image_url or image_urls):
                 def sync_image():
-                    if model.startswith("gpt-5"):
+                    if model.startswith("gpt-5") or model.startswith("gpt-4.1") or model == "gpt-o4-mini":
                         content = [{"type": "input_text", "text": prompt}]
                         
                         if image_urls:
@@ -149,7 +149,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                             reasoning={
                                 "effort": "medium",
                                 "summary": "auto"
-                            }
+                            } if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-o4-mini"] else None
                         )
                         return response
                     else:
@@ -174,18 +174,18 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 
                 response = await asyncio.to_thread(sync_image)
                 
-                if model.startswith("gpt-5"):
+                if model.startswith("gpt-5") or model.startswith("gpt-4.1") or model == "gpt-o4-mini":
                     print(response)
-                    response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT-5."
+                    response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT."
                     think_text = None
-                    if response.output and len(response.output) > 0 and hasattr(response.output[0], 'summary') and response.output[0].summary:
+                    if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-o4-mini"] and response.output and len(response.output) > 0 and hasattr(response.output[0], 'summary') and response.output[0].summary:
                         think_text = response.output[0].summary[0].text if response.output[0].summary else None
                     return response_text, think_text
                 else:
                     response_text = response.choices[0].message.content if response.choices else "No content received from Mistral."
                     think_text = None
-            elif model in ["gpt-5-nano", "gpt-5-mini", "gpt-5"]:
-                def sync_gpt5():
+            elif model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano", "gpt-o4-mini"]:
+                def sync_gpt():
                     content = [{"type": "input_text", "text": prompt}]
                     
                     if image_url:
@@ -203,16 +203,16 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                         reasoning={
                             "effort": "medium",
                             "summary": "auto"
-                        }
+                        } if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-o4-mini"] else None
                     )
                     return response
 
-                response = await asyncio.to_thread(sync_gpt5)
+                response = await asyncio.to_thread(sync_gpt)
                 print(response)
-                response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT-5."
+                response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT."
 
                 think_text = None
-                if response.output and len(response.output) > 0 and hasattr(response.output[0], 'summary') and response.output[0].summary:
+                if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-o4-mini"] and response.output and len(response.output) > 0 and hasattr(response.output[0], 'summary') and response.output[0].summary:
                     think_text = response.output[0].summary[0].text if response.output[0].summary else None
                 return response_text, think_text
             else:
@@ -232,7 +232,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
             elapsed = time.time() - start_time
             print(f"The API provider for AI responded in {elapsed:.2f}s")
 
-            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5"]:
+            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-o4-mini"]:
                 return response_text.strip() if response_text else "No content received from the AI.", think_text
             else:
                 return response_text.strip() if response_text else "No content received from the AI.", None
@@ -267,7 +267,7 @@ async def get_ai_response(
 
     result = await handle_api_call_stream(question, instructions, timeout, model, audio_url, image_url, image_urls)
     
-    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5"]:
+    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "gpt-o4-mini"]:
         return result
     else:
         return result[0] if isinstance(result, tuple) else result 

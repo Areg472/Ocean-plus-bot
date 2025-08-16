@@ -64,7 +64,12 @@ class MediaSelectionView(discord.ui.View):
             description=f"Processing your prompt with {model_name}...",
             color=0x4285f4
         )
-        thinking_embed.add_field(name="Prompt", value=self.query[:1000], inline=False)
+        if len(self.query) > 1024:
+            chunks = [self.query[i:i + 1024] for i in range(0, len(self.query), 1024)]
+            for idx, chunk in enumerate(chunks, start=1):
+                thinking_embed.add_field(name=f"Prompt (Part {idx})", value=chunk, inline=False)
+        else:
+            thinking_embed.add_field(name="Prompt", value=self.query, inline=False)
         thinking_embed.add_field(name="Media Files", value=f"{media_description} (using {model_name})", inline=False)
 
         thinking_models = [
@@ -102,7 +107,12 @@ class MediaSelectionView(discord.ui.View):
             think_text = None
 
         response_embed = discord.Embed(title="💡 Output", color=0x34a853)
-        response_embed.add_field(name="Prompt", value=self.query[:1000], inline=False)
+        if len(self.query) > 1024:
+            chunks = [self.query[i:i + 1024] for i in range(0, len(self.query), 1024)]
+            for idx, chunk in enumerate(chunks, start=1):
+                response_embed.add_field(name=f"Prompt (Part {idx})", value=chunk, inline=False)
+        else:
+            response_embed.add_field(name="Prompt", value=self.query, inline=False)
         
         if use_audio:
             response_embed.add_field(name="Audio File", value=f"[{self.audio.filename}]({self.audio.url})", inline=False)
@@ -314,6 +324,12 @@ async def prompt_command(
         color=0x4285f4
     )
     thinking_embed.add_field(name="Prompt", value=query[:1000], inline=False)
+    if len(query) > 1024:
+        chunks = [query[i:i + 1024] for i in range(0, len(query), 1024)]
+        for idx, chunk in enumerate(chunks, start=1):
+            thinking_embed.add_field(name=f"Prompt (Part {idx})", value=chunk, inline=False)
+    else:
+        thinking_embed.add_field(name="Prompt", value=query, inline=False)
     if audio:
         thinking_embed.add_field(name="Audio File", value=f"📎 {audio.filename} (using {model_name})", inline=False)
     elif images:
@@ -345,6 +361,12 @@ async def prompt_command(
 
     response_embed = discord.Embed(title="💡 Output", color=0x34a853)
     response_embed.add_field(name="Prompt", value=query[:1000], inline=False)
+    if len(query) > 1024:
+        chunks = [query[i:i + 1024] for i in range(0, len(query), 1024)]
+        for idx, chunk in enumerate(chunks, start=1):
+            response_embed.add_field(name=f"Prompt (Part {idx})", value=chunk, inline=False)
+    else:
+        response_embed.add_field(name="Prompt", value=query, inline=False)
 
     if audio:
         response_embed.add_field(name="Audio File", value=f"[{audio.filename}]({audio.url})", inline=False)

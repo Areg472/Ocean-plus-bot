@@ -100,7 +100,12 @@ async def perplexity_command(
         description="Your query is being processed.",
         color=0x4285f4
     )
-    thinking_embed.add_field(name="Query", value=query[:1000], inline=False)
+    if len(query) > 1024:
+        chunks = [query[i:i + 1024] for i in range(0, len(query), 1024)]
+        for idx, chunk in enumerate(chunks, start=1):
+            thinking_embed.add_field(name=f"Query (Part {idx})", value=chunk, inline=False)
+    else:
+        thinking_embed.add_field(name="Query", value=query, inline=False)
     await interaction.response.send_message(embed=thinking_embed)
 
     domain_list = None
@@ -121,6 +126,12 @@ async def perplexity_command(
         color=0x34a853
     )
     output_embed.add_field(name="Query", value=query[:1000], inline=False)
+    if len(query) > 1024:
+        chunks = [query[i:i + 1024] for i in range(0, len(query), 1024)]
+        for idx, chunk in enumerate(chunks, start=1):
+            output_embed.add_field(name=f"Query (Part {idx})", value=chunk, inline=False)
+    else:
+        output_embed.add_field(name="Query", value=query, inline=False)
     if result:
         chunks = [result[i:i + 1024] for i in range(0, len(result), 1024)]
         for idx, chunk in enumerate(chunks, start=1):

@@ -132,7 +132,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
             elif model in [
                 "mistral-small-2506","mistral-medium-2508","gpt-5-nano",
                 "gpt-5-mini","gpt-5","gpt-4.1","gpt-4.1-mini","gpt-4.1-nano",
-                "o4-mini","gpt-5-chat-latest"
+                "o4-mini"
             ] and (image_url or image_urls):
                 def sync_image():
                     if model.startswith("gpt-5") or model == "o4-mini":
@@ -149,7 +149,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                                 "role": "user",
                                 "content": content
                             }],
-                            service_tier="flex" if model != "gpt-5-chat-latest" else None,
+                            service_tier="flex",
                             reasoning={
                                 "effort": "medium",
                                 "summary": "auto"
@@ -199,14 +199,10 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
 
                 if model.startswith("gpt-5") or model == "o4-mini":
                     print(response)
-                    if model == "gpt-5-chat-latest":
-                        response_text = response.output[0].content[0].text if response.output and len(response.output) > 0 and response.output[0].content else "No content received from GPT."
-                        think_text = None
-                    else:
-                        response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT."
-                        think_text = None
-                        if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"] and response.output and len(response.output) > 0 and hasattr(response.output[0], 'summary') and response.output[0].summary:
-                            think_text = response.output[0].summary[0].text if response.output[0].summary else None
+                    response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT."
+                    think_text = None
+                    if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"] and response.output and len(response.output) > 0 and hasattr(response.output[0], 'summary') and response.output[0].summary:
+                        think_text = response.output[0].summary[0].text if response.output[0].summary else None
                     return response_text, think_text
                 elif model.startswith("gpt-4.1"):
                     response_text = response.choices[0].message.content if response.choices else "No content received from GPT."
@@ -217,7 +213,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                     think_text = None
             elif model in [
                 "gpt-5-nano","gpt-5-mini","gpt-5","gpt-4.1","gpt-4.1-mini",
-                "gpt-4.1-nano","o4-mini","gpt-5-chat-latest"
+                "gpt-4.1-nano","o4-mini"
             ]:
                 def sync_gpt():
                     if model.startswith("gpt-5") or model == "o4-mini":
@@ -234,7 +230,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                                 "role": "user",
                                 "content": content
                             }],
-                            service_tier="flex" if model != "gpt-5-chat-latest" else None,
+                            service_tier="flex",
                             reasoning={
                                 "effort": "medium",
                                 "summary": "auto"
@@ -257,14 +253,10 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 print(response)
                 
                 if model.startswith("gpt-5") or model == "o4-mini":
-                    if model == "gpt-5-chat-latest":
-                        response_text = response.output[0].content[0].text if response.output and len(response.output) > 0 and response.output[0].content else "No content received from GPT."
-                        think_text = None
-                    else:
-                        response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT."
-                        think_text = None
-                        if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"] and response.output and len(response.output) > 0 and hasattr(response.output[0], 'summary') and response.output[0].summary:
-                            think_text = response.output[0].summary[0].text if response.output[0].summary else None
+                    response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT."
+                    think_text = None
+                    if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"] and response.output and len(response.output) > 0 and hasattr(response.output[0], 'summary') and response.output[0].summary:
+                        think_text = response.output[0].summary[0].text if response.output[0].summary else None
                     return response_text, think_text
                 else:
                     response_text = response.choices[0].message.content if response.choices else "No content received from GPT."

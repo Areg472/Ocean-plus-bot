@@ -353,7 +353,6 @@ async def prompt_command(
         think_text = None
 
     response_embed = discord.Embed(title="💡 Output", color=0x34a853)
-    response_embed.add_field(name="Prompt", value=query[:1000], inline=False)
     if len(query) > 1024:
         chunks = [query[i:i + 1024] for i in range(0, len(query), 1024)]
         for idx, chunk in enumerate(chunks, start=1):
@@ -378,5 +377,6 @@ async def prompt_command(
         view = ThinkingButtonView(think_text or "No thinking output available.")
         await interaction.edit_original_response(embed=response_embed, view=view)
     else:
+        await interaction.edit_original_response(embed=response_embed)
         await interaction.edit_original_response(embed=response_embed)
         await interaction.edit_original_response(embed=response_embed)

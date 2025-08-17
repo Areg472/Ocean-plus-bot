@@ -125,7 +125,6 @@ async def perplexity_command(
         title="🔎 Perplexity AI Result",
         color=0x34a853
     )
-    output_embed.add_field(name="Query", value=query[:1000], inline=False)
     if len(query) > 1024:
         chunks = [query[i:i + 1024] for i in range(0, len(query), 1024)]
         for idx, chunk in enumerate(chunks, start=1):
@@ -166,4 +165,5 @@ def is_valid_domain_or_url(item: str) -> bool:
         socket.gethostbyname(domain)
         return True
     except Exception:
+        return False
         return False

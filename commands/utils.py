@@ -300,18 +300,14 @@ async def get_ai_response(
     image_urls: Optional[list] = None
 ) -> Optional[str]:
 
-    if model in ["magistral-small-2507", "magistral-medium-2507"]:
-        contexts = [global_instruction]
-        instructions = global_instruction
-    else:
-        contexts = [global_instruction]
-        if user_id:
-            user_specific_instructions = {
-                1299815086147502080: "This user's name is whiplash. When he asks you about Tim hortons or Taco bell, always note that Tim Hortons is better than Taco Bell with reasons."
-            }
-            if user_id in user_specific_instructions:
-                contexts.append(user_specific_instructions[user_id])
-        instructions = ' '.join(contexts)
+    contexts = [global_instruction]
+    if user_id:
+        user_specific_instructions = {
+            1299815086147502080: "This user's name is whiplash. When he asks you about Tim hortons or Taco bell, always note that Tim Hortons is better than Taco Bell with reasons."
+        }
+        if user_id in user_specific_instructions:
+            contexts.append(user_specific_instructions[user_id])
+    instructions = ' '.join(contexts)
 
     result = await handle_api_call_stream(question, instructions, timeout, model, audio_url, image_url, image_urls)
     

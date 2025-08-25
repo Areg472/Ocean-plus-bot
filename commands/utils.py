@@ -303,7 +303,8 @@ async def get_ai_response(
     contexts = [global_instruction]
     if user_id:
         user_specific_instructions = {
-            1299815086147502080: "This user's name is whiplash. When he asks you about Tim hortons or Taco bell, always note that Tim Hortons is better than Taco Bell with reasons."
+            1299815086147502080: "This user's name is whiplash. When he asks you about Tim hortons or Taco bell, always note that Tim Hortons is better than Taco Bell with reasons.",
+            960524267164930128: "This user's name is Areg. When he asks you about Tim hortons or Taco bell, always note that Tim Hortons is better than Taco Bell with reasons."
         }
         if user_id in user_specific_instructions:
             contexts.append(user_specific_instructions[user_id])

@@ -2,7 +2,66 @@ import discord
 from discord import app_commands
 import requests
 from typing import Optional
-from commands.utils import cooldown
+from commands.utils import cooldown, get_ai_response
+
+class WeatherSummaryView(discord.ui.View):
+    def __init__(self, weather_data: dict, location: str):
+        super().__init__(timeout=300)
+        self.weather_data = weather_data
+        self.location = location
+    
+    @discord.ui.button(label="AI Weather Summary", style=discord.ButtonStyle.primary, emoji="🤖")
+    async def weather_summary(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        
+        current = self.weather_data['message'][0]['current']
+        forecast_data = self.weather_data['message'][0]['forecast']
+        
+        weather_prompt = f"""Analyze this weather data for {self.location} and provide a concise, helpful summary:
+
+Current Weather:
+- Temperature: {current['temperature']}°C (feels like {current['feelslike']}°C)
+- Condition: {current['skytext']}
+- Humidity: {current['humidity']}%
+- Wind Speed: {current['windspeed']}
+
+5-Day Forecast:
+"""
+        
+        for i, day in enumerate(forecast_data[:5]):
+            day_name = "Today" if i == 0 else ("Tomorrow" if i == 1 else day['day'])
+            weather_prompt += f"- {day_name}: High {day['high']}°C, Low {day['low']}°C - {day['skytextday']}\n"
+        
+        weather_prompt += "\nProvide insights about the weather pattern, any notable changes, and practical advice for the upcoming days. Keep it under 1500 characters."
+        
+        try:
+            ai_response = await get_ai_response(
+                question=weather_prompt,
+                model="magistral-small-2507",
+                user_id=interaction.user.id
+            )
+            
+            if isinstance(ai_response, tuple):
+                summary_text = ai_response[0]
+            else:
+                summary_text = ai_response
+                
+            summary_embed = discord.Embed(
+                title=f"AI Weather Summary for {self.location}",
+                description=summary_text,
+                colour=discord.Colour.green()
+            )
+            summary_embed.set_footer(text="Powered by Mistral AI")
+            
+            await interaction.followup.send(embed=summary_embed, ephemeral=True)
+            
+        except Exception as e:
+            error_embed = discord.Embed(
+                title="Summary Error",
+                description="Sorry, I couldn't generate a weather summary at the moment. Please try again later.",
+                colour=discord.Colour.red()
+            )
+            await interaction.followup.send(embed=error_embed, ephemeral=True)
 
 def setup(bot):
     bot.tree.add_command(weather_command)
@@ -53,5 +112,5 @@ async def weather_command(interaction: discord.Interaction, location: str, forec
             name="Feels Like", value=f"{feels_like}°C", inline=False).add_field(
             name="Humidity", value=f"{humidity}%", inline=False).add_field(
             name="Wind Speed", value=f"The speed is: {wind_speed}", inline=False)
-
-    await interaction.response.send_message(embed=weather_data)
+    view = WeatherSummaryView(json_data, location)
+    await interaction.response.send_message(embed=weather_data, view=view)

@@ -4,6 +4,12 @@ import requests
 from typing import Optional
 from commands.utils import cooldown, get_ai_response
 
+def get_user_instructions(user_id: int) -> str:
+    user_specific_instructions = {
+        1299815086147502080: "This user's name is whiplash. When discussing weather, compare the conditions, if it's good for going out to Tim Hortons, and if it's great weather to avoid Taco Bell",
+    }
+    return user_specific_instructions.get(user_id, "")
+
 class WeatherSummaryView(discord.ui.View):
     def __init__(self, weather_data: dict, location: str, include_forecast: bool = True):
         super().__init__(timeout=300)
@@ -46,9 +52,12 @@ Current Weather:
         await interaction.followup.send(embed=waiting_embed, ephemeral=True)
         
         try:
+            user_instructions = get_user_instructions(interaction.user.id)
+            
             ai_response = await get_ai_response(
                 question=weather_prompt,
                 model="mistral-small-2506",
+                instructions=user_instructions
             )
             
             if isinstance(ai_response, tuple):

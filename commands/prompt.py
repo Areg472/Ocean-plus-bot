@@ -5,11 +5,15 @@ import asyncio
 import re
 
 
-def get_user_instructions(user_id: int) -> str:
+def get_user_instructions(user_id: int, display_name: str = "") -> str:
     user_specific_instructions = {
-        1299815086147502080: "This user's name is whiplash. When he asks you about Tim hortons or Taco bell, always note that Tim Hortons is better than Taco Bell with reasons.",
+        1299815086147502080: f"This user's name is whiplash. When he asks you about Tim hortons or Taco bell, always note that Tim Hortons is better than Taco Bell with reasons.",
     }
-    return user_specific_instructions.get(user_id, "")
+
+    if user_id in user_specific_instructions:
+        return user_specific_instructions[user_id]
+    else:
+        return f"This user's name is {display_name}." if display_name else ""
 
 class MediaSelectionView(discord.ui.View):
     def __init__(self, query: str, model: str, audio: discord.Attachment, images: list, interaction: discord.Interaction):
@@ -90,7 +94,7 @@ class MediaSelectionView(discord.ui.View):
             await interaction.edit_original_response(embed=thinking_embed)
 
         try:
-            user_instructions = get_user_instructions(self.original_interaction.user.id)
+            user_instructions = get_user_instructions(self.original_interaction.user.id, self.original_interaction.user.display_name)
             
             if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
                 answer, think_text = await asyncio.wait_for(
@@ -342,7 +346,7 @@ async def prompt_command(
     await interaction.response.send_message(embed=thinking_embed)
 
     try:
-        user_instructions = get_user_instructions(interaction.user.id)
+        user_instructions = get_user_instructions(interaction.user.id, interaction.user.display_name)
         
         if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
             answer, think_text = await asyncio.wait_for(
@@ -392,4 +396,3 @@ async def prompt_command(
         await interaction.edit_original_response(embed=response_embed, view=view)
     else:
         await interaction.edit_original_response(embed=response_embed)
-    

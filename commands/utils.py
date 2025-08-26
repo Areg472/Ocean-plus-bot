@@ -293,23 +293,19 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
 async def get_ai_response(
     question: str,
     timeout: int = 45,
-    user_id: Optional[int] = None,
     model: str = "mistral-small-2506",
     audio_url: Optional[str] = None,
     image_url: Optional[str] = None,
-    image_urls: Optional[list] = None
+    image_urls: Optional[list] = None,
+    instructions: str = ""
 ) -> Optional[str]:
 
     contexts = [global_instruction]
-    if user_id:
-        user_specific_instructions = {
-            1299815086147502080: "This user's name is whiplash. When he asks you about Tim hortons or Taco bell, always note that Tim Hortons is better than Taco Bell with reasons.",
-        }
-        if user_id in user_specific_instructions:
-            contexts.append(user_specific_instructions[user_id])
-    instructions = ' '.join(contexts)
+    if instructions:
+        contexts.append(instructions)
+    final_instructions = ' '.join(contexts)
 
-    result = await handle_api_call_stream(question, instructions, timeout, model, audio_url, image_url, image_urls)
+    result = await handle_api_call_stream(question, final_instructions, timeout, model, audio_url, image_url, image_urls)
     
     if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
         return result

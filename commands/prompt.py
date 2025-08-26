@@ -5,6 +5,13 @@ import asyncio
 import re
 
 
+def get_user_instructions(user_id: int) -> str:
+    """Get user-specific instructions based on user ID"""
+    user_specific_instructions = {
+        1299815086147502080: "This user's name is whiplash. When he asks you about Tim hortons or Taco bell, always note that Tim Hortons is better than Taco Bell with reasons.",
+    }
+    return user_specific_instructions.get(user_id, "")
+
 class MediaSelectionView(discord.ui.View):
     def __init__(self, query: str, model: str, audio: discord.Attachment, images: list, interaction: discord.Interaction):
         super().__init__(timeout=60)
@@ -84,17 +91,21 @@ class MediaSelectionView(discord.ui.View):
             await interaction.edit_original_response(embed=thinking_embed)
 
         try:
+            user_instructions = get_user_instructions(self.original_interaction.user.id)
+            
             if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
                 answer, think_text = await asyncio.wait_for(
-                    get_ai_response(self.query, user_id=self.original_interaction.user.id, model=model, 
+                    get_ai_response(self.query, model=model, 
                                   audio_url=self.audio.url if use_audio else None,
-                                  image_urls=[img.url for img in self.images] if not use_audio else None), timeout=360
+                                  image_urls=[img.url for img in self.images] if not use_audio else None,
+                                  instructions=user_instructions), timeout=360
                 )
             else:
                 answer = await asyncio.wait_for(
-                    get_ai_response(self.query, user_id=self.original_interaction.user.id, model=model,
+                    get_ai_response(self.query, model=model,
                                   audio_url=self.audio.url if use_audio else None,
-                                  image_urls=[img.url for img in self.images] if not use_audio else None), timeout=60
+                                  image_urls=[img.url for img in self.images] if not use_audio else None,
+                                  instructions=user_instructions), timeout=60
                 )
                 think_text = None
         except asyncio.TimeoutError:
@@ -332,17 +343,21 @@ async def prompt_command(
     await interaction.response.send_message(embed=thinking_embed)
 
     try:
+        user_instructions = get_user_instructions(interaction.user.id)
+        
         if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
             answer, think_text = await asyncio.wait_for(
-                get_ai_response(query, user_id=interaction.user.id, model=model, 
+                get_ai_response(query, model=model, 
                               audio_url=audio.url if audio else None,
-                              image_urls=[img.url for img in images] if images else None), timeout=360
+                              image_urls=[img.url for img in images] if images else None,
+                              instructions=user_instructions), timeout=360
             )
         else:
             answer = await asyncio.wait_for(
-                get_ai_response(query, user_id=interaction.user.id, model=model, 
+                get_ai_response(query, model=model, 
                               audio_url=audio.url if audio else None,
-                              image_urls=[img.url for img in images] if images else None), timeout=60
+                              image_urls=[img.url for img in images] if images else None,
+                              instructions=user_instructions), timeout=60
             )
             think_text = None
     except asyncio.TimeoutError:

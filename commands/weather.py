@@ -10,7 +10,7 @@ class WeatherSummaryView(discord.ui.View):
         self.weather_data = weather_data
         self.location = location
     
-    @discord.ui.button(label="AI Weather Summary", style=discord.ButtonStyle.primary, emoji="🤖")
+    @discord.ui.button(label="AI Weather Summary", style=discord.ButtonStyle.secondary, emoji="🤖")
     async def weather_summary(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         
@@ -38,7 +38,6 @@ Current Weather:
             ai_response = await get_ai_response(
                 question=weather_prompt,
                 model="magistral-small-2507",
-                user_id=interaction.user.id
             )
             
             if isinstance(ai_response, tuple):

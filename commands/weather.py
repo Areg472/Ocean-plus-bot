@@ -56,6 +56,7 @@ Current Weather:
             await interaction.followup.send(embed=summary_embed, ephemeral=True)
             
         except Exception as e:
+            print(f"Weather AI summary error for user {interaction.user.id}: {str(e)}")
             error_embed = discord.Embed(
                 title="Summary Error",
                 description="Sorry, I couldn't generate a weather summary at the moment. Please try again later.",

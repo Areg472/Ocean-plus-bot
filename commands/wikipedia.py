@@ -74,25 +74,25 @@ async def wiki_search_command(interaction: discord.Interaction, query: str):
         page = wiki.page(query)
 
         if page.exists():
-            if page.summary <= page.summary[:500]:
+            if page.summary <= page.summary[:300]:
                 embed = discord.Embed(
                     title=page.title,
                     url=page.fullurl,
                     description=page.summary,
                     color=discord.Color.blue()
                 )
-            elif page.summary > page.summary[:500]:
+            elif page.summary > page.summary[:300]:
                 embed = discord.Embed(
                     title=page.title,
                     url=page.fullurl,
-                    description=page.summary[:500] + "...",
+                    description=page.summary[:300] + "...",
                     color=discord.Color.blue()
                 )
             
             view = WikipediaSummaryView(page)
             await interaction.response.send_message(embed=embed, view=view)
         else:
-            await interaction.response.send_message(f"Could not find Wikipedia article for '{query}'")
+            await interaction.response.send_message(f"Could not find Wikipedia article for '{query}'", ephemeral=True)
 
     except Exception as e:
-        await interaction.response.send_message(f"An error occurred: {str(e)}")
+        await interaction.response.send_message(f"An error occurred: {str(e)}", ephemeral=True)

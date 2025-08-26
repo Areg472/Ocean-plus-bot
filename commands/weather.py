@@ -5,17 +5,17 @@ from typing import Optional
 from commands.utils import cooldown, get_ai_response
 
 class WeatherSummaryView(discord.ui.View):
-    def __init__(self, weather_data: dict, location: str):
+    def __init__(self, weather_data: dict, location: str, include_forecast: bool = True):
         super().__init__(timeout=300)
         self.weather_data = weather_data
         self.location = location
+        self.include_forecast = include_forecast
     
     @discord.ui.button(label="AI Weather Summary", style=discord.ButtonStyle.secondary, emoji="🤖")
     async def weather_summary(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         
         current = self.weather_data['message'][0]['current']
-        forecast_data = self.weather_data['message'][0]['forecast']
         
         weather_prompt = f"""Analyze this weather data for {self.location} and provide a concise, helpful summary:
 
@@ -24,20 +24,31 @@ Current Weather:
 - Condition: {current['skytext']}
 - Humidity: {current['humidity']}%
 - Wind Speed: {current['windspeed']}
-
-5-Day Forecast:
 """
         
-        for i, day in enumerate(forecast_data[:5]):
-            day_name = "Today" if i == 0 else ("Tomorrow" if i == 1 else day['day'])
-            weather_prompt += f"- {day_name}: High {day['high']}°C, Low {day['low']}°C - {day['skytextday']}\n"
-        
-        weather_prompt += "\nProvide insights about the weather pattern, any notable changes, and practical advice for the upcoming days. Keep it under 1500 characters."
+        if self.include_forecast:
+            forecast_data = self.weather_data['message'][0]['forecast']
+            weather_prompt += "\n5-Day Forecast:\n"
+            
+            for i, day in enumerate(forecast_data[:5]):
+                day_name = "Today" if i == 0 else ("Tomorrow" if i == 1 else day['day'])
+                weather_prompt += f"- {day_name}: High {day['high']}°C, Low {day['low']}°C - {day['skytextday']}\n"
+            
+            weather_prompt += "\nProvide insights about the weather pattern, any notable changes, and practical advice for the upcoming days. Keep it under 1500 characters."
+        else:
+            weather_prompt += "\nProvide insights about the current weather conditions and practical advice for today. Keep it under 1000 characters."
+
+        waiting_embed = discord.Embed(
+            title="🤔 Analyzing weather...",
+            description="Generating AI weather summary with Mistral...",
+            color=0x4285f4
+        )
+        await interaction.followup.send(embed=waiting_embed, ephemeral=True)
         
         try:
             ai_response = await get_ai_response(
                 question=weather_prompt,
-                model="magistral-small-2507",
+                model="mistral-small-2506",
             )
             
             if isinstance(ai_response, tuple):
@@ -52,7 +63,7 @@ Current Weather:
             )
             summary_embed.set_footer(text="Powered by Mistral AI")
             
-            await interaction.followup.send(embed=summary_embed, ephemeral=True)
+            await interaction.edit_original_response(embed=summary_embed)
             
         except Exception as e:
             print(f"Weather AI summary error for user {interaction.user.id}: {str(e)}")
@@ -61,7 +72,7 @@ Current Weather:
                 description="Sorry, I couldn't generate a weather summary at the moment. Please try again later.",
                 colour=discord.Colour.red()
             )
-            await interaction.followup.send(embed=error_embed, ephemeral=True)
+            await interaction.edit_original_response(embed=error_embed)
 
 def setup(bot):
     bot.tree.add_command(weather_command)
@@ -112,5 +123,5 @@ async def weather_command(interaction: discord.Interaction, location: str, forec
             name="Feels Like", value=f"{feels_like}°C", inline=False).add_field(
             name="Humidity", value=f"{humidity}%", inline=False).add_field(
             name="Wind Speed", value=f"The speed is: {wind_speed}", inline=False)
-    view = WeatherSummaryView(json_data, location)
+    view = WeatherSummaryView(json_data, location, forecast)
     await interaction.response.send_message(embed=weather_data, view=view)

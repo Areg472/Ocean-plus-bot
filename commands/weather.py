@@ -7,6 +7,7 @@ from commands.utils import cooldown, get_ai_response
 def get_user_instructions(user_id: int) -> str:
     user_specific_instructions = {
         1299815086147502080: "This user's name is whiplash. When summarizing the weather, compare the conditions, if it's good for going out to Tim Hortons, and if it's great weather to avoid Taco Bell",
+        960524267164930128: "This user's name is Areg. When summarizing the weather, compare the conditions, if it's good for going out to Tim Hortons, and if it's great weather to avoid Taco Bell",
     }
     return user_specific_instructions.get(user_id, "")
 

@@ -393,5 +393,4 @@ async def prompt_command(
         await interaction.edit_original_response(embed=response_embed, view=view)
     else:
         await interaction.edit_original_response(embed=response_embed)
-        await interaction.edit_original_response(embed=response_embed)
-        await interaction.edit_original_response(embed=response_embed)
+    

@@ -51,7 +51,7 @@ async def help_command(interaction: discord.Interaction):
         for cmd, desc in page_commands:
             embed.add_field(name=cmd, value=desc, inline=False)
 
-        embed.set_footer(text="Made by Areg, the creator of Ocean+. Thanks to Its_Padar for helping me with the code, make sure to give him a follow on BlueSky!")
+        embed.set_footer(text="Made by Areg, the creator of Ocean+. Thanks to Its_Padar for helping me with some of the code, make sure to give him a follow on BlueSky!")
         pages.append(embed)
 
     class HelpView(discord.ui.View):

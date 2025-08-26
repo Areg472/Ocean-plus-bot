@@ -49,7 +49,7 @@ Current Weather:
             description="Generating AI weather summary with Mistral...",
             color=0x4285f4
         )
-        await interaction.followup.send(embed=waiting_embed, ephemeral=True)
+        waiting_message = await interaction.followup.send(embed=waiting_embed, ephemeral=True)
         
         try:
             user_instructions = get_user_instructions(interaction.user.id)
@@ -72,7 +72,7 @@ Current Weather:
             )
             summary_embed.set_footer(text="Powered by Mistral AI")
             
-            await interaction.edit_original_response(embed=summary_embed)
+            await waiting_message.edit(embed=summary_embed)
             
         except Exception as e:
             print(f"Weather AI summary error for user {interaction.user.id}: {str(e)}")
@@ -81,7 +81,7 @@ Current Weather:
                 description="Sorry, I couldn't generate a weather summary at the moment. Please try again later.",
                 colour=discord.Colour.red()
             )
-            await interaction.edit_original_response(embed=error_embed)
+            await waiting_message.edit(embed=error_embed)
 
 def setup(bot):
     bot.tree.add_command(weather_command)

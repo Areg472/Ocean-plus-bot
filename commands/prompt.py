@@ -6,7 +6,6 @@ import re
 
 
 def get_user_instructions(user_id: int) -> str:
-    """Get user-specific instructions based on user ID"""
     user_specific_instructions = {
         1299815086147502080: "This user's name is whiplash. When he asks you about Tim hortons or Taco bell, always note that Tim Hortons is better than Taco Bell with reasons.",
     }

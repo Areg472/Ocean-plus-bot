@@ -6,6 +6,7 @@ from typing import Optional
 import re
 import socket
 from urllib.parse import urlparse
+from .utils import moderate_content
 
 global_instruction = (
     "Provide a detailed and structured response under 2150 characters. "
@@ -120,6 +121,12 @@ async def perplexity_command(
                 f"Error: Invalid or non-existent domains/URLs: {', '.join(invalid_domains)}", ephemeral=True
             )
             return
+        
+    if await moderate_content(query):
+        thinking_embed.description = "Your message has been flagged by our content moderation system lol(OpenAI model btw). Please revise your input."
+        await interaction.edit_original_response(embed=thinking_embed)
+        return
+    
     result, filtered_citations = perplexity_search(query, context_size, domain_list)
     output_embed = discord.Embed(
         title="🔎 Perplexity AI Result",

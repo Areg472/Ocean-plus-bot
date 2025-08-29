@@ -122,12 +122,13 @@ async def perplexity_command(
             )
             return
         
-    if await moderate_content(query):
-        thinking_embed.description = "Your message has been flagged by our content moderation system lol(OpenAI model btw). Please revise your input."
-        await interaction.edit_original_response(embed=thinking_embed)
-        return
+    moderation_flagged = await moderate_content(query)
     
-    result, filtered_citations = perplexity_search(query, context_size, domain_list)
+    if moderation_flagged:
+        result = None
+        filtered_citations = None
+    else:
+        result, filtered_citations = perplexity_search(query, context_size, domain_list)
     output_embed = discord.Embed(
         title="🔎 Perplexity AI Result",
         color=0x34a853
@@ -146,6 +147,12 @@ async def perplexity_command(
                 value=chunk,
                 inline=False
             )
+    elif moderation_flagged:
+        output_embed.add_field(
+            name="Answer", 
+            value="Your message has been flagged by our content moderation system lol(OpenAI model btw). Please revise your input.",
+            inline=False
+        )
     else:
         output_embed.add_field(name="Answer", value="No response from Perplexity.", inline=False)
 

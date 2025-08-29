@@ -338,10 +338,10 @@ async def prompt_command(
     else:
         thinking_embed.add_field(name="Prompt", value=query, inline=False)
     if audio:
-        thinking_embed.add_field(name="Audio File", value=f"📎 {audio.filename} (using {model_name})", inline=False)
+        thinking_embed.add_field(name="Audio File", value=f"📎 {audio.filename}", inline=False)
     elif images:
         image_names = [img.filename for img in images]
-        thinking_embed.add_field(name="Image Files", value=f"🖼️ {', '.join(image_names)} (using {model_name})", inline=False)
+        thinking_embed.add_field(name="Image Files", value=f"🖼️ {', '.join(image_names)}", inline=False)
 
     await interaction.response.send_message(embed=thinking_embed)
 

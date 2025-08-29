@@ -305,6 +305,9 @@ async def get_ai_response(
         contexts.append(instructions)
     final_instructions = ' '.join(contexts)
 
+    if await moderate_content(question):
+        return "Your message has been flagged by our content moderation system lol(OpenAI model btw). Please revise your input.", None
+
     result = await handle_api_call_stream(question, final_instructions, timeout, model, audio_url, image_url, image_urls)
     
     if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
@@ -320,3 +323,17 @@ def set_global_context(context: str):
 
 def get_global_context() -> str:
     return global_instruction
+
+async def moderate_content(content: str) -> bool:
+    try:
+        def sync_moderate():
+            response = openAI_client.moderations.create(
+                model="omni-moderation-latest",
+                input=content
+            )
+            return response.results[0].flagged
+        
+        return await asyncio.to_thread(sync_moderate)
+    except Exception as e:
+        print(f"Moderation error: {e}")
+        return False

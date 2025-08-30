@@ -8,7 +8,7 @@ def get_translation(text, target_language):
     response = requests.get(f'https://api.popcat.xyz/v2/translate?to={target_language}&text={text}')
     if response.status_code == 200:
         json_data = response.json()
-        return json_data['translated']
+        return json_data['message']['translated']
     else:
         return "Could not fetch the translation at this time."
 

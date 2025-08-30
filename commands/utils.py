@@ -297,8 +297,16 @@ async def get_ai_response(
     audio_url: Optional[str] = None,
     image_url: Optional[str] = None,
     image_urls: Optional[list] = None,
-    instructions: str = ""
+    instructions: str = "",
+    input_limit: bool = False
 ) -> Optional[str]:
+
+    if input_limit and len(question) > 3000:
+        error_msg = "Input exceeds the 3000 character limit. Please shorten your message."
+        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
+            return error_msg, None
+        else:
+            return error_msg
 
     contexts = [global_instruction]
     if instructions:

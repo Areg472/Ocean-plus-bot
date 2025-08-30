@@ -357,7 +357,7 @@ async def prompt_command(
             )
         else:
             answer = await asyncio.wait_for(
-                get_ai_response(query, model=model, 
+                get_ai_response(query, model=model, input_limit=True,
                               audio_url=audio.url if audio else None,
                               image_urls=[img.url for img in images] if images else None,
                               instructions=user_instructions), timeout=60

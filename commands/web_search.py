@@ -95,6 +95,10 @@ async def perplexity_command(
     context_size: str = "low",
     search_domain_filter: Optional[str] = None
 ):
+    if len(query) > 3000:
+        await interaction.response.send_message("Input exceeds the 3000 character limit. Please shorten your message.", ephemeral=True)
+        return
+
     print(f"[Perplexity] Received interaction from {interaction.user} with query: {query}, context_size: {context_size}, search_domain_filter: {search_domain_filter}")
     thinking_embed = discord.Embed(
         title="🌐 Searching Perplexity...",

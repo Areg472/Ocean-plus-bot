@@ -129,7 +129,7 @@ async def perplexity_command(
         
     moderation_flagged = await moderate_content(query)
     
-    if moderation_flagged:
+    if moderation_flagged or input_limit:
         result = None
         filtered_citations = None
     else:

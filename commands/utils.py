@@ -157,22 +157,20 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                         )
                         return response
                     elif model.startswith("gpt-4.1"):
-                        content = [{"type": "text", "text": prompt}]
+                        content = [{"type": "input_text", "text": prompt}]
                         
                         if image_urls:
-                            for img_url in image_urls:
-                                content.append({"type": "image_url", "image_url": {"url": img_url}})
+                            content.extend({"type": "input_image", "image_url": url} for url in image_urls)
                         elif image_url:
-                            content.append({"type": "image_url", "image_url": {"url": image_url}})
+                            content.append({"type": "input_image", "image_url": image_url})
                         
-                        messages = [
-                            {"role": "system", "content": instructions},
-                            {"role": "user", "content": content}
-                        ]
-                        
-                        response = openAI_client.chat.completions.create(
+                        response = openAI_client.responses.create(
                             model=model,
-                            messages=messages
+                            input=[{
+                                "role": "user",
+                                "content": content
+                            }],
+                            service_tier="flex"
                         )
                         return response
                     else:
@@ -205,7 +203,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                         think_text = response.output[0].summary[0].text if response.output[0].summary else None
                     return response_text, think_text
                 elif model.startswith("gpt-4.1"):
-                    response_text = response.choices[0].message.content if response.choices else "No content received from GPT."
+                    response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT."
                     think_text = None
                     return response_text, think_text
                 else:
@@ -238,14 +236,14 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                         )
                         return response
                     else:
-                        messages = [
-                            {"role": "system", "content": instructions},
-                            {"role": "user", "content": prompt}
-                        ]
+                        content = [{"type": "input_text", "text": prompt}]
                         
                         response = openAI_client.responses.create(
                             model=model,
-                            messages=messages
+                            input=[{
+                                "role": "user",
+                                "content": content
+                            }],
                         )
                         return response
 
@@ -259,7 +257,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                         think_text = response.output[0].summary[0].text if response.output[0].summary else None
                     return response_text, think_text
                 else:
-                    response_text = response.choices[0].message.content if response.choices else "No content received from GPT."
+                    response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT."
                     think_text = None
                     return response_text, think_text
             else:

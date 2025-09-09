@@ -185,10 +185,6 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                     if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"] and response.output and len(response.output) > 0 and hasattr(response.output[0], 'summary') and response.output[0].summary:
                         think_text = response.output[0].summary[0].text if response.output[0].summary else None
                     return response_text, think_text
-                elif model.startswith("gpt-4.1"):
-                    response_text = response.output[1].content[0].text if response.output and len(response.output) > 1 and response.output[1].content else "No content received from GPT."
-                    think_text = None
-                    return response_text, think_text
                 else:
                     response_text = response.choices[0].message.content if response.choices else "No content received from Mistral."
                     think_text = None

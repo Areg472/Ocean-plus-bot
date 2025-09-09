@@ -135,7 +135,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 "o4-mini"
             ] and (image_url or image_urls):
                 def sync_image():
-                    if model.startswith("gpt-5") or model == "o4-mini":
+                    if model.startswith("gpt-") or model == "o4-mini":
                         content = [{"type": "input_text", "text": prompt}]
                         
                         if image_urls:
@@ -154,23 +154,6 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                                 "effort": "medium",
                                 "summary": "auto"
                             } if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"] else None
-                        )
-                        return response
-                    elif model.startswith("gpt-4.1"):
-                        content = [{"type": "input_text", "text": prompt}]
-                        
-                        if image_urls:
-                            content.extend({"type": "input_image", "image_url": url} for url in image_urls)
-                        elif image_url:
-                            content.append({"type": "input_image", "image_url": image_url})
-                        
-                        response = openAI_client.responses.create(
-                            model=model,
-                            input=[{
-                                "role": "user",
-                                "content": content
-                            }],
-                            service_tier="flex"
                         )
                         return response
                     else:

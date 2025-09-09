@@ -243,7 +243,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                             {"role": "user", "content": prompt}
                         ]
                         
-                        response = openAI_client.chat.completions.create(
+                        response = openAI_client.responses.create(
                             model=model,
                             messages=messages
                         )

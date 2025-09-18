@@ -96,11 +96,19 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                 
                 response_text = await asyncio.to_thread(sync_voxtral)
                 think_text = None
-            elif model in ["magistral-small-2507", "magistral-medium-2507"]:
+            elif model in ["magistral-small-2509", "magistral-medium-2509"]:
                 def sync_stream():
+                    content = [{"type": "text", "text": prompt}]
+                    
+                    if image_urls:
+                        for img_url in image_urls:
+                            content.append({"type": "image_url", "image_url": img_url})
+                    elif image_url:
+                        content.append({"type": "image_url", "image_url": image_url})
+                    
                     messages = [
                         {"role": "system", "content": instructions},
-                        {"role": "user", "content": prompt}
+                        {"role": "user", "content": content}
                     ]  
 
                     response = client.chat.complete(
@@ -109,7 +117,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                     )
                     print(response)
                     
-                    if model in ["magistral-small-2507", "magistral-medium-2507"] and response.choices:
+                    if model in ["magistral-small-2509", "magistral-medium-2509"] and response.choices:
                         content = response.choices[0].message.content
                         if isinstance(content, list):
                             think_text = None
@@ -130,7 +138,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
 
                 response_text, think_text = await asyncio.to_thread(sync_stream)
             elif model in [
-                "mistral-small-2506","mistral-medium-2508","gpt-5-nano",
+                "mistral-small-2506","mistral-medium-2508","magistral-small-2509","magistral-medium-2509","gpt-5-nano",
                 "gpt-5-mini","gpt-5","gpt-4.1","gpt-4.1-mini","gpt-4.1-nano",
                 "o4-mini"
             ] and (image_url or image_urls):
@@ -180,7 +188,6 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
 
                 if model.startswith("gpt-5") or model == "o4-mini":
                     print(response)
-                    # Direct access based on JSON structure: message at index 1, reasoning at index 0
                     response_text = response.output[1].content[0].text if len(response.output) > 1 and response.output[1].content else "No content received from GPT."
                     think_text = response.output[0].summary[0].text if len(response.output) > 0 and response.output[0].summary else None
                     return response_text, think_text
@@ -189,6 +196,25 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                     response_text = response.output[0].content[0].text if response.output and response.output[0].content else "No content received from GPT."
                     think_text = None
                     return response_text, think_text
+                elif model in ["magistral-small-2509", "magistral-medium-2509"]:
+                    if response.choices:
+                        content = response.choices[0].message.content
+                        if isinstance(content, list):
+                            think_text = None
+                            response_text = ""
+                            
+                            for chunk in content:
+                                if hasattr(chunk, 'type') and chunk.type == 'thinking':
+                                    if hasattr(chunk, 'thinking') and chunk.thinking:
+                                        think_text = chunk.thinking[0].text if chunk.thinking else None
+                                elif hasattr(chunk, 'type') and chunk.type == 'text':
+                                    response_text = chunk.text
+                            
+                            return response_text, think_text
+                        else:
+                            return content if content else "No content received from Magistral.", None
+                    else:
+                        return "No content received from Magistral.", None
                 else:
                     response_text = response.choices[0].message.content if response.choices else "No content received from Mistral."
                     think_text = None
@@ -257,7 +283,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
             elapsed = time.time() - start_time
             print(f"The API provider for AI responded in {elapsed:.2f}s")
 
-            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
+            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2509", "magistral-medium-2509", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
                 return response_text.strip() if response_text else "No content received from the AI.", think_text
             else:
                 return response_text.strip() if response_text else "No content received from the AI.", None
@@ -281,7 +307,7 @@ async def get_ai_response(
 
     if input_limit and len(question) > 3000:
         error_msg = "Input exceeds the 3000 character limit. Please shorten your message."
-        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
+        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2509", "magistral-medium-2509", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
             return error_msg, None
         else:
             return error_msg
@@ -293,14 +319,14 @@ async def get_ai_response(
 
     if await moderate_content(question, audio_url):
         error_msg = "Your message has been flagged by our content moderation system lol(OpenAI model btw). Please revise your input."
-        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
+        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2509", "magistral-medium-2509", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
             return error_msg, None
         else:
             return error_msg
 
     result = await handle_api_call_stream(question, final_instructions, timeout, model, audio_url, image_url, image_urls)
     
-    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2507", "magistral-medium-2507", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
+    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2509", "magistral-medium-2509", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
         return result
     else:
         return result[0] if isinstance(result, tuple) else result 

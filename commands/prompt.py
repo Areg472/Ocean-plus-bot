@@ -36,19 +36,19 @@ class MediaSelectionView(discord.ui.View):
 
     async def process_prompt(self, interaction: discord.Interaction, use_audio: bool):
         if use_audio:
-            model = "voxtral-mini-2507" if self.model not in ["voxtral-mini-2507", "voxtral-small-2507"] else self.model
-            model_name = "Voxtral Mini" if model == "voxtral-mini-2507" else "Voxtral Small"
+            model = "voxtral-mini-latest" if self.model not in ["voxtral-mini-latest", "voxtral-small-latest"] else self.model
+            model_name = "Voxtral Mini" if model == "voxtral-mini-latest" else "Voxtral Small"
             media_description = f"📎 {self.audio.filename}"
         else:
-            model = "mistral-small-2506" if self.model not in [
-                "mistral-small-2506","mistral-medium-2508","magistral-small-2509","magistral-medium-2509","gpt-5-nano",
+            model = "mistral-small-latest" if self.model not in [
+                "mistral-small-latest","mistral-medium-latest","magistral-small-latest","magistral-medium-latest","gpt-5-nano",
                 "gpt-5-mini","gpt-5","gpt-4.1","gpt-4.1-mini","gpt-4.1-nano",
                 "o4-mini"
             ] else self.model
 
-            if model == "mistral-small-2506":
+            if model == "mistral-small-latest":
                 model_name = "Mistral Small"
-            elif model == "mistral-medium-2508":
+            elif model == "mistral-medium-latest":
                 model_name = "Mistral Medium"
             elif model == "gpt-5-nano":
                 model_name = "GPT 5 Nano"
@@ -82,7 +82,7 @@ class MediaSelectionView(discord.ui.View):
 
         thinking_models = [
             "deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput",
-            "magistral-small-2509", "magistral-medium-2509", "openai/gpt-oss-120b",
+            "magistral-small-latest", "magistral-medium-latest", "openai/gpt-oss-120b",
             "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"
         ]
         if model in thinking_models:
@@ -96,7 +96,7 @@ class MediaSelectionView(discord.ui.View):
         try:
             user_instructions = get_user_instructions(self.original_interaction.user.id, self.original_interaction.user.display_name)
             
-            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2509", "magistral-medium-2509", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
+            if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-latest", "magistral-medium-latest", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
                 answer, think_text = await asyncio.wait_for(
                     get_ai_response(self.query, model=model, 
                                   audio_url=self.audio.url if use_audio else None,
@@ -139,7 +139,7 @@ class MediaSelectionView(discord.ui.View):
         else:
             response_embed.add_field(name="Answer", value=answer, inline=False)
 
-        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2509", "magistral-medium-2509", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"] and think_text:
+        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-latest", "magistral-medium-latest", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"] and think_text:
             view = ThinkingButtonView(think_text)
             await interaction.edit_original_response(embed=response_embed, view=view)
         else:
@@ -199,21 +199,21 @@ def setup(bot):
 
 
 MODEL_CHOICES = [
-    app_commands.Choice(name="Voxtral Mini", value="voxtral-mini-2507"),
-    app_commands.Choice(name="Mistral Small", value="mistral-small-2506"),
+    app_commands.Choice(name="Voxtral Mini", value="voxtral-mini-latest"),
+    app_commands.Choice(name="Mistral Small", value="mistral-small-latest"),
     app_commands.Choice(name="GPT 5 Nano (Thinking)", value="gpt-5-nano"),
-    app_commands.Choice(name="Voxtral Small", value="voxtral-small-2507"),
+    app_commands.Choice(name="Voxtral Small", value="voxtral-small-latest"),
     app_commands.Choice(name="GPT 4.1 Nano", value="gpt-4.1-nano"),
     app_commands.Choice(name="GPT OSS (Thinking)", value="openai/gpt-oss-120b"),
     app_commands.Choice(name="Qwen 3 (Thinking)", value="Qwen/Qwen3-235B-A22B-fp8-tput"),
     app_commands.Choice(name="GPT 5 Mini (Thinking)", value="gpt-5-mini"),
-    app_commands.Choice(name="Magistral Small (Thinking)", value="magistral-small-2509"),
+    app_commands.Choice(name="Magistral Small (Thinking)", value="magistral-small-latest"),
     app_commands.Choice(name="GPT 4.1 Mini", value="gpt-4.1-mini"),
-    app_commands.Choice(name="Mistral Medium", value="mistral-medium-2508"),
+    app_commands.Choice(name="Mistral Medium", value="mistral-medium-latest"),
     app_commands.Choice(name="DeepSeek R1 (Thinking)", value="deepseek-ai/DeepSeek-R1-0528-tput"),
     app_commands.Choice(name="o4 Mini (Thinking)", value="o4-mini"),
     app_commands.Choice(name="GPT 5 (Thinking)", value="gpt-5"),
-    app_commands.Choice(name="Magistral Medium (Thinking)", value="magistral-medium-2509"),
+    app_commands.Choice(name="Magistral Medium (Thinking)", value="magistral-medium-latest"),
     app_commands.Choice(name="GPT 4.1", value="gpt-4.1"),
 ]
 
@@ -233,7 +233,7 @@ MODEL_CHOICES = [
 async def prompt_command(
     interaction: discord.Interaction,
     query: str,
-    model: str = "mistral-small-2506",
+    model: str = "mistral-small-latest",
     image: discord.Attachment = None,
     image2: discord.Attachment = None,
     image3: discord.Attachment = None,
@@ -282,34 +282,34 @@ async def prompt_command(
             await interaction.response.send_message("Please upload a valid audio file.", ephemeral=True)
             return
         
-        if model not in ["voxtral-mini-2507", "voxtral-small-2507"]:
-            model = "voxtral-mini-2507"
+        if model not in ["voxtral-mini-latest", "voxtral-small-latest"]:
+            model = "voxtral-mini-latest"
     elif images:
-        if model not in ["mistral-small-2506","mistral-medium-2508","magistral-small-2509","magistral-medium-2509",
+        if model not in ["mistral-small-latest","mistral-medium-latest","magistral-small-latest","magistral-medium-latest",
                          "gpt-5-nano","gpt-5-mini","gpt-5","gpt-4.1",
                          "gpt-4.1-mini","gpt-4.1-nano","o4-mini"]:
-            model = "mistral-small-2506"
+            model = "mistral-small-latest"
     else:
-        if model in ["voxtral-mini-2507", "voxtral-small-2507"]:
-            model = "mistral-small-2506"
+        if model in ["voxtral-mini-latest", "voxtral-small-latest"]:
+            model = "mistral-small-latest"
 
-    if model == "mistral-small-2506":
+    if model == "mistral-small-latest":
         model_name = "Mistral Small"
-    elif model == "magistral-small-2509":
+    elif model == "magistral-small-latest":
         model_name = "Magistral Small"
-    elif model == "mistral-medium-2508":
+    elif model == "mistral-medium-latest":
         model_name = "Mistral Medium"
     elif model == "openai/gpt-oss-120b":
         model_name = "GPT OSS"
     elif model == "Qwen/Qwen3-235B-A22B-fp8-tput":
         model_name = "Qwen 3"
-    elif model == "magistral-medium-2509":
+    elif model == "magistral-medium-latest":
         model_name = "Magistral Medium"
     elif model == "deepseek-ai/DeepSeek-R1-0528-tput":
         model_name = "DeepSeek R1"
-    elif model == "voxtral-mini-2507":
+    elif model == "voxtral-mini-latest":
         model_name = "Voxtral Mini"
-    elif model == "voxtral-small-2507":
+    elif model == "voxtral-small-latest":
         model_name = "Voxtral Small"
     elif model == "gpt-5-mini":
         model_name = "GPT 5 Mini"
@@ -348,7 +348,7 @@ async def prompt_command(
     try:
         user_instructions = get_user_instructions(interaction.user.id, interaction.user.display_name)
         
-        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2509", "magistral-medium-2509", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
+        if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-latest", "magistral-medium-latest", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"]:
             answer, think_text = await asyncio.wait_for(
                 get_ai_response(query, model=model, 
                               audio_url=audio.url if audio else None,
@@ -391,7 +391,7 @@ async def prompt_command(
     else:
         response_embed.add_field(name="Answer", value=answer, inline=False)
 
-    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-2509", "magistral-medium-2509", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"] and think_text:
+    if model in ["deepseek-ai/DeepSeek-R1-0528-tput", "Qwen/Qwen3-235B-A22B-fp8-tput", "magistral-small-latest", "magistral-medium-latest", "openai/gpt-oss-120b", "gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"] and think_text:
         view = ThinkingButtonView(think_text or "No thinking output available.")
         await interaction.edit_original_response(embed=response_embed, view=view)
     else:

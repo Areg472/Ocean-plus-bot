@@ -54,8 +54,6 @@ class MediaSelectionView(discord.ui.View):
                 model_name = "GPT 5 Nano"
             elif model == "gpt-5-mini":
                 model_name = "GPT 5 Mini"
-            elif model == "gpt-5":
-                model_name = "GPT 5"
             elif model == "gpt-5.1":
                 model_name = "GPT 5.1"
             elif model == "gpt-4.1":
@@ -214,7 +212,6 @@ MODEL_CHOICES = [
     app_commands.Choice(name="Mistral Medium", value="mistral-medium-latest"),
     app_commands.Choice(name="DeepSeek R1 (Thinking)", value="deepseek-ai/DeepSeek-R1-0528-tput"),
     app_commands.Choice(name="o4 Mini (Thinking)", value="o4-mini"),
-    app_commands.Choice(name="GPT 5 (Thinking)", value="gpt-5"),
     app_commands.Choice(name="GPT 5.1 (Thinking)", value="gpt-5.1"),
     app_commands.Choice(name="Magistral Medium (Thinking)", value="magistral-medium-latest"),
     app_commands.Choice(name="GPT 4.1", value="gpt-4.1"),
@@ -316,8 +313,6 @@ async def prompt_command(
         model_name = "GPT 5 Mini"
     elif model == "gpt-5-nano":
         model_name = "GPT 5 Nano"
-    elif model == "gpt-5":
-        model_name = "GPT 5"
     elif model == "gpt-5.1":
         model_name = "GPT 5.1"
     elif model == "gpt-4.1":

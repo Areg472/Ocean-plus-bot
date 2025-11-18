@@ -157,11 +157,11 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                                 "role": "user",
                                 "content": content
                             }],
-                            **({"service_tier": "flex"} if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"] else {}),
+                            **({"service_tier": "flex"} if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5.1", "o4-mini"] else {}),
                             reasoning={
                                 "effort": "medium",
                                 "summary": "auto"
-                            } if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"] else None
+                            } if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5.1", "o4-mini"] else None
                         )
                         return response
                     else:
@@ -238,7 +238,7 @@ async def handle_api_call_stream(prompt: str, instructions: str = "", timeout: i
                             reasoning={
                                 "effort": "medium",
                                 "summary": "auto"
-                            } if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5", "o4-mini"] else None
+                            } if model in ["gpt-5-nano", "gpt-5-mini", "gpt-5.1", "o4-mini"] else None
                         )
                         return response
                     else:
